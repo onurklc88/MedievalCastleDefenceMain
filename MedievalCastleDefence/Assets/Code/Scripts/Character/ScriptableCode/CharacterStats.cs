@@ -1,0 +1,23 @@
+using UnityEngine;
+
+
+
+
+[CreateAssetMenu(fileName = "CharacterStats", menuName = "ScriptableObjects/Character", order = 1)]
+public class CharacterStats : ScriptableObject
+{
+   public enum CharacterType
+   {
+        None,
+        FootKnight,
+        KnightCommander,
+        Gallowglass,
+        Bow,
+        Arbalet
+   }
+   public CharacterType WarriorType;
+   public float MoveSpeed;
+   public float SprintSpeed;    
+   public float TotalHealth;
+   public float Stamina;
+}
