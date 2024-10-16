@@ -5,14 +5,8 @@ using Fusion;
 public class KnightCommanderAttack : CharacterAttackBehaviour
 {
     private PlayerHUD _playerHUD;
-    private float _lastPosX;
-    private float _currentPosX;
     private KnightCommanderAnimation _knightCommanderAnimation;
   
-    private void Awake()
-    {
-        _lastPosX = Input.GetAxis("Mouse X");
-    }
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -51,10 +45,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
             if (_characterStamina.CurrentStamina > 30)
             {
-                if (base.GetSwordPosition() == SwordPosition.Left)
-                    SwingSwordLeft();
-                else
-                    SwingSwordRight();
+                SwingSword();
             }
         }
     }
@@ -84,28 +75,16 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             }
         }
     }
-
-    protected override void SwingSwordRight()
+    protected override void SwingSword()
     {
-        //Debug.Log("SwingSwordRight");
         if (IsPlayerBlockingLocal || !_characterController.isGrounded) return;
-        _knightCommanderAnimation.UpdateAttackAnimState(1);
+        _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition()));
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
-        StartCoroutine(CollisionDelay(0.1f, transform.position + transform.up + transform.forward + transform.right * 0.2f));
+        StartCoroutine(PerformAttack());
     }
-    protected override void SwingSwordLeft()
+    private IEnumerator PerformAttack()
     {
-       // Debug.Log("SwingSwordLeft");
-        if (IsPlayerBlockingLocal || !_characterController.isGrounded) return;
-        _knightCommanderAnimation.UpdateAttackAnimState(2);
-        AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
-        _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
-        StartCoroutine(CollisionDelay(0.5f, transform.position + transform.up + transform.forward + -transform.right * 0.2f));
-    }
-    private IEnumerator CollisionDelay(float seconds, Vector3 swingPos)
-    {
-        yield return new WaitForSeconds(seconds);
         float elapsedTime = 0f;
         while (elapsedTime < 0.5f)
         {
@@ -113,44 +92,17 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             if (_hitColliders.Length > 0)
             {
                 CheckAttackCollision(_hitColliders[0].transform.gameObject);
-                yield break; // Loop'u bitirir.
+                yield break;
             }
 
             elapsedTime += Time.deltaTime;
-            yield return null; // Bir sonraki frame'e kadar bekle.
+            yield return null; 
         }
-        /*
-        Collider[] _hitColliders = Physics.OverlapSphere(swingPos, 0.5f);
-        if (_hitColliders.Length > 0)
-        {
-            CheckAttackCollision(_hitColliders[0].transform.gameObject);
-        }
-        */
     }
 
-    public void Test()
-    {
-        /*
-        Debug.Log("Test");
-        Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward + transform.right * 0.2f, 0.5f);
-        if (_hitColliders.Length > 0)
-        {
-            CheckAttackCollision(_hitColliders[0].transform.gameObject);
-        }
-        */
-    }
     protected override void BlockWeapon()
     {
-       
-        if (!IsPlayerBlocking)
-        {
-            _knightCommanderAnimation.UpdateBlockAnimState(0);
-        }
-        else
-        {
-            _knightCommanderAnimation.UpdateBlockAnimState(((int)GetSwordPosition()));
-        }
-      
+        _knightCommanderAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
     }
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
@@ -172,38 +124,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         {
             opponentHealth.DealDamageRPC(damageValue);
         }
-        /*
-        if (dotValue > 0.39f && isOpponentBlocking)
-        {
-            var opponentSwordPos = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
-           // Debug.Log("OppenentSwordPos: " + opponentSwordPos+" PlayerSwordPos: " +PlayerSwordPositionLocal);
-            
-            if (opponentSwordPos == GetSwordPosition())
-            {
-               opponentHealth.DealDamageRPC(damageValue);
-            }
-            else if(GetSwordPosition() != SwordPosition.None && opponentSwordPos != GetSwordPosition())
-            {
-                opponentStamina.DecreaseStaminaRPC(40f);
-            }
-
-
-        }
-        else
-        {
-            opponentHealth.DealDamageRPC(damageValue);
-        }
-        */
-        /*
-        else if (dotValue >= 0 && !isOpponentParrying)
-        {
-            opponentHealth.DealDamageRPC(damageValue);
-        }
-        else if (dotValue < -0.3f)
-        {
-            opponentHealth.DealDamageRPC(damageValue);
-        }
-        */
     }
 
     private void OnDrawGizmos()
@@ -212,7 +132,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + -transform.right * 0.2f, 0.5f);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + transform.right * 0.2f, 0.5f);
-        //Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward / 0.94f, 0.3f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
 

@@ -6,7 +6,6 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
 {
     [Networked] protected TickTimer AttackCooldown { get; set; }
     [Networked] public NetworkButtons PreviousButton { get; set; }
-
     [Networked(OnChanged = nameof(OnNetworkBlockChanged))] public NetworkBool IsPlayerBlockingLocal { get; set; }
     [Networked(OnChanged = nameof(OnNetworkBlockPositionChanged))] public SwordPosition PlayerSwordPositionLocal { get; set; }
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
@@ -17,7 +16,6 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         Right,
         Left
     }
-
     [SerializeField] protected LayerMask _colliders;
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
@@ -31,6 +29,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     protected virtual void AttackCollision() { }
     protected virtual void SwingSwordRight() { }
     protected virtual void SwingSwordLeft() { }
+    protected virtual void SwingSword() { }
     protected virtual void BlockWeapon() { }
     protected virtual void DamageToFootknight(GameObject opponent, float damageValue) { }
     protected virtual void DamageToKnightCommander(GameObject opponent, float damageValue) { }
@@ -48,20 +47,8 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     
     protected SwordPosition GetSwordPosition() 
     {
-     
-        float mouseX = Input.GetAxis("Mouse X");
-        /*
-        if (mouseX > _movementTreshold)
-        {
-            _lastSwordPosition = SwordPosition.Right;
-        }
-        else if(mouseX < -_movementTreshold)
-        {
-            _lastSwordPosition = SwordPosition.Left;
-        }
-        */
-        _lastSwordPosition = mouseX > _movementTreshold ? SwordPosition.Right : mouseX < -_movementTreshold ? SwordPosition.Left :_lastSwordPosition;
-
+       float mouseX = Input.GetAxis("Mouse X");
+       _lastSwordPosition = mouseX > _movementTreshold ? SwordPosition.Right : mouseX < -_movementTreshold ? SwordPosition.Left :_lastSwordPosition;
         return _lastSwordPosition;
     }
   
@@ -91,33 +78,5 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
            return CharacterStats.CharacterType.None;
         }
     }
-    /*
-    protected void CheckAttackCollision(GameObject collidedObject)
-    {
-        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
-        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        if (collidedObject.transform.gameObject.layer == 3 && !collidedObject.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerParry) return;
-
-        if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
-        {
-            var opponentType = GetCharacterType(collidedObject);
-            switch (opponentType)
-            {
-                case CharacterStats.CharacterType.None:
-
-                    break;
-                case CharacterStats.CharacterType.FootKnight:
-                    DamageToFootknight(collidedObject, _weaponStats.Damage);
-                    break;
-                case CharacterStats.CharacterType.Gallowglass:
-                    break;
-                case CharacterStats.CharacterType.KnightCommander:
-                    break;
-
-            }
-        }
-    }
-    */
-
-
+   
 }
