@@ -107,15 +107,16 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     {
         if (changed.Behaviour.IsPlayerGetDamage == true) return;
         {
-           // changed.Behaviour.PlayDamageAnimation();
+            changed.Behaviour._animationController.Play("KnightCommander-Damage");
         }
     }
 
     private static void NetworkedStunnedAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
-        if (changed.Behaviour.IsPlayerStunned == true) return;
+        if (changed.Behaviour.IsPlayerStunned == false) return;
         {
-          //  changed.Behaviour.PlayStunAnimation();
+            changed.Behaviour._animationController.Play("KnightCommander-StunLowerBody");
+            changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody");
         }
     }
 
@@ -135,14 +136,13 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     }
     public override void UpdateDamageAnimationState()
     {
-        //IsPlayerGetDamage = true;
-        //StartCoroutine(WaitDamageAnimation());
+       StartCoroutine(WaitDamageAnimation());
     }
    
     public override void UpdateStunAnimationState()
     {
         IsPlayerStunned = true;
-        //StartCoroutine(WaitStunnedAnimation());
+        StartCoroutine(WaitStunnedAnimation());
     }
     public void UpdateParryAnimation()
     {
@@ -174,7 +174,13 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         SwingIndex = swingIndex;
         StartCoroutine(WaitAttack(0.5f));
     }
-
+    private IEnumerator WaitDamageAnimation()
+    {
+        yield return new WaitForSeconds(0.3f);
+        IsPlayerGetDamage = true;
+        yield return new WaitForSeconds(0.2f);
+        IsPlayerGetDamage = false;
+    }
     public void UpdateBlockAnimState(int blockPositionIndex)
     {
         BlockIndex = blockPositionIndex;
@@ -184,6 +190,11 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         yield return new WaitForSeconds(time);
         SwingIndex = 0;
     }
-   
+
+    private IEnumerator WaitStunnedAnimation()
+    {
+        yield return new WaitForSeconds(0.2f);
+        IsPlayerStunned = false;
+    }
 
 }

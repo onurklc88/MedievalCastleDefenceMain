@@ -48,6 +48,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
                 SwingSword();
             }
         }
+        
     }
     private void CheckAttackCollision(GameObject collidedObject)
     {

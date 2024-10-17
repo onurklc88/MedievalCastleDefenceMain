@@ -71,12 +71,16 @@ public class CharacterStamina : BehaviourRegistry
     public void DecreaseStaminaRPC(float value)
     {
         DecreasePlayerStamina(value);
-        _characterAnim.UpdateDamageAnimationState();
-        _characterAnim.PlayBlockAnimation();
+        //_characterAnim.UpdateDamageAnimationState();
+      
         if (CurrentStamina < 30f)
         {
             _characterAnim.UpdateStunAnimationState();
             _characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer());
+        }
+        else
+        {
+            StartCoroutine(DelayBlockAnimation());
         }
     }
     private IEnumerator UpdateCharacterRegen()
@@ -89,6 +93,13 @@ public class CharacterStamina : BehaviourRegistry
         CanStaminaRegenerating = true;
         
     }
+
+    private IEnumerator DelayBlockAnimation()
+    {
+        yield return new WaitForSeconds(0.4f);
+        _characterAnim.PlayBlockAnimation();
+    }
+   
 
     private void OnDestroy()
     {
