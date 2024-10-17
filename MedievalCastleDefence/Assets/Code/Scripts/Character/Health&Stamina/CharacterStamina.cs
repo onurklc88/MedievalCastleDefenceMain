@@ -73,7 +73,7 @@ public class CharacterStamina : BehaviourRegistry
         DecreasePlayerStamina(value);
         //_characterAnim.UpdateDamageAnimationState();
       
-        if (CurrentStamina < 30f)
+        if (CurrentStamina < _characterStats.KnockbackStaminaLimit)
         {
             _characterAnim.UpdateStunAnimationState();
             _characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer());

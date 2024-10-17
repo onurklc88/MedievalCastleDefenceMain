@@ -18,7 +18,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     private float _jumpPower = 4.5f;
     private CharacterAnimationController _animController;
     
-    private float _knockbackDuration = 0.7f;
+  
     
     public override void Spawned()
     {
@@ -111,7 +111,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     {
         IsInputDisabled = true;
         float elapsedTime = 0f;
-        while(elapsedTime < _knockbackDuration)
+        while(elapsedTime < _characterStats.KnockBackDuration)
         {
             _characterController.Move(-transform.forward * Time.deltaTime * 1.5f);
             elapsedTime += Time.deltaTime;

@@ -20,4 +20,6 @@ public class CharacterStats : ScriptableObject
    public float SprintSpeed;    
    public float TotalHealth;
    public float Stamina;
+   public float KnockbackStaminaLimit;
+   public float KnockBackDuration;
 }

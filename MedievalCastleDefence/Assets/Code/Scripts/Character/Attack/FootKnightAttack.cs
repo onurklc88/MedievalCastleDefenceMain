@@ -112,6 +112,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
                 case CharacterStats.CharacterType.Gallowglass:
                     break;
                 case CharacterStats.CharacterType.KnightCommander:
+                    DamageToKnightCommander(collidedObject, _weaponStats.Damage);
                     break;
 
             }
@@ -180,6 +181,23 @@ public class FootKnightAttack : CharacterAttackBehaviour
             opponentHealth.DealDamageRPC(damageValue);
         }
 
+    }
+
+    protected override void DamageToKnightCommander(GameObject opponent, float damageValue)
+    {
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+
+        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        {
+            //Debug.Log("Block");
+            opponentStamina.DecreaseStaminaRPC(50f);
+        }
+        else
+        {
+            opponentHealth.DealDamageRPC(damageValue);
+        }
     }
 
     private void OnDrawGizmos()

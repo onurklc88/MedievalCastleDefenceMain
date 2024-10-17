@@ -107,7 +107,26 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
-        Debug.Log("damage To footnight");
+        Debug.Log("damage to footnight");
+        var dotValue = base.CalculateAttackPosition(opponent.transform);
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+
+
+        if (dotValue > 0 && isOpponentParrying)
+        {
+            opponentStamina.DecreaseStaminaRPC(20f);
+
+        }
+        else if (dotValue >= 0 && !isOpponentParrying && !IsSwordHitShield())
+        {
+            opponentHealth.DealDamageRPC(damageValue);
+        }
+        else if (dotValue < -0.3f)
+        {
+            opponentHealth.DealDamageRPC(damageValue);
+        }
     }
 
     protected override void DamageToKnightCommander(GameObject opponent, float damageValue)

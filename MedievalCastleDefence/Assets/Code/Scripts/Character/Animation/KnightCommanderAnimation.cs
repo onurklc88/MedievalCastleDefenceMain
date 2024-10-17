@@ -72,12 +72,20 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     {
         changed.Behaviour._animationController.SetFloat(changed.Behaviour._characterDirections[1], changed.Behaviour.PlayerHorizontalDirection);
         changed.Behaviour._animationController.SetBool("OnPlayerWalk", true);
-       
+        if (changed.Behaviour.PlayerHorizontalDirection == -1)
+            changed.Behaviour._animationController.speed = 0.9f;
+        else
+            changed.Behaviour._animationController.speed = 1f;
 
     }
     private static void NetworkVerticalAnimationStateChanged(Changed<KnightCommanderAnimation> changed)
     {
         changed.Behaviour._animationController.SetFloat(changed.Behaviour._characterDirections[0], changed.Behaviour.PlayerVerticalDirection);
+        if(changed.Behaviour.PlayerVerticalDirection == -1)
+            changed.Behaviour._animationController.speed = 0.9f;
+        else
+            changed.Behaviour._animationController.speed = 1f;
+
 
     }
     private static void NetworkJumpAnimationChanged(Changed<KnightCommanderAnimation> changed)
