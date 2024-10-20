@@ -5,29 +5,34 @@ using Fusion;
 
 public class PlayerStatsController : BehaviourRegistry
 {
-    [Networked] public PlayerStats PlayerStats { get; set; }
-    private PlayerStats _testStats;
+    [Networked] public PlayerStats PlayerNetworkStats { get; set; }
+    private PlayerStats _playerLocalStats;
     public CharacterStats.CharacterType SelectedCharacter { get; set; }
-  
+    [Networked(OnChanged = nameof(OnNetworkStatsChanged))] public PlayerStats PlayerLocalStats { get; set; }
+
     public override void Spawned()
     {
         //test area
-        
-        _testStats.PlayerWarrior = CharacterStats.CharacterType.KnightCommander;
-        PlayerStats = _testStats;
-        SelectedCharacter = _testStats.PlayerWarrior;
+
+        _playerLocalStats.PlayerWarrior = CharacterStats.CharacterType.KnightCommander;
+        PlayerLocalStats = _playerLocalStats;
+        //SelectedCharacter = _testStats.PlayerWarrior;
         if (!Object.HasStateAuthority) return;
         InitScript(this);
         
     }
 
-    /*
-    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_SetPlayerInfo(PlayerStats playerInfo)
+    public void SetPlayerInfo(PlayerStats playerInfo)
     {
-        _testStats = playerInfo;
-        PlayerStats = _testStats;
+        _playerLocalStats = playerInfo;
+        PlayerLocalStats = _playerLocalStats;
 
     }
-    */
+
+    private static void OnNetworkStatsChanged(Changed<PlayerStatsController> changed)
+    {
+        changed.Behaviour.PlayerNetworkStats = changed.Behaviour.PlayerLocalStats;
+    }
+    
+
 }

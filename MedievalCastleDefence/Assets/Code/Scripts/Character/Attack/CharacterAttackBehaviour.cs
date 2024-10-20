@@ -37,6 +37,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     private static void OnNetworkBlockChanged(Changed<CharacterAttackBehaviour> changed)
     {
         changed.Behaviour.IsPlayerBlocking = changed.Behaviour.IsPlayerBlockingLocal;
+        if (changed.Behaviour._characterStats.WarriorType == CharacterStats.CharacterType.FootKnight) return;
         changed.Behaviour._blockArea.enabled = changed.Behaviour.IsPlayerBlockingLocal;
     }
 
@@ -67,11 +68,10 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
 
     protected CharacterStats.CharacterType GetCharacterType(GameObject collidedObject)
     {   
-        
         if (collidedObject.transform.GetComponentInParent<PlayerStatsController>() != null)
         {
             var character = collidedObject.transform.GetComponentInParent<PlayerStatsController>();
-            return character.SelectedCharacter;
+            return character.PlayerNetworkStats.PlayerWarrior;
         }
         else
         {

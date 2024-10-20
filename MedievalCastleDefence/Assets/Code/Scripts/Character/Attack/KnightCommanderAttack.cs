@@ -6,6 +6,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 {
     private PlayerHUD _playerHUD;
     private KnightCommanderAnimation _knightCommanderAnimation;
+    private CharacterMovement _characterMovement;
   
     public override void Spawned()
     {
@@ -19,6 +20,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
         _knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
+        _characterMovement = GetScript<CharacterMovement>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -33,6 +35,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
+        if (_characterMovement != null && _characterMovement.IsPlayerStunned) return;
         
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
@@ -54,7 +57,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     {
         if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
         if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        if (collidedObject.transform.gameObject.layer == 3 && !collidedObject.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking) return;
+        //if (collidedObject.transform.gameObject.layer == 3 && !collidedObject.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking) return;
 
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
@@ -86,12 +89,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     private IEnumerator PerformAttack()
     {
+        yield return new WaitForSeconds(0.27f);
         float elapsedTime = 0f;
         while (elapsedTime < 0.5f)
         {
             Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward + transform.right * 0.2f, 0.5f);
             if (_hitColliders.Length > 0)
             {
+               
                 CheckAttackCollision(_hitColliders[0].transform.gameObject);
                 yield break;
             }
@@ -112,11 +117,15 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-
-
-        if (dotValue > 0 && isOpponentParrying)
+        
+        if (opponent.gameObject.layer == 10 && !isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(20f);
+            return;
+        }
+        /*
+        if (opponent.gameObject.layer == 10 && isOpponentParrying)
+        {
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
 
         }
         else if (dotValue >= 0 && !isOpponentParrying && !IsSwordHitShield())
@@ -127,10 +136,21 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         {
             opponentHealth.DealDamageRPC(damageValue);
         }
+*/
+
+        if (opponent.gameObject.layer == 10 && isOpponentParrying)
+        {
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+        }
+        else
+        {
+            opponentHealth.DealDamageRPC(damageValue);
+        }
     }
 
     protected override void DamageToKnightCommander(GameObject opponent, float damageValue)
     {
+        Debug.Log("damage to knightCommander");
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
@@ -138,7 +158,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         if(opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
             //Debug.Log("Block");
-            opponentStamina.DecreaseStaminaRPC(50f);
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {

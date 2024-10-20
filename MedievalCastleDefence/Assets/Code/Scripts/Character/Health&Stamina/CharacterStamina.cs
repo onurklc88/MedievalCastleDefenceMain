@@ -71,7 +71,8 @@ public class CharacterStamina : BehaviourRegistry
     public void DecreaseStaminaRPC(float value)
     {
         DecreasePlayerStamina(value);
-        //_characterAnim.UpdateDamageAnimationState();
+        if(_characterStats.WarriorType == CharacterStats.CharacterType.FootKnight)
+            _characterAnim.UpdateDamageAnimationState();
       
         if (CurrentStamina < _characterStats.KnockbackStaminaLimit)
         {

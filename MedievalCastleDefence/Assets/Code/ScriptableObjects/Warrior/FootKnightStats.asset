@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WarriorType: 1
   MoveSpeed: 3.5
-  SprintSpeed: 5
-  TotalHealth: 100
+  SprintSpeed: 4.5
+  TotalHealth: 150
   Stamina: 120
   KnockbackStaminaLimit: 25
   KnockBackDuration: 1.5

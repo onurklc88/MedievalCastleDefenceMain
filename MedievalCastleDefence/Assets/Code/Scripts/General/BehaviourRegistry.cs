@@ -7,6 +7,7 @@ public class BehaviourRegistry : NetworkBehaviour
 {
     private static List<BehaviourRegistry> _scriptList = new List<BehaviourRegistry>();
     [SerializeField] protected CharacterStats _characterStats;
+   
     protected void InitScript(BehaviourRegistry type)
     {
 

@@ -18,13 +18,13 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     //[Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     public NetworkButtons PreviousButton { get; set; }
- 
+    private CharacterMovement _characterMovement;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
     }
-
+  
     public override void FixedUpdateNetwork()
     {
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
@@ -36,6 +36,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
+    
 
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)
         {
@@ -184,7 +185,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     }
     private IEnumerator WaitDamageAnimation()
     {
-        yield return new WaitForSeconds(0.3f);
+        //yield return new WaitForSeconds(0.3f);
         IsPlayerGetDamage = true;
         yield return new WaitForSeconds(0.2f);
         IsPlayerGetDamage = false;

@@ -21,23 +21,43 @@ public class GameEvent
 }
 public class GameEvent<T>
 {
-   private event Action<T> _action = delegate { };
+    private event Action<T> _action = delegate { };
 
-   public void Invoke(T param)
-   {
-      _action.Invoke(param); 
-   }
+    public void Invoke(T param)
+    {
+        _action.Invoke(param);
+    }
 
-   public void AddListener(Action<T> listener)
-   {
-      _action += listener;
-   }
+    public void AddListener(Action<T> listener)
+    {
+        _action += listener;
+    }
 
-   public void RemoveListener(Action<T> listener)
-   {
-      _action -= listener;
-   }
+    public void RemoveListener(Action<T> listener)
+    {
+        _action -= listener;
+    }
 }
+ public class GameEvent<T1, T2>
+ {
+    private event Action<T1, T2> _action = delegate { };
+
+    public void Invoke(T1 param1, T2 param2)
+    {
+        _action.Invoke(param1, param2);
+    }
+
+    public void AddListener(Action<T1, T2> listener)
+    {
+        _action += listener;
+    }
+
+    public void RemoveListener(Action<T1, T2> listener)
+    {
+        _action -= listener;
+    }
+ }
+
 
 
 

@@ -8,6 +8,8 @@ public class WeaponStats : ScriptableObject
     public float TimeBetweenSwings;
     public float Damage;
     public float StaminaWaste;
+    public float WeaponStaminaReductionOnParry;
     public float SkillCooldown;
+   
 
 }

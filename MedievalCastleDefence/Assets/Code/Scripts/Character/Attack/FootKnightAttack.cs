@@ -21,7 +21,6 @@ public class FootKnightAttack : CharacterAttackBehaviour
         _animation = transform.GetComponent<FootknightAnimation>();
         
     }
-
     private void Start()
     {
         _characterMovement = GetScript<CharacterMovement>();
@@ -40,8 +39,10 @@ public class FootKnightAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
+        if (_characterMovement != null && _characterMovement.IsPlayerStunned) return;
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        IsPlayerBlockingLocal = true;
         
         if (_animation != null)
             _animation.IsPlayerParry = IsPlayerBlockingLocal;
@@ -82,7 +83,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
                 
                
                 _isCharacterSpawned = false;
-                EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
+                //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
                 base.OnObjectDestroy();
             }
             
@@ -91,12 +92,15 @@ public class FootKnightAttack : CharacterAttackBehaviour
 
         PreviousButton = input.NetworkButtons;
     }
-    
+   private void ParryAttack()
+    {
+
+    } 
     private void CheckAttackCollision(GameObject collidedObject)
     {
         if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
         if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        if (collidedObject.transform.gameObject.layer == 3 && !collidedObject.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking) return;
+        //if (collidedObject.transform.gameObject.layer == 3 && !collidedObject.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking) return;
         
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
@@ -136,27 +140,6 @@ public class FootKnightAttack : CharacterAttackBehaviour
            CheckAttackCollision(_hitColliders[i].transform.gameObject);
         }
     }
-        
-    private void ParryAttack()
-    {
-        /*
-        if (!_characterController.isGrounded) return;
-        Debug.Log("Parry Attack?");
-        AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.SkillCooldown);
-        Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 0.3f);
-
-        
-        for (int i = 0; i < _hitColliders.Length; i++)
-        {
-            CheckAttackCollision(_hitColliders[i].transform.gameObject);
-        }
-         */
-
-    }
-    protected override void AttackCollision()
-    {
-        
-    }
    
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
@@ -165,18 +148,31 @@ public class FootKnightAttack : CharacterAttackBehaviour
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-      
-     
-        if (dotValue > 0 && isOpponentParrying)
+        if (opponent.gameObject.layer == 10 && !isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(20f);
-           
+            return;
+        }
+        /*
+        if (opponent.gameObject.layer == 10 && isOpponentParrying)
+        {
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+
         }
         else if (dotValue >= 0 && !isOpponentParrying && !IsSwordHitShield())
         {
             opponentHealth.DealDamageRPC(damageValue);
         }
         else if (dotValue < -0.3f)
+        {
+            opponentHealth.DealDamageRPC(damageValue);
+        }
+*/
+
+        if (opponent.gameObject.layer == 10 && isOpponentParrying)
+        {
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+        }
+        else
         {
             opponentHealth.DealDamageRPC(damageValue);
         }
@@ -192,7 +188,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
             //Debug.Log("Block");
-            opponentStamina.DecreaseStaminaRPC(50f);
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {

@@ -59,13 +59,22 @@ public class PlayerHUD : BehaviourRegistry
         }
     }
 
-    public void OnRespawnButtonClicked()
+    public void OnRespawnStormshieldButtonClicked()
     {
         if (!Object.HasStateAuthority) return;
         base.OnObjectDestroy();
-        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
-        
+        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
+        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.FootKnight);
+
         _respawnPanel.SetActive(false);
     }
+    public void OnRespawnKnightCommanderButtonClicked()
+    {
+        if (!Object.HasStateAuthority) return;
+        base.OnObjectDestroy();
+        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
+        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
 
+        _respawnPanel.SetActive(false);
+    }
 }

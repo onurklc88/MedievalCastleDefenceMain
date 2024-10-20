@@ -10,6 +10,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     public float CurrentMoveSpeed { get; set; }
     [Networked] public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private CharacterController _characterController;
+    public bool IsPlayerStunned { get; set; }
   
     private Vector3 _currentMovement;
     private float _gravity = -7.96f;
@@ -47,7 +48,8 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
-        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsInputDisabled)
+        Debug.Log("Input: " + IsPlayerStunned);
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned)
         {
             ReadPlayerInputs(input);
             _currentMovement = GetInputDirection(input);
@@ -109,16 +111,16 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
 
     public IEnumerator KnockbackPlayer()
     {
-        IsInputDisabled = true;
+        IsPlayerStunned = true;
         float elapsedTime = 0f;
-        while(elapsedTime < _characterStats.KnockBackDuration)
+        while(elapsedTime < 0.7f)
         {
             _characterController.Move(-transform.forward * Time.deltaTime * 1.5f);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-
-        IsInputDisabled = false;
+        yield return new WaitForSeconds(10f);
+        IsPlayerStunned = false;
     }
 
     
