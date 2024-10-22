@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f1de1650e67ad24da7a2c06cfeea40e, type: 3}
-  m_Name: FootKnightStats
+  m_Name: StormShield
   m_EditorClassIdentifier: 
   WarriorType: 1
   MoveSpeed: 3.5

@@ -27,12 +27,11 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     private float _movementTreshold = 0.25f;
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
     protected virtual void AttackCollision() { }
-    protected virtual void SwingSwordRight() { }
-    protected virtual void SwingSwordLeft() { }
     protected virtual void SwingSword() { }
     protected virtual void BlockWeapon() { }
     protected virtual void DamageToFootknight(GameObject opponent, float damageValue) { }
     protected virtual void DamageToKnightCommander(GameObject opponent, float damageValue) { }
+    protected virtual void DamageToGallowGlass(GameObject opponent) { }
 
     private static void OnNetworkBlockChanged(Changed<CharacterAttackBehaviour> changed)
     {

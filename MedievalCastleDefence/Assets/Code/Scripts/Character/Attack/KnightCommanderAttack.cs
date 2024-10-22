@@ -7,7 +7,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private PlayerHUD _playerHUD;
     private KnightCommanderAnimation _knightCommanderAnimation;
     private CharacterMovement _characterMovement;
-  
+    [SerializeField] private GameObject test;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -93,7 +93,10 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < 0.5f)
         {
-            Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward + transform.right * 0.2f, 0.5f);
+           
+            Vector3 swingDirection = transform.position + transform.up + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f);
+           
             if (_hitColliders.Length > 0)
             {
                
@@ -122,22 +125,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         {
             return;
         }
-        /*
-        if (opponent.gameObject.layer == 10 && isOpponentParrying)
-        {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-
-        }
-        else if (dotValue >= 0 && !isOpponentParrying && !IsSwordHitShield())
-        {
-            opponentHealth.DealDamageRPC(damageValue);
-        }
-        else if (dotValue < -0.3f)
-        {
-            opponentHealth.DealDamageRPC(damageValue);
-        }
-*/
-
+     
         if (opponent.gameObject.layer == 10 && isOpponentParrying)
         {
             opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
@@ -169,9 +157,9 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + -transform.right * 0.2f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + -transform.right * 0.3f, 0.5f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + transform.right * 0.2f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + transform.right * 0.3f, 0.5f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
 

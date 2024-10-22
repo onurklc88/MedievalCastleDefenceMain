@@ -4594,6 +4594,7 @@ MonoBehaviour:
   _weaponStats: {fileID: 11400000, guid: ef03e385307a14e49adba4e5dd941361, type: 2}
   _blockArea: {fileID: 5605669304815212120}
   _characterType: 2
+  test: {fileID: 7911425352771709435, guid: 9e6eeefe952f74d43a5afa019efc4a05, type: 3}
 --- !u!114 &6511355011640638625
 MonoBehaviour:
   m_ObjectHideFlags: 0
