@@ -242,9 +242,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerPrefab: {fileID: 5797861915547711400, guid: 7dbace0eaf080e948b56636a40a1f822, type: 3}
   _stormshieldNetworkPrefab:
-    RawGuidValue: 80c4a9049dee6674c9a542b1dd539792
-  _knightCommanderdNetworkPrefab:
     RawGuidValue: 7dbace0eaf080e948b56636a40a1f822
+  _knightCommanderdNetworkPrefab:
+    RawGuidValue: bf4a4aeba1e9c104f9700b167da1147d
 --- !u!1 &443281558
 GameObject:
   m_ObjectHideFlags: 0

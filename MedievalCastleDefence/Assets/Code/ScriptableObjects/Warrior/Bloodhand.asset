@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f1de1650e67ad24da7a2c06cfeea40e, type: 3}
   m_Name: Bloodhand
   m_EditorClassIdentifier: 
-  WarriorType: 2
+  WarriorType: 3
   MoveSpeed: 4
   SprintSpeed: 4.5
   TotalHealth: 170

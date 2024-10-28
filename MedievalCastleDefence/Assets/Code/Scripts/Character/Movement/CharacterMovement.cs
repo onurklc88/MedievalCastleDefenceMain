@@ -38,6 +38,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
                 _animController = GetScript<FootknightAnimation>();
                break;
             case CharacterStats.CharacterType.Gallowglass:
+                _animController = GetScript<GallowglassAnimation>();
                 break;
             case CharacterStats.CharacterType.KnightCommander:
                 _animController = GetScript<KnightCommanderAnimation>();
@@ -48,7 +49,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
-        Debug.Log("Input: " + IsPlayerStunned);
+       
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned)
         {
             ReadPlayerInputs(input);
@@ -105,7 +106,15 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     private void JumpPlayer()
     {
         if (!_characterController.isGrounded) return;
-        _animController.UpdateJumpAnimationState(true);
+        if(_animController != null)
+        {
+            _animController.UpdateJumpAnimationState(true);
+        }
+        else
+        {
+            Debug.Log("Anim controller yok");
+        }
+       
        _velocity += _jumpPower;
     }
 

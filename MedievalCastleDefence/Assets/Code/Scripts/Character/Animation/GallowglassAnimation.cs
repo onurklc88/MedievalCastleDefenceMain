@@ -19,8 +19,8 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     //[Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     public NetworkButtons PreviousButton { get; set; }
-    private CharacterMovement _characterMovement;
-    [SerializeField] private Animator _animationController1;
+   
+    
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -168,7 +168,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     }
     private void PlayJumpAnimation()
     {
-        _animationController.Play("KnightCommander-Jump");
+        _animationController.Play("Gallowglass-Jump");
     }
     private IEnumerator WaitJumpAnimation(float time)
     {
