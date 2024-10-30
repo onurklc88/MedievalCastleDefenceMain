@@ -9,6 +9,6 @@ public class CharacterAnimationController : BehaviourRegistry
     public virtual void UpdateSwingAnimationState(bool state) { }
     public virtual void UpdateJumpAnimationState(bool state) { }
     public virtual void UpdateDamageAnimationState() { }
-    public virtual void UpdateStunAnimationState() { }
+    public virtual void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection) { }
     public virtual void PlayBlockAnimation() { }
 }

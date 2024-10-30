@@ -128,7 +128,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
      
         if (opponent.gameObject.layer == 10 && isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
         }
         else
         {
@@ -145,8 +145,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
        
         if(opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            //Debug.Log("Block");
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
         }
         else
         {

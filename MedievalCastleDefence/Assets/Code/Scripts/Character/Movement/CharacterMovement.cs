@@ -50,7 +50,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     {
         if (!Object.HasStateAuthority) return;
        
-        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned)
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned && !IsInputDisabled)
         {
             ReadPlayerInputs(input);
             _currentMovement = GetInputDirection(input);
@@ -106,29 +106,45 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     private void JumpPlayer()
     {
         if (!_characterController.isGrounded) return;
-        if(_animController != null)
-        {
+        
+            
+       if(_characterStats.WarriorType != CharacterStats.CharacterType.Gallowglass)
+       {
             _animController.UpdateJumpAnimationState(true);
-        }
-        else
-        {
-            Debug.Log("Anim controller yok");
-        }
+            _velocity += _jumpPower;
+       }
+          
        
-       _velocity += _jumpPower;
     }
 
-    public IEnumerator KnockbackPlayer()
+    public IEnumerator KnockbackPlayer(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
+        Vector3 movePos = Vector3.zero;
+        switch (attackDirection)
+        {
+            case CharacterAttackBehaviour.AttackDirection.Forward:
+                movePos = -transform.forward;
+                break;
+            case CharacterAttackBehaviour.AttackDirection.FromRight:
+                movePos = transform.right;
+                break;
+            case CharacterAttackBehaviour.AttackDirection.FromLeft:
+                movePos = -transform.right;
+                break;
+            case CharacterAttackBehaviour.AttackDirection.Backward:
+                movePos = transform.forward;
+                break;
+        }
+        _animController.UpdateStunAnimationState(attackDirection);
         IsPlayerStunned = true;
         float elapsedTime = 0f;
         while(elapsedTime < 0.7f)
         {
-            _characterController.Move(-transform.forward * Time.deltaTime * 1.5f);
+            _characterController.Move(movePos * Time.deltaTime * 1.5f);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(2f);
         IsPlayerStunned = false;
     }
 

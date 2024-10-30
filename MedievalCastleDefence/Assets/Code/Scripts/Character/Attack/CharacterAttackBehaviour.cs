@@ -16,7 +16,15 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         Right,
         Left
     }
-    [SerializeField] protected LayerMask _colliders;
+    public enum AttackDirection
+    {
+        None,
+        Forward,
+        FromRight,
+        FromLeft,
+        Backward
+    }
+    
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
     protected CharacterController _characterController;
@@ -25,6 +33,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     protected CharacterStamina _characterStamina;
     private SwordPosition _lastSwordPosition;
     private float _movementTreshold = 0.25f;
+    
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
     protected virtual void AttackCollision() { }
     protected virtual void SwingSword() { }
@@ -77,5 +86,20 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
            return CharacterStats.CharacterType.None;
         }
     }
-   
+
+    protected AttackDirection CalculateAttackDirection(Transform defenderPosition)
+    {
+        Vector3 directionToTarget = Vector3.Normalize(transform.position - defenderPosition.position);
+        float forwardDot = Vector3.Dot(defenderPosition.forward, directionToTarget);
+        Vector3 crossProduct = Vector3.Cross(defenderPosition.forward, directionToTarget);
+        float forwardThreshold = 0.7f;
+        float backwardThreshold = -0.7f;
+        float sideThreshold = 0.3f;
+         return (forwardDot > forwardThreshold) ? AttackDirection.Forward :
+       (forwardDot < backwardThreshold) ? AttackDirection.Backward :
+       (crossProduct.y > sideThreshold) ? AttackDirection.FromLeft :
+       (crossProduct.y < -sideThreshold) ? AttackDirection.FromRight :
+       AttackDirection.None;
+    }
+
 }

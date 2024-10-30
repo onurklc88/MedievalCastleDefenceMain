@@ -14,7 +14,7 @@ public class PlayerStatsController : BehaviourRegistry
     {
         //test area
 
-        _playerLocalStats.PlayerWarrior = CharacterStats.CharacterType.KnightCommander;
+        _playerLocalStats.PlayerWarrior = CharacterStats.CharacterType.Gallowglass;
         PlayerLocalStats = _playerLocalStats;
         //SelectedCharacter = _testStats.PlayerWarrior;
         if (!Object.HasStateAuthority) return;

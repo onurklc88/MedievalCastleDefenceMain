@@ -148,7 +148,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
        StartCoroutine(WaitDamageAnimation());
     }
    
-    public override void UpdateStunAnimationState()
+    public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
         IsPlayerStunned = true;
         StartCoroutine(WaitStunnedAnimation());

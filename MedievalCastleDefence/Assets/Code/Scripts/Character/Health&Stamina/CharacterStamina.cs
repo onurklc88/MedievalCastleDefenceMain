@@ -68,7 +68,7 @@ public class CharacterStamina : BehaviourRegistry
         
     }
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void DecreaseStaminaRPC(float value)
+    public void DecreaseStaminaRPC(float value, CharacterAttackBehaviour.AttackDirection attackDirection)
     {
         DecreasePlayerStamina(value);
         if(_characterStats.WarriorType == CharacterStats.CharacterType.FootKnight)
@@ -76,8 +76,8 @@ public class CharacterStamina : BehaviourRegistry
       
         if (CurrentStamina < _characterStats.KnockbackStaminaLimit)
         {
-            _characterAnim.UpdateStunAnimationState();
-            _characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer());
+            _characterAnim.UpdateStunAnimationState(attackDirection);
+            _characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer(attackDirection));
         }
         else
         {

@@ -152,25 +152,11 @@ public class FootKnightAttack : CharacterAttackBehaviour
         {
             return;
         }
-        /*
-        if (opponent.gameObject.layer == 10 && isOpponentParrying)
-        {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-
-        }
-        else if (dotValue >= 0 && !isOpponentParrying && !IsSwordHitShield())
-        {
-            opponentHealth.DealDamageRPC(damageValue);
-        }
-        else if (dotValue < -0.3f)
-        {
-            opponentHealth.DealDamageRPC(damageValue);
-        }
-*/
+      
 
         if (opponent.gameObject.layer == 10 && isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
         }
         else
         {
@@ -187,8 +173,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
 
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            //Debug.Log("Block");
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+           opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
         }
         else
         {

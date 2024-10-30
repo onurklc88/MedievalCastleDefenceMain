@@ -124,6 +124,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     public override void UpdateDamageAnimationState()
     {
         //IsPlayerGetDamage = true;
+
         StartCoroutine(WaitDamageAnimation());
     }
     public override void UpdateSwingAnimationState(bool state)
@@ -132,7 +133,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
        StartCoroutine(WaitAttackAnimation(0.9f));
     }
 
-    public override void UpdateStunAnimationState()
+    public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
         IsPlayerStunned = true;
         StartCoroutine(WaitStunnedAnimation());

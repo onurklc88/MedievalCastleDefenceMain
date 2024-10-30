@@ -6,7 +6,7 @@ using Fusion;
 public class GallowglassAttack : CharacterAttackBehaviour
 {
     private PlayerHUD _playerHUD;
-    //private KnightCommanderAnimation _knightCommanderAnimation;
+    private GallowglassAnimation _gallowGlassAnimation;
     private CharacterMovement _characterMovement;
     private float _kickTimer = 1.5f;
     private Vector3 _halfExtens = new Vector3(1.7f, 0.9f, 0.7f);
@@ -22,8 +22,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
     {
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
-        //_knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
         _characterMovement = GetScript<CharacterMovement>();
+        _gallowGlassAnimation = GetScript<GallowglassAnimation>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -54,9 +54,16 @@ public class GallowglassAttack : CharacterAttackBehaviour
                 SwingSword();
             }
         }
-        if(attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse1) && _kickCooldown.ExpiredOrNotRunning(Runner))
+        if(attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Jump) && _kickCooldown.ExpiredOrNotRunning(Runner) && input.HorizontalInput == 0 && input.VerticalInput >= 0)
         {
+            _characterMovement.IsInputDisabled = true;
             KickAction();
+        }
+        if(attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload))
+        {
+           
+           StartCoroutine(_characterMovement.KnockbackPlayer(AttackDirection.Forward));
+            //_gallowGlassAnimation.UpdateStunAnimationState();
         }
 
     }
@@ -116,12 +123,27 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
     private void KickAction()
     {
+        _kickCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
+        _gallowGlassAnimation.UpdateJumpAnimationState(true);
+        StartCoroutine(PerformKickAction());
+    }
 
+    private IEnumerator PerformKickAction()
+    {
+        yield return new WaitForSeconds(0.5f);
+        Vector3 kickPostion = transform.position + transform.up + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+        Collider[] _hitColliders = Physics.OverlapSphere(kickPostion, 0.5f);
+        if(_hitColliders.Length > 0)
+        {
+            KickOpponent(_hitColliders[0].gameObject);
+        }
+       
+        yield return new WaitForSeconds(1f);
+        _characterMovement.IsInputDisabled = false;
     }
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
         Debug.Log("damage to footnight");
-        var dotValue = base.CalculateAttackPosition(opponent.transform);
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
@@ -133,7 +155,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         if (opponent.gameObject.layer == 10 && isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
         }
         else
         {
@@ -151,7 +173,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
             //Debug.Log("Block");
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
         }
         else
         {
@@ -161,22 +183,40 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
     protected override void DamageToGallowGlass(GameObject opponent)
     {
-        
+       // Debug.Log("damage to gallowglass");
+        var dotValue = base.CalculateAttackPosition(opponent.transform);
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+
+        Debug.Log("DotValue: " + dotValue);
     }
+
+    private void KickOpponent(GameObject opponent) 
+    {
+        var opponentType = base.GetCharacterType(opponent);
+        Debug.Log("A");
+        if (opponentType == CharacterStats.CharacterType.None) return;
+        Debug.Log("B");
+        var attackDirection = base.CalculateAttackDirection(opponent.transform);
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        if (opponentStamina == null) return;
+        opponentStamina.DecreaseStaminaRPC(10f, attackDirection);
+
+
+    }
+
+   
 
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(transform.position + transform.up + transform.forward + transform.right * 0.3f, new Vector3(1.7f, 0.9f, 0.7f));
-        /*
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + transform.right * 0.2f, 0.5f);
+        //Gizmos.color = Color.yellow;
+        //Gizmos.DrawWireCube(transform.position + Vector3.up + Vector3.forward + transform.right * 0.3f, new Vector3(1.7f, 0.9f, 0.7f));
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireCube(transform.position + transform.up + transform.forward, Vector3.one);
-        */
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + transform.right * 0.3f, 0.3f);
+      
+
     }
 
 }
