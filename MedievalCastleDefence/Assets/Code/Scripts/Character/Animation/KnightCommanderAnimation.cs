@@ -15,10 +15,11 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkJumpAnimationChanged))] public NetworkBool IsPlayerJumping { get; set; }
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
-    //[Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
+    
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
+    private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -123,11 +124,33 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     private static void NetworkedStunnedAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
         if (changed.Behaviour.IsPlayerStunned == false) return;
+
+        
+        changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody", 1);
+
+        #region problem On network
+        switch (changed.Behaviour._opponentAttackDirection)
         {
-            changed.Behaviour._animationController.Play("KnightCommander-StunLowerBody");
-            changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody");
+            case CharacterAttackBehaviour.AttackDirection.Forward:
+                changed.Behaviour._animationController.Play("KnightCommander-StunBackwards", 0);
+
+                break;
+            case CharacterAttackBehaviour.AttackDirection.FromLeft:
+                changed.Behaviour._animationController.Play("KnightCommander-StunLeft", 0);
+
+                break;
+            case CharacterAttackBehaviour.AttackDirection.FromRight:
+                changed.Behaviour._animationController.Play("KnightCommander-StunRight", 0);
+
+                break;
+            case CharacterAttackBehaviour.AttackDirection.Backward:
+                changed.Behaviour._animationController.Play("KnightCommander-StunForward", 0);
+                break;
+
         }
+        #endregion
     }
+
 
     private static void NetworkParryAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
@@ -151,8 +174,11 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
         IsPlayerStunned = true;
+        _opponentAttackDirection = attackDirection;
         StartCoroutine(WaitStunnedAnimation());
     }
+
+   
     public void UpdateParryAnimation()
     {
         //IsPlayerParry = true;
@@ -202,8 +228,8 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
 
     private IEnumerator WaitStunnedAnimation()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         IsPlayerStunned = false;
     }
-
+   
 }

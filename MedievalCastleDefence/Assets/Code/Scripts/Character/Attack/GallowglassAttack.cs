@@ -8,7 +8,6 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private PlayerHUD _playerHUD;
     private GallowglassAnimation _gallowGlassAnimation;
     private CharacterMovement _characterMovement;
-    private float _kickTimer = 1.5f;
     private Vector3 _halfExtens = new Vector3(1.7f, 0.9f, 0.7f);
     [Networked] private TickTimer _kickCooldown { get; set; }
     public override void Spawned()
@@ -54,7 +53,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
                 SwingSword();
             }
         }
-        if(attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Jump) && _kickCooldown.ExpiredOrNotRunning(Runner) && input.HorizontalInput == 0 && input.VerticalInput >= 0)
+        else if(attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Jump) && _kickCooldown.ExpiredOrNotRunning(Runner) && input.HorizontalInput == 0 && input.VerticalInput >= 0)
         {
             _characterMovement.IsInputDisabled = true;
             KickAction();
@@ -96,24 +95,34 @@ public class GallowglassAttack : CharacterAttackBehaviour
     }
     protected override void SwingSword()
     {
-        if (IsPlayerBlockingLocal || !_characterController.isGrounded) return;
-       // _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition()));
+       if (IsPlayerBlockingLocal || !_characterController.isGrounded) return;
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
+        _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition()));
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
-        StartCoroutine(PerformAttack());
+        float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.8f : 0.5f;
+        StartCoroutine(PerformAttack(swingTime));
     }
-    private IEnumerator PerformAttack()
+    private IEnumerator PerformAttack(float time)
     {
-        yield return new WaitForSeconds(0.27f);
+        yield return new WaitForSeconds(time);
+        HashSet<NetworkId> hitPlayers = new HashSet<NetworkId>();
+      
         float elapsedTime = 0f;
-        while (elapsedTime < 0.5f)
+        while (elapsedTime < 0.2f)
         {
-            Vector3 swingDirection = transform.position + transform.up + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
-            Collider[] _hitColliders = Physics.OverlapBox(swingDirection, _halfExtens, Quaternion.identity);
-         
+            Vector3 swingDirection = transform.position + transform.forward + Vector3.up + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.1f : -0.1f);
+            Collider[] _hitColliders = Physics.OverlapBox(swingDirection, _halfExtens, Quaternion.Euler(0, transform.eulerAngles.y, 0));
+
             for (int i = 0; i < _hitColliders.Length; i++)
             {
-                CheckAttackCollision(_hitColliders[i].transform.gameObject);
+                GameObject collidedObject = _hitColliders[i].transform.gameObject;
+                NetworkObject networkObject = collidedObject.GetComponentInParent<NetworkObject>();
+                if(networkObject != null && !hitPlayers.Contains(networkObject.Id))
+                {
+                    hitPlayers.Add(networkObject.Id);
+                    CheckAttackCollision(_hitColliders[i].transform.gameObject);
+                }
+               
             }
 
             elapsedTime += Time.deltaTime;
@@ -123,21 +132,21 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
     private void KickAction()
     {
-        _kickCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
+        _kickCooldown = TickTimer.CreateFromSeconds(Runner, 2f);
         _gallowGlassAnimation.UpdateJumpAnimationState(true);
         StartCoroutine(PerformKickAction());
     }
 
     private IEnumerator PerformKickAction()
     {
-        yield return new WaitForSeconds(0.5f);
-        Vector3 kickPostion = transform.position + transform.up + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+        yield return new WaitForSeconds(0.65f);
+        Vector3 kickPostion = transform.position + transform.up + transform.forward * 0.85f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
         Collider[] _hitColliders = Physics.OverlapSphere(kickPostion, 0.5f);
-        if(_hitColliders.Length > 0)
+        for(int i = 0; i < _hitColliders.Length; i++)
         {
-            KickOpponent(_hitColliders[0].gameObject);
+            if (_hitColliders[i].gameObject.layer != 10)
+                KickOpponent(_hitColliders[i].gameObject);
         }
-       
         yield return new WaitForSeconds(1f);
         _characterMovement.IsInputDisabled = false;
     }
@@ -172,7 +181,6 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            //Debug.Log("Block");
             opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
         }
         else
@@ -188,22 +196,19 @@ public class GallowglassAttack : CharacterAttackBehaviour
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-
-        Debug.Log("DotValue: " + dotValue);
+        opponentHealth.DealDamageRPC(_weaponStats.Damage);
+      
     }
 
     private void KickOpponent(GameObject opponent) 
     {
         var opponentType = base.GetCharacterType(opponent);
-        Debug.Log("A");
         if (opponentType == CharacterStats.CharacterType.None) return;
-        Debug.Log("B");
         var attackDirection = base.CalculateAttackDirection(opponent.transform);
-        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
-        if (opponentStamina == null) return;
-        opponentStamina.DecreaseStaminaRPC(10f, attackDirection);
-
-
+        var opponentMovement = opponent.transform.GetComponentInParent<CharacterMovement>();
+        if (opponentMovement == null) return;
+        _characterStamina.DecreasePlayerStamina(10f);
+        opponentMovement.HandleKnockBackRPC(attackDirection);
     }
 
    
@@ -211,12 +216,16 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
     private void OnDrawGizmos()
     {
-        //Gizmos.color = Color.yellow;
-        //Gizmos.DrawWireCube(transform.position + Vector3.up + Vector3.forward + transform.right * 0.3f, new Vector3(1.7f, 0.9f, 0.7f));
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + transform.right * 0.3f, 0.3f);
-      
 
+        Gizmos.color = Color.yellow;
+        Vector3 gizmoPosition = transform.position + transform.forward + Vector3.up + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+        Gizmos.matrix = Matrix4x4.TRS(gizmoPosition, Quaternion.Euler(0, transform.eulerAngles.y, 0), Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, _halfExtens);
+        Gizmos.matrix = Matrix4x4.identity;
+
+        Gizmos.matrix = Matrix4x4.identity; // Varsayýlan matris
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward * 0.85f + transform.right * 0.3f, 0.4f);
     }
 
 }

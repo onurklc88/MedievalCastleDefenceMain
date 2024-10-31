@@ -117,7 +117,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         if (changed.Behaviour.IsPlayerGetDamage == true) return;
         {
-            changed.Behaviour._animationController.Play("KnightCommander-Damage");
+            changed.Behaviour._animationController.Play("Gallowglass-Damage");
         }
     }
 
@@ -125,28 +125,31 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         if (changed.Behaviour.IsPlayerStunned == false) return;
         
-
-           
-            changed.Behaviour._animationController.Play("Gallowglass-Stun", 1);
+        changed.Behaviour._animationController.Play("Gallowglass-Stun", 1);
         switch (changed.Behaviour._attackDirection)
         {
             case CharacterAttackBehaviour.AttackDirection.Forward:
                 changed.Behaviour._animationController.Play("Gallowglass_Stun_Backwards");
+                
                 break;
             case CharacterAttackBehaviour.AttackDirection.FromLeft:
                 changed.Behaviour._animationController.Play("Gallowglass_Stun_Left");
+               
                 break;
             case CharacterAttackBehaviour.AttackDirection.FromRight:
                 changed.Behaviour._animationController.Play("Gallowglass_Stun_Right");
+                
                 break;
             case CharacterAttackBehaviour.AttackDirection.Backward:
                 changed.Behaviour._animationController.Play("Gallowglass_Stun_Forward");
-                break;
+              break;
 
         }
+       
             //changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody");
         
     }
+  
 
     private static void NetworkParryAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
@@ -170,6 +173,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
         _attackDirection = attackDirection;
+        Debug.Log("Attack direction: " + _attackDirection);
         IsPlayerStunned = true;
         StartCoroutine(WaitStunnedAnimation());
     }
@@ -201,7 +205,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     public void UpdateAttackAnimState(int swingIndex)
     {
         SwingIndex = swingIndex;
-        StartCoroutine(WaitAttack(0.5f));
+        StartCoroutine(WaitAttack(1.8f));
     }
     private IEnumerator WaitDamageAnimation()
     {

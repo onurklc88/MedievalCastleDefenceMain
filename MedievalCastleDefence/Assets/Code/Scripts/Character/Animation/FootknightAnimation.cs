@@ -8,17 +8,17 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkVerticalAnimationStateChanged))] public float PlayerVerticalDirection { get; set; }
     [Networked(OnChanged = nameof(NetworkHorizontalWalkAnimationStateChanged))] public float PlayerHorizontalDirection { get; set; }
     [Networked(OnChanged = nameof(NetworkedUpperbodyWalkAnimationStateChange))] public NetworkBool OnPlayerWalk { get; set; }
-
     [Networked(OnChanged = nameof(NetworkedUpperbodyParryAnimationStateChange))] public NetworkBool IsPlayerParry { get; set; }
     [Networked(OnChanged = nameof(NetworkJumpAnimationChanged))] public NetworkBool IsPlayerJumping { get; set; }
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public NetworkBool IsPlayerSwing { get; set; }
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
+   
     public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private string[] _triggerAnimations;
-   // [SerializeField] private string[] _characterDirections;  
+    private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection;
     [SerializeField] private string[] _attackStates;  
-    //[SerializeField] private Animator _animationController;
+   
     
 
     public override void Spawned()
@@ -111,22 +111,41 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
 
     private static void NetworkedStunnedAnimationStateChange(Changed<FootknightAnimation> changed)
     {
-        if (changed.Behaviour.IsPlayerStunned == true)
+     
+        if (changed.Behaviour.IsPlayerStunned == false) return;
+
+        changed.Behaviour._animationController.Play("Stun_StormshieldUpperBody", 1);
+        switch (changed.Behaviour._opponentAttackDirection)
         {
-            changed.Behaviour.PlayStunAnimation();
+            case CharacterAttackBehaviour.AttackDirection.Forward:
+                changed.Behaviour._animationController.Play("StunBackwards-Stormshield", 0);
+
+                break;
+            case CharacterAttackBehaviour.AttackDirection.FromLeft:
+                changed.Behaviour._animationController.Play("StunLeft-StormShield", 0);
+
+                break;
+            case CharacterAttackBehaviour.AttackDirection.FromRight:
+                changed.Behaviour._animationController.Play("StunRight-StormShield", 0);
+
+                break;
+            case CharacterAttackBehaviour.AttackDirection.Backward:
+                changed.Behaviour._animationController.Play("StunForward-Stormshield", 0);
+                break;
+
         }
+
     }
-    public override void UpdateJumpAnimationState(bool state)
-    {
+   public override void UpdateJumpAnimationState(bool state)
+   {
         IsPlayerJumping = state;
         StartCoroutine(WaitJumpAnimation(0.3f));
-    }
-    public override void UpdateDamageAnimationState()
-    {
-        //IsPlayerGetDamage = true;
+   }
 
-        StartCoroutine(WaitDamageAnimation());
-    }
+   public override void UpdateDamageAnimationState()
+   {
+       StartCoroutine(WaitDamageAnimation());
+   }
     public override void UpdateSwingAnimationState(bool state)
     {
        IsPlayerSwing = state;
@@ -136,6 +155,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
         IsPlayerStunned = true;
+        _opponentAttackDirection = attackDirection;
         StartCoroutine(WaitStunnedAnimation());
     }
 
@@ -154,7 +174,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
         _animationController.Play("foot-kinght-Damage");
    }
 
-    private void PlayStunAnimation()
+    private void PlayStunAnimation(string animState)
     {
        _animationController.Play("Stun-Stormsheildlowerbody");
        _animationController.Play("Stun_StormshieldUpperBody");

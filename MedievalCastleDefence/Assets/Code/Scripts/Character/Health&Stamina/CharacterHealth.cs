@@ -28,6 +28,8 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
                 _characterMovement = GetScript<CharacterMovement>();
                 break;
             case CharacterStats.CharacterType.Gallowglass:
+                _characterMovement = GetScript<CharacterMovement>();
+                _characterAnim = GetScript<GallowglassAnimation>();
                 break;
             case CharacterStats.CharacterType.KnightCommander:
                 _characterAnim = GetScript<KnightCommanderAnimation>();

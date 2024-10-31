@@ -89,10 +89,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
         horizontalMovement = transform.rotation * horizontalMovement;
         return horizontalMovement;
     }
-    private void IncreasePlayerSpeed()
-    {
-
-    }
+  
     private void ApplyGravity()
     {
         if (_characterController.isGrounded && _velocity < 0.0f)
@@ -117,6 +114,13 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
        
     }
 
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
+    {
+        StartCoroutine(KnockbackPlayer(attackDirection));
+        _animController.UpdateStunAnimationState(attackDirection);
+    }
+
     public IEnumerator KnockbackPlayer(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
         Vector3 movePos = Vector3.zero;
@@ -135,7 +139,8 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
                 movePos = transform.forward;
                 break;
         }
-        _animController.UpdateStunAnimationState(attackDirection);
+       
+        
         IsPlayerStunned = true;
         float elapsedTime = 0f;
         while(elapsedTime < 0.7f)
@@ -148,5 +153,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
         IsPlayerStunned = false;
     }
 
-    
+   
+
+
 }

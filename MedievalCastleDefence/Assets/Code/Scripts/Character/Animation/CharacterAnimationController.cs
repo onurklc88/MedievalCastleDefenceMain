@@ -11,4 +11,5 @@ public class CharacterAnimationController : BehaviourRegistry
     public virtual void UpdateDamageAnimationState() { }
     public virtual void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection) { }
     public virtual void PlayBlockAnimation() { }
+    public virtual void TestUpdateLowerBodyStunAnimation() { }
 }

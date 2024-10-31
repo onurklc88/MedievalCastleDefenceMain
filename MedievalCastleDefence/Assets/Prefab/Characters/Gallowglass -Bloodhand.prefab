@@ -3006,9 +3006,6 @@ MonoBehaviour:
   _IsPlayerBlocking:
     _value: 0
   _PlayerSwordPosition: 0
-  _colliders:
-    serializedVersion: 2
-    m_Bits: 0
   _weaponStats: {fileID: 11400000, guid: 2aef57364f295dd49a59957e7603f537, type: 2}
   _blockArea: {fileID: 0}
   _characterType: 0
@@ -3039,7 +3036,7 @@ MonoBehaviour:
   _IsPlayerParry:
     _value: 0
   _BlockIndex: 0
-  _IsPlayerJumping:
+  _IsPlayerKick:
     _value: 0
   _IsPlayerGetDamage:
     _value: 0
