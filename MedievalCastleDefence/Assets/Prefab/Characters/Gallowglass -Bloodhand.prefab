@@ -944,7 +944,8 @@ GameObject:
   - component: {fileID: 1634212462464714911}
   - component: {fileID: 2378525154959869754}
   - component: {fileID: 497312747829474288}
-  m_Layer: 0
+  - component: {fileID: 1749260799294039231}
+  m_Layer: 10
   m_Name: war-axe-fantasy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1016,6 +1017,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1749260799294039231
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2154465817856152101}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 0
+  serializedVersion: 2
+  m_Size: {x: 0.09694275, y: 0.8459932, z: 0.3580462}
+  m_Center: {x: 0.0066252816, y: 0.18969876, z: 0.057719335}
 --- !u!1 &2291008390411589713
 GameObject:
   m_ObjectHideFlags: 0
@@ -3007,7 +3021,7 @@ MonoBehaviour:
     _value: 0
   _PlayerSwordPosition: 0
   _weaponStats: {fileID: 11400000, guid: 2aef57364f295dd49a59957e7603f537, type: 2}
-  _blockArea: {fileID: 0}
+  _blockArea: {fileID: 1749260799294039231}
   _characterType: 0
 --- !u!114 &5026511850599634643
 MonoBehaviour:

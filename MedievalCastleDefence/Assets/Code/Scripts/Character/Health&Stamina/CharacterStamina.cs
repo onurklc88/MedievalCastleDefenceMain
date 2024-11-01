@@ -29,6 +29,7 @@ public class CharacterStamina : BehaviourRegistry
                 _characterAnim = GetScript<FootknightAnimation>();
                 break;
             case CharacterStats.CharacterType.Gallowglass:
+                _characterAnim = GetScript<GallowglassAnimation>();
                 break;
             case CharacterStats.CharacterType.KnightCommander:
                 _characterAnim = GetScript<KnightCommanderAnimation>();
@@ -68,7 +69,7 @@ public class CharacterStamina : BehaviourRegistry
         
     }
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void DecreaseStaminaRPC(float value, CharacterAttackBehaviour.AttackDirection attackDirection)
+    public void DecreaseStaminaRPC(float value)
     {
         DecreasePlayerStamina(value);
         if(_characterStats.WarriorType == CharacterStats.CharacterType.FootKnight)
@@ -76,8 +77,8 @@ public class CharacterStamina : BehaviourRegistry
       
         if (CurrentStamina < _characterStats.KnockbackStaminaLimit)
         {
-            _characterAnim.UpdateStunAnimationState(attackDirection);
-            _characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer(attackDirection));
+            _characterAnim.UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection.Forward);
+            _characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer(CharacterAttackBehaviour.AttackDirection.Forward));
         }
         else
         {
@@ -97,7 +98,8 @@ public class CharacterStamina : BehaviourRegistry
 
     private IEnumerator DelayBlockAnimation()
     {
-        yield return new WaitForSeconds(0.4f);
+        //0.4f
+        yield return new WaitForSeconds(0.3f);
         _characterAnim.PlayBlockAnimation();
     }
    

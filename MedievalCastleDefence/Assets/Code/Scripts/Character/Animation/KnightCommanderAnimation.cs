@@ -19,6 +19,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
+    //Bunu networked yapmak lazým
     private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection;
     public override void Spawned()
     {

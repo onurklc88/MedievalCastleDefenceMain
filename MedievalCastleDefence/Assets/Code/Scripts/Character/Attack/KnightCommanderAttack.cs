@@ -41,7 +41,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
-        if(_knightCommanderAnimation != null) BlockWeapon();
+        if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
+        if (_knightCommanderAnimation != null) BlockWeapon();
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
@@ -51,13 +52,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
                 SwingSword();
             }
         }
-        
+
+       
     }
     private void CheckAttackCollision(GameObject collidedObject)
     {
         if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
         if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        //if (collidedObject.transform.gameObject.layer == 3 && !collidedObject.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking) return;
+     
 
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
@@ -128,7 +130,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
      
         if (opponent.gameObject.layer == 10 && isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {
@@ -145,7 +147,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
        
         if(opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry, CalculateAttackDirection(opponent.transform));
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {
