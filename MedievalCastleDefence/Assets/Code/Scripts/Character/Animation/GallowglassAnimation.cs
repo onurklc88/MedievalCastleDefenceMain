@@ -94,6 +94,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     private static void NetworkJumpAnimationChanged(Changed<GallowglassAnimation> changed)
     {
         changed.Behaviour._animationController.SetBool("IsPlayerKick", changed.Behaviour.IsPlayerKick);
+        changed.Behaviour._animationController.Play("Gallowglass-Kick", 0);
     }
     private static void NetworkedUpperbodyWalkAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
@@ -106,6 +107,8 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     private static void NetworkAttackAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
          changed.Behaviour._animationController.SetInteger("SwingIndex", changed.Behaviour.SwingIndex);
+        float animduration = changed.Behaviour._animationController.GetCurrentAnimatorStateInfo(0).length;
+        Debug.Log("anim time: " + animduration);
     }
 
     private static void NetworkedDamageAnimationStateChange(Changed<GallowglassAnimation> changed)
@@ -180,10 +183,6 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         IsPlayerParry = true;
         StartCoroutine(WaitParryAnimation());
-    }
-    private void PlayKickAnimation()
-    {
-        _animationController.SetBool("IsPlayerKick", IsPlayerKick);
     }
     private IEnumerator WaitJumpAnimation(float time)
     {

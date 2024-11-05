@@ -8,13 +8,15 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private NetworkPrefabRef _stormshieldNetworkPrefab = NetworkPrefabRef.Empty;
     [SerializeField] private NetworkPrefabRef _knightCommanderdNetworkPrefab = NetworkPrefabRef.Empty;
+    [SerializeField] private NetworkPrefabRef _gallowglassNetworkPrefab = NetworkPrefabRef.Empty;
+    [SerializeField] private NetworkPrefabRef _theSaxonMarkNetworkPrefab = NetworkPrefabRef.Empty;
     private NetworkObject _currentPlayerObject;
     public void PlayerJoined(PlayerRef player)
     {
         
         if (player == Runner.LocalPlayer)
             {
-                var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
+                var playerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
                 //  Debug.Log("test: " + player.PlayerId);
                 if (playerObject != null)
                 {
@@ -94,13 +96,22 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     private IEnumerator SpawnDelay(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType)
     {
         yield return new WaitForSeconds(1f);
-        if(selectedWarrirorType == CharacterStats.CharacterType.FootKnight)
+        
+        switch (selectedWarrirorType)
         {
-            _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
-        }
-        else
-        {
-            _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+            case CharacterStats.CharacterType.FootKnight:
+                _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                break;
+            case CharacterStats.CharacterType.KnightCommander:
+                _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                break;
+            case CharacterStats.CharacterType.Gallowglass:
+                _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                break;
+            case CharacterStats.CharacterType.TheSaxonMark:
+                _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                break;
+
         }
         PlayerStats stats = new PlayerStats();
         stats.PlayerWarrior = selectedWarrirorType;
