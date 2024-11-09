@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: a9139d0ec8916e942b177660e66e2d3d
 ModelImporter:
-  serializedVersion: 19301
+  serializedVersion: 21300
   internalIDToNameTable: []
   externalObjects: {}
   materials:
@@ -13,7 +13,8 @@ ModelImporter:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
     resampleCurves: 1
-    optimizeGameObjects: 0
+    optimizeGameObjects: 1
+    removeConstantScaleCurves: 0
     motionNodeName: 
     rigImportErrors: 
     rigImportWarnings: 
@@ -43,23 +44,30 @@ ModelImporter:
     importBlendShapes: 1
     importCameras: 1
     importLights: 1
+    nodeNameCollisionStrategy: 0
     fileIdsGeneration: 2
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
     preserveHierarchy: 0
     skinWeightsMode: 0
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
+    optimizeBones: 1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -490,18 +498,18 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: man-soldier-houndskull-c(Clone)
+    - name: man-soldier-ranger-fantasy-c(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
-    - name: man-soldier-houndskull-c
-      parentName: man-soldier-houndskull-c(Clone)
+    - name: man-soldier-ranger-medieval-c
+      parentName: man-soldier-ranger-fantasy-c(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: rig-main
-      parentName: man-soldier-houndskull-c(Clone)
+      parentName: man-soldier-ranger-fantasy-c(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
       scale: {x: 1, y: 1, z: 1}
@@ -568,7 +576,7 @@ ModelImporter:
     - name: LeftHandThumb2
       parentName: LeftHandThumb1
       position: {x: -0.00010487577, y: 0.03959024, z: 0.00033328403}
-      rotation: {x: 0.022436395, y: 0.0057894285, z: 0.03426416, w: 0.99914414}
+      rotation: {x: 0.022436397, y: 0.005789429, z: 0.034264162, w: 0.9991442}
       scale: {x: 0.99999994, y: 0.9999999, z: 0.9999999}
     - name: LeftHandThumb3
       parentName: LeftHandThumb2
@@ -583,7 +591,7 @@ ModelImporter:
     - name: LeftHandIndex1
       parentName: LeftHand
       position: {x: 0.03736589, y: 0.10989144, z: -0.005901076}
-      rotation: {x: 0.07358323, y: 0.01032699, z: -0.061630122, w: 0.9953294}
+      rotation: {x: 0.07358324, y: 0.01032699, z: -0.061630126, w: 0.9953294}
       scale: {x: 1, y: 0.99999994, z: 0.9999999}
     - name: LeftHandIndex2
       parentName: LeftHandIndex1
@@ -693,7 +701,7 @@ ModelImporter:
     - name: RightHandThumb3
       parentName: RightHandThumb2
       position: {x: -0, y: 0.042301755, z: -9.313226e-10}
-      rotation: {x: -0.000757571, y: -0.0064065573, z: -0.036691874, w: 0.9993058}
+      rotation: {x: -0.0007575711, y: -0.0064065573, z: -0.036691878, w: 0.9993058}
       scale: {x: 1, y: 1, z: 1}
     - name: RightHandThumb4
       parentName: RightHandThumb3
@@ -723,7 +731,7 @@ ModelImporter:
     - name: RightHandMiddle1
       parentName: RightHand
       position: {x: -0.012792534, y: 0.12101921, z: -0.0012461806}
-      rotation: {x: 0.07439513, y: -0.019305196, z: 0.041249588, w: 0.9961883}
+      rotation: {x: 0.074395135, y: -0.019305196, z: 0.04124959, w: 0.9961883}
       scale: {x: 1, y: 1, z: 1}
     - name: RightHandMiddle2
       parentName: RightHandMiddle1
@@ -733,7 +741,7 @@ ModelImporter:
     - name: RightHandMiddle3
       parentName: RightHandMiddle2
       position: {x: -0.00013582315, y: 0.033941366, z: 0.000008786039}
-      rotation: {x: -0.04044559, y: -0.0044495338, z: -0.0010974534, w: 0.9991712}
+      rotation: {x: -0.040445592, y: -0.004449534, z: -0.0010974535, w: 0.99917126}
       scale: {x: 0.99999994, y: 0.9999999, z: 1}
     - name: RightHandMiddle4
       parentName: RightHandMiddle3
@@ -743,7 +751,7 @@ ModelImporter:
     - name: RightHandRing1
       parentName: RightHand
       position: {x: 0.01413621, y: 0.1266161, z: 0.0022456765}
-      rotation: {x: 0.06608935, y: -0.029289968, z: 0.024474058, w: 0.99708337}
+      rotation: {x: 0.066089354, y: -0.02928997, z: 0.02447406, w: 0.9970834}
       scale: {x: 1, y: 1.0000001, z: 1}
     - name: RightHandRing2
       parentName: RightHandRing1
@@ -847,6 +855,8 @@ ModelImporter:
   animationType: 3
   humanoidOversampling: 1
   avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 
   assetBundleName: 

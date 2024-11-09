@@ -8,7 +8,9 @@ public class ArcheryAttack : CharacterAttackBehaviour
     private PlayerHUD _playerHUD;
     private KnightCommanderAnimation _knightCommanderAnimation;
     private CharacterMovement _characterMovement;
-    [SerializeField] private GameObject test;
+    private CharachterCameraController _camController;
+    [SerializeField] private GameObject _aimTarget;
+    private bool _isPlayerAiming;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -22,6 +24,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
         _characterStamina = GetScript<CharacterStamina>();
         _knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
         _characterMovement = GetScript<CharacterMovement>();
+        _camController = GetScript<CharachterCameraController>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -36,24 +39,13 @@ public class ArcheryAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        if (_characterMovement != null && _characterMovement.IsPlayerStunned) return;
-
-        var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        if (_characterMovement == null || _camController == null) return;
+        _isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        _camController.UpdateCameraPriority(true);
+        _aimTarget.SetActive(true);
+        if (_isPlayerAiming)
+            _camController.HandleArcheryCameraAction();
         //IsPlayerBlockingLocal = true;
-        if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
-        if (_knightCommanderAnimation != null) BlockWeapon();
-
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner))
-        {
-
-            if (_characterStamina.CurrentStamina > 30)
-            {
-                SwingSword();
-            }
-        }
-
 
     }
     private void CheckAttackCollision(GameObject collidedObject)

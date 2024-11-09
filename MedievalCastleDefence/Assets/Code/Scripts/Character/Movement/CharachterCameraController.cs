@@ -1,20 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.Rendering.Universal;
 using UnityEngine;
 using Fusion;
 using Cinemachine;
 
 
-public class CharachterCameraController : NetworkBehaviour
+public class CharachterCameraController : BehaviourRegistry
 {
     [SerializeField] private Transform _orientation;
     [SerializeField] private Transform _cameraTargetPoint;
     [SerializeField] private Transform _cameraLookAtTarget;
     [SerializeField] private Camera _uiCamera;
+    [SerializeField] private CinemachineFreeLook _archeryCamera;
     private CinemachineFreeLook _cinemachineCamera;
     private Camera _playerCamera;
-    [SerializeField] private GameObject _testCube;
+    
     [SerializeField] private RectTransform targetUIElement;
   
 
@@ -23,8 +22,6 @@ public class CharachterCameraController : NetworkBehaviour
     {
         if (HasStateAuthority)
         {
-            
-           // _testCube = GameObject.Find("Test");
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             _cinemachineCamera = FindObjectOfType<CinemachineFreeLook>();
@@ -34,6 +31,7 @@ public class CharachterCameraController : NetworkBehaviour
             _uiCamera.enabled = true;
             _cinemachineCamera.Follow = _cameraTargetPoint;
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
+            InitScript(this);
         }
 
     }
@@ -47,24 +45,10 @@ public class CharachterCameraController : NetworkBehaviour
         }
       
     }
-    private void LateUpdate()
-    {
-        //UpdateCursorPosition();
-    }
-   
-    private void Update()
-    {
-        //UpdateCursorPosition();
-
-    }
-
-    private void FixedUpdate()
-    {
-       // UpdateCursorPosition();
-    }
+  
     private void UpdateCursorPosition()
     {
-        if (_playerCamera == null || _testCube == null) return;
+        if (_playerCamera == null) return;
         Vector2 mousePosition = Input.mousePosition;
         targetUIElement.position = mousePosition;
     }
@@ -79,8 +63,34 @@ public class CharachterCameraController : NetworkBehaviour
         //transform.forward = dirToCombatLookAt.normalized;
     }
 
-    private void ZoomInCharacterCamera()
+    public void UpdateCameraPriority(bool state)
     {
+        if (_archeryCamera == null) return;
+        _archeryCamera.Priority = state ? 20 : 0;
+    }
 
+    public void HandleArcheryCameraAction()
+    {
+        
+        if (_archeryCamera == null) return;
+        float horizontalInput = Input.GetAxis("Mouse X");
+        float verticalInput = Input.GetAxis("Mouse Y");
+
+        // Cinemachine FreeLook kamera için yatay ve dikey inputlarý ayarlýyoruz
+        var xAxis = _cinemachineCamera.m_XAxis;
+        var yAxis = _cinemachineCamera.m_YAxis;
+
+        xAxis.Value += horizontalInput * 0.1f;  // X ekseninde sað-sol dönüþ
+        yAxis.Value -= verticalInput * 0.1f;    // Y ekseninde yukarý-aþaðý dönüþ
+
+        // Karakterin yönünü, kameranýn baktýðý yöne göre ayarlýyoruz
+        Vector3 dirToCombatLookAt = _cameraTargetPoint.position - _archeryCamera.transform.position;
+        dirToCombatLookAt.y = 0;  // Y eksenindeki dönüþü sýfýrla, böylece sadece yatayda döner
+
+        Quaternion targetRotation = Quaternion.LookRotation(dirToCombatLookAt);  // Kamera ile karakterin yönünü hizala
+
+        // Karakterin rotasýný yavaþça döndür
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 15f);
+        
     }
 }
