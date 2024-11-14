@@ -65,32 +65,13 @@ public class CharachterCameraController : BehaviourRegistry
 
     public void UpdateCameraPriority(bool state)
     {
-        if (_archeryCamera == null) return;
-        _archeryCamera.Priority = state ? 20 : 0;
+      
+       if(state)
+        _cinemachineCamera.m_Lens.FieldOfView = 30;
+       else
+         _cinemachineCamera.m_Lens.FieldOfView = 45;
+        //_archeryCamera.Priority = state ? 20 : 0;
     }
 
-    public void HandleArcheryCameraAction()
-    {
-        
-        if (_archeryCamera == null) return;
-        float horizontalInput = Input.GetAxis("Mouse X");
-        float verticalInput = Input.GetAxis("Mouse Y");
-
-        // Cinemachine FreeLook kamera için yatay ve dikey inputlarý ayarlýyoruz
-        var xAxis = _cinemachineCamera.m_XAxis;
-        var yAxis = _cinemachineCamera.m_YAxis;
-
-        xAxis.Value += horizontalInput * 0.1f;  // X ekseninde sað-sol dönüþ
-        yAxis.Value -= verticalInput * 0.1f;    // Y ekseninde yukarý-aþaðý dönüþ
-
-        // Karakterin yönünü, kameranýn baktýðý yöne göre ayarlýyoruz
-        Vector3 dirToCombatLookAt = _cameraTargetPoint.position - _archeryCamera.transform.position;
-        dirToCombatLookAt.y = 0;  // Y eksenindeki dönüþü sýfýrla, böylece sadece yatayda döner
-
-        Quaternion targetRotation = Quaternion.LookRotation(dirToCombatLookAt);  // Kamera ile karakterin yönünü hizala
-
-        // Karakterin rotasýný yavaþça döndür
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 15f);
-        
-    }
+   
 }
