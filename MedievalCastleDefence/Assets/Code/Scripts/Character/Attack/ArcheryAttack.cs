@@ -12,8 +12,9 @@ public class ArcheryAttack : CharacterAttackBehaviour
     [SerializeField] private GameObject _aimTarget;
     [SerializeField] private GameObject _lookAtTarget;
     [SerializeField] private GameObject _arrow;
+    [SerializeField] private GameObject _arrowFirePoint;
     private bool _isPlayerAiming;
-    private bool _isReadyToThrow;
+  
     private float _drawDuration;
     public override void Spawned()
     {
@@ -21,7 +22,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
         _characterController = GetComponent<CharacterController>();
         _characterType = CharacterStats.CharacterType.FootKnight;
         InitScript(this);
-        _drawDuration = 2f;
+        _drawDuration = 0.1f;
     }
     private void Start()
     {
@@ -44,70 +45,53 @@ public class ArcheryAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        if (_characterMovement == null || _camController == null || _isReadyToThrow) return;
+        if (_characterMovement == null || _camController == null) return;
         _isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         _camController.UpdateCameraPriority(_isPlayerAiming);
         _aimTarget.SetActive(_isPlayerAiming);
         UpdateTargetPosition();
-        if (_isPlayerAiming)
-        {
-           if(_drawDuration > 0)
-           {
-                _drawDuration -= Time.deltaTime;
-                Debug.Log("Test: " + _drawDuration);
-           }
-        }
-
-        if (!_isPlayerAiming)
-        {
-            if(_drawDuration <= 0)
-            {
-                RelaseArrow();
-            }
-            _drawDuration = 2f;
-        }
-      
-      
+        CalculateDrawDuration();
     }
 
     private void UpdateTargetPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Vector3 targetPosition = _lookAtTarget.transform.position;
-        float calculatedY = ray.origin.y + ray.direction.y * 10f;
-        targetPosition.y = Mathf.Min(calculatedY, 2f);
-       _lookAtTarget.transform.position = Vector3.Lerp(_lookAtTarget.transform.position, targetPosition, Time.deltaTime * 100f);
-  
+        Vector3 endPoint = ray.origin + ray.direction * 10f;
+        _lookAtTarget.transform.position = Vector3.Lerp(_lookAtTarget.transform.position, endPoint, Time.deltaTime * 50f);
+
     }
 
     private void RelaseArrow()
     {
-        _drawDuration = 2f;
-        Debug.Log("relaseArrow");
+        var arrow = Runner.Spawn(_arrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Vector3 endPoint = ray.origin + ray.direction * 10f;
+        var arrowScript = arrow.GetComponent<Arrow>();
+        arrowScript.ExecuteShot(endPoint);
     }
 
    
     private void CalculateDrawDuration()
     {
-        
-        if(_drawDuration > 0 && _isReadyToThrow)
+        if (_isPlayerAiming)
         {
-            _drawDuration -= Time.deltaTime;
+            if (_drawDuration > 0)
+            {
+                _drawDuration -= Time.deltaTime;
+                Debug.Log("Test: " + _drawDuration);
+            }
         }
         else
         {
-            _isReadyToThrow = true;
-          
-            StartCoroutine(UpdateReadyToAým());
-            _drawDuration = 2f;
+            if (_drawDuration <= 0)
+            {
+                RelaseArrow();
+            }
+            _drawDuration = 0.1f;
         }
     }
 
-    private IEnumerator UpdateReadyToAým()
-    {
-        yield return new WaitForSeconds(1f);
-        _isReadyToThrow = false;
-    }
+    
     private void CheckAttackCollision(GameObject collidedObject)
     {
         if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
@@ -136,9 +120,9 @@ public class ArcheryAttack : CharacterAttackBehaviour
     }
     void OnDrawGizmos()
     {
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
-
         Gizmos.color = Color.red;
         Gizmos.DrawLine(ray.origin, endPoint);
         Gizmos.DrawSphere(endPoint, 0.2f);
