@@ -35,6 +35,10 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
                 _characterAnim = GetScript<KnightCommanderAnimation>();
                 _characterMovement = GetScript<CharacterMovement>();
                 break;
+            case CharacterStats.CharacterType.Ranger:
+                _characterMovement = GetScript<CharacterMovement>();
+                break;
+
         }
     }
 
@@ -42,7 +46,7 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
     public void DealDamageRPC(float givenDamage)
     {
         NetworkedHealth -= givenDamage;
-        _characterAnim.UpdateDamageAnimationState();
+        //_characterAnim.UpdateDamageAnimationState();
         if (NetworkedHealth <= 0)
         {
             _playerHUD.UpdatePlayerHealthUI(-1);

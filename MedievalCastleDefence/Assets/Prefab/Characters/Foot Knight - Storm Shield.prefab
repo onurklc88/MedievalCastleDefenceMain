@@ -2881,6 +2881,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6574679436527725842}
   - component: {fileID: 999193052347185001}
+  - component: {fileID: 9165233144116820496}
   - component: {fileID: 999193052347185007}
   - component: {fileID: 421697461467430077}
   - component: {fileID: 894651988034674950}
@@ -2891,7 +2892,6 @@ GameObject:
   - component: {fileID: 2709968131806048082}
   - component: {fileID: -3748063764809183040}
   - component: {fileID: 3056136871117195113}
-  - component: {fileID: 9165233144116820496}
   - component: {fileID: 6511355011640638625}
   - component: {fileID: 2012100402955408734}
   m_Layer: 0
@@ -2941,6 +2941,7 @@ MonoBehaviour:
     RawGuidValue: 80c4a9049dee6674c9a542b1dd539792
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: 9165233144116820496}
   - {fileID: 999193052347185007}
   - {fileID: 421697461467430077}
   - {fileID: 8107039158861367189}
@@ -2949,10 +2950,26 @@ MonoBehaviour:
   - {fileID: 2709968131806048082}
   - {fileID: -3748063764809183040}
   - {fileID: 3056136871117195113}
-  - {fileID: 9165233144116820496}
   - {fileID: 6511355011640638625}
   - {fileID: 2012100402955408734}
   SimulationBehaviours: []
+--- !u!114 &9165233144116820496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5797861915547711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97eef8a10e1610c4bae96ad96709c86c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WordOffset: 0
+  WordCount: 0
+  _interpolationDataSource: 0
+  _characterStats: {fileID: 0}
+  SelectedCharacter: 1
 --- !u!114 &999193052347185007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3069,10 +3086,12 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
+  _characterStats: {fileID: 11400000, guid: b6abeda909e2e544daaed4dd2eafa7bc, type: 2}
   _orientation: {fileID: 8493372368937935370}
   _cameraTargetPoint: {fileID: 554130978381463020}
   _cameraLookAtTarget: {fileID: 554130978381463020}
   _uiCamera: {fileID: 1206425045858921329}
+  targetUIElement: {fileID: 0}
 --- !u!114 &5287867811867673000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3112,10 +3131,7 @@ MonoBehaviour:
   _IsPlayerBlocking:
     _value: 0
   _PlayerSwordPosition: 0
-  _colliders:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  _weaponStats: {fileID: 11400000, guid: 18a73990dea2edc44a6ce931f21b823c, type: 2}
+  _weaponStats: {fileID: 11400000, guid: 463abda38545e364c9d8cede376595af, type: 2}
   _blockArea: {fileID: 0}
   _characterType: 1
   _rpcdebugger: {fileID: 5287867811867673000}
@@ -3174,22 +3190,6 @@ MonoBehaviour:
   - foot-knight-jump
   _attackStates:
   - OnPlayerAttack
---- !u!114 &9165233144116820496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97eef8a10e1610c4bae96ad96709c86c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 0}
 --- !u!114 &6511355011640638625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3226,6 +3226,7 @@ MonoBehaviour:
   _characterHealth: {fileID: 4810856896995340322}
   _respawnPanel: {fileID: 4212730486735395956}
   _arrowImage: []
+  _aimTarget: {fileID: 0}
 --- !u!1 &5887370007885655493
 GameObject:
   m_ObjectHideFlags: 0

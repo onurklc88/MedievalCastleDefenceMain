@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8016456241696588803}
   - component: {fileID: 6408613404227324838}
   - component: {fileID: 9154411381596241772}
-  - component: {fileID: 8224424317647487407}
+  - component: {fileID: 2554954926652878852}
   m_Layer: 0
   m_Name: InterpolationTarget
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8224424317647487407
+--- !u!65 &2554954926652878852
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -92,11 +92,11 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7209133624748777145}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.06989315, y: 0.08819561, z: 0.91928416}
-  m_Center: {x: -0.0007150958, y: -0.001533702, z: -0.07519712}
+  m_Size: {x: 0.05, y: 0.08819561, z: 0.64}
+  m_Center: {x: 0, y: -0.001533702, z: -0.06}
 --- !u!1 &9116450625100534685
 GameObject:
   m_ObjectHideFlags: 0
@@ -109,7 +109,6 @@ GameObject:
   - component: {fileID: 9116450625100534659}
   - component: {fileID: 5715070089590923360}
   - component: {fileID: 7896605160081382439}
-  - component: {fileID: 8675461351191096991}
   - component: {fileID: 3154435040767007159}
   m_Layer: 0
   m_Name: Arrow
@@ -205,19 +204,8 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _rigidbody: {fileID: 3154435040767007159}
---- !u!65 &8675461351191096991
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9116450625100534685}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.1601975, y: 0.08819561, z: 4.147057}
-  m_Center: {x: -0.009180207, y: -0.001533702, z: 2.52}
+  _weapon: {fileID: 11400000, guid: 18a73990dea2edc44a6ce931f21b823c, type: 2}
+  _interpolationTarget: {fileID: 8016456241696588803}
 --- !u!54 &3154435040767007159
 Rigidbody:
   m_ObjectHideFlags: 0

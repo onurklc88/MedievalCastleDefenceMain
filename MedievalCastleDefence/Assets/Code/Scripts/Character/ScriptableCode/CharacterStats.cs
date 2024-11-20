@@ -13,7 +13,7 @@ public class CharacterStats : ScriptableObject
         KnightCommander,
         Gallowglass,
         TheSaxonMark,
-        Arbalet
+        Ranger
    }
    public CharacterType WarriorType;
    public float MoveSpeed;

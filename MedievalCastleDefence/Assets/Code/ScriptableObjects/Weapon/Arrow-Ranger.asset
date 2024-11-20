@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 31711101b9d87754293454d7db3b4ddf, type: 3}
-  m_Name: Sword-Falshion
+  m_Name: Arrow-Ranger
   m_EditorClassIdentifier: 
   TimeBetweenSwings: 1
-  Damage: 25
-  StaminaWaste: 30
-  WeaponStaminaReductionOnParry: 40
+  Damage: 50
+  StaminaWaste: 0
+  WeaponStaminaReductionOnParry: 0
   SkillCooldown: 0

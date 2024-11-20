@@ -10,6 +10,7 @@ public class PlayerHUD : BehaviourRegistry
     private CharacterStamina _characterStamina;
     [SerializeField] private GameObject _respawnPanel;
     [SerializeField] private GameObject[] _arrowImage;
+    [SerializeField] private GameObject _aimTarget;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -76,5 +77,12 @@ public class PlayerHUD : BehaviourRegistry
         EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
 
         _respawnPanel.SetActive(false);
+    }
+
+    public void UpdateAimTargetState(bool condition)
+    {
+        if (!Object.HasStateAuthority) return;
+        
+        _aimTarget.SetActive(condition);
     }
 }

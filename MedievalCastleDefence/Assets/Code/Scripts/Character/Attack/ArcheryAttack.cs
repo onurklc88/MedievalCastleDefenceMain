@@ -6,21 +6,19 @@ using Fusion;
 public class ArcheryAttack : CharacterAttackBehaviour
 {
     private PlayerHUD _playerHUD;
-    private KnightCommanderAnimation _knightCommanderAnimation;
     private CharacterMovement _characterMovement;
     private CharachterCameraController _camController;
-    [SerializeField] private GameObject _aimTarget;
     [SerializeField] private GameObject _lookAtTarget;
     [SerializeField] private GameObject _arrow;
     [SerializeField] private GameObject _arrowFirePoint;
-    private bool _isPlayerAiming;
+ 
   
     private float _drawDuration;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
         _characterController = GetComponent<CharacterController>();
-        _characterType = CharacterStats.CharacterType.FootKnight;
+        _characterType = CharacterStats.CharacterType.Ranger;
         InitScript(this);
         _drawDuration = 0.1f;
     }
@@ -28,7 +26,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
     {
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
-        _knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
+        //_knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
         _characterMovement = GetScript<CharacterMovement>();
         _camController = GetScript<CharachterCameraController>();
     }
@@ -46,11 +44,12 @@ public class ArcheryAttack : CharacterAttackBehaviour
     {
         if (!Object.HasStateAuthority) return;
         if (_characterMovement == null || _camController == null) return;
-        _isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        var _isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        _characterMovement.IsInputDisabled = _isPlayerAiming;
         _camController.UpdateCameraPriority(_isPlayerAiming);
-        _aimTarget.SetActive(_isPlayerAiming);
+        _playerHUD.UpdateAimTargetState(_isPlayerAiming);
         UpdateTargetPosition();
-        CalculateDrawDuration();
+        CalculateDrawDuration(_isPlayerAiming);
     }
 
     private void UpdateTargetPosition()
@@ -63,22 +62,22 @@ public class ArcheryAttack : CharacterAttackBehaviour
 
     private void RelaseArrow()
     {
-        var arrow = Runner.Spawn(_arrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
+        var arrow = Runner.Spawn(_arrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
         var arrowScript = arrow.GetComponent<Arrow>();
-        arrowScript.ExecuteShot(endPoint);
+        arrowScript.ExecuteShot(ray.direction);
     }
 
    
-    private void CalculateDrawDuration()
+    private void CalculateDrawDuration(bool condition)
     {
-        if (_isPlayerAiming)
+        if (condition)
         {
             if (_drawDuration > 0)
             {
                 _drawDuration -= Time.deltaTime;
-                Debug.Log("Test: " + _drawDuration);
+               
             }
         }
         else

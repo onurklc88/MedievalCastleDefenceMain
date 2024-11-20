@@ -9,13 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f1de1650e67ad24da7a2c06cfeea40e, type: 3}
-  m_Name: TheSaxonMark
+  m_Script: {fileID: 11500000, guid: 31711101b9d87754293454d7db3b4ddf, type: 3}
+  m_Name: Sword-Falshion 1
   m_EditorClassIdentifier: 
-  WarriorType: 4
-  MoveSpeed: 4
-  SprintSpeed: 4.5
-  TotalHealth: 170
-  Stamina: 100
-  KnockbackStaminaLimit: 40
-  KnockBackDuration: 1.5
+  TimeBetweenSwings: 1
+  Damage: 25
+  StaminaWaste: 30
+  WeaponStaminaReductionOnParry: 40
+  SkillCooldown: 0

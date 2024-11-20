@@ -2719,13 +2719,13 @@ GameObject:
   - component: {fileID: 6574679436527725842}
   - component: {fileID: 999193052347185001}
   - component: {fileID: 999193052347185007}
+  - component: {fileID: 9165233144116820496}
   - component: {fileID: 421697461467430077}
   - component: {fileID: 894651988034674950}
   - component: {fileID: 8107039158861367189}
   - component: {fileID: 4523527147080989133}
   - component: {fileID: 5287867811867673000}
   - component: {fileID: -3748063764809183040}
-  - component: {fileID: 9165233144116820496}
   - component: {fileID: 6511355011640638625}
   - component: {fileID: 2012100402955408734}
   - component: {fileID: 534399287956474617}
@@ -2779,12 +2779,12 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 999193052347185007}
+  - {fileID: 9165233144116820496}
   - {fileID: 421697461467430077}
   - {fileID: 8107039158861367189}
   - {fileID: 4523527147080989133}
   - {fileID: 5287867811867673000}
   - {fileID: -3748063764809183040}
-  - {fileID: 9165233144116820496}
   - {fileID: 6511355011640638625}
   - {fileID: 2012100402955408734}
   - {fileID: 4034329516684917425}
@@ -2820,6 +2820,23 @@ MonoBehaviour:
     RotTeleportRadians: 1.5
   UseLegacySharedModeInterpolation: 0
   TargetInterpolationDelay: 0.03
+--- !u!114 &9165233144116820496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5797861915547711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97eef8a10e1610c4bae96ad96709c86c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WordOffset: 0
+  WordCount: 0
+  _interpolationDataSource: 0
+  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  SelectedCharacter: 3
 --- !u!114 &421697461467430077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2885,10 +2902,12 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
+  _characterStats: {fileID: 0}
   _orientation: {fileID: 1989670152904522105}
   _cameraTargetPoint: {fileID: 2824621579131473667}
   _cameraLookAtTarget: {fileID: 4365907165265836184}
   _uiCamera: {fileID: 1206425045858921329}
+  targetUIElement: {fileID: 0}
 --- !u!114 &5287867811867673000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2923,22 +2942,6 @@ MonoBehaviour:
   _interpolationDataSource: 0
   _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
   _NetworkedHealth: 0
---- !u!114 &9165233144116820496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97eef8a10e1610c4bae96ad96709c86c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
 --- !u!114 &6511355011640638625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2977,6 +2980,7 @@ MonoBehaviour:
   _arrowImage:
   - {fileID: 1271247894814255012}
   - {fileID: 6745414335553703350}
+  _aimTarget: {fileID: 0}
 --- !u!95 &534399287956474617
 Animator:
   serializedVersion: 5
@@ -3043,6 +3047,7 @@ MonoBehaviour:
   _characterDirections:
   - PlayerVerticalDirection
   - PlayerHorizontalDirection
+  _AttackDirection: 0
   _PlayerVerticalDirection: 0
   _PlayerHorizontalDirection: 0
   _OnPlayerWalk:

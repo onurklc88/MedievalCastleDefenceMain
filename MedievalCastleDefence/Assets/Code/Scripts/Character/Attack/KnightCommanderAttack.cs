@@ -77,6 +77,10 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
                 case CharacterStats.CharacterType.KnightCommander:
                     DamageToKnightCommander(collidedObject, _weaponStats.Damage);
                     break;
+                case CharacterStats.CharacterType.Ranger:
+
+                    break;
+                    
 
             }
         }

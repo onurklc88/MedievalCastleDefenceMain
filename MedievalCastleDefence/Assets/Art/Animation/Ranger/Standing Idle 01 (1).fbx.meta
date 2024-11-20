@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 430b4f979080a094390adccb8ff5dbee
+guid: 564320d33d0febc49a732e3541a10760
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
@@ -498,13 +498,13 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: Standing Idle 01(Clone)
+    - name: standing idle 01(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: rig-main
-      parentName: Standing Idle 01(Clone)
+      parentName: standing idle 01(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
       scale: {x: 1, y: 1, z: 1}
@@ -834,7 +834,7 @@ ModelImporter:
       rotation: {x: -0.00000047683716, y: -0.0000004582107, z: 0.00000030361116, w: 1}
       scale: {x: 1.0000002, y: 1.0000002, z: 1.0000001}
     - name: man-soldier-ranger-medieval-c
-      parentName: Standing Idle 01(Clone)
+      parentName: standing idle 01(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}

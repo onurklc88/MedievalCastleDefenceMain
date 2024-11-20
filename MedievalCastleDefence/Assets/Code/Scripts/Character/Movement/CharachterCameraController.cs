@@ -10,7 +10,6 @@ public class CharachterCameraController : BehaviourRegistry
     [SerializeField] private Transform _cameraTargetPoint;
     [SerializeField] private Transform _cameraLookAtTarget;
     [SerializeField] private Camera _uiCamera;
-    [SerializeField] private CinemachineFreeLook _archeryCamera;
     private CinemachineFreeLook _cinemachineCamera;
     private Camera _playerCamera;
     
@@ -48,7 +47,8 @@ public class CharachterCameraController : BehaviourRegistry
   
     private void UpdateCursorPosition()
     {
-        if (_playerCamera == null) return;
+        if (!Object.HasStateAuthority) return;
+        if (_playerCamera == null || targetUIElement == null) return;
         Vector2 mousePosition = Input.mousePosition;
         targetUIElement.position = mousePosition;
     }
