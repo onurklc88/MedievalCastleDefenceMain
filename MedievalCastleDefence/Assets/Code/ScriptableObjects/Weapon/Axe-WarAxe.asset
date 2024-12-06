@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Axe-WarAxe
   m_EditorClassIdentifier: 
   TimeBetweenSwings: 1.8
-  Damage: 10
-  StaminaWaste: 20
+  Damage: 55
+  StaminaWaste: 35
   WeaponStaminaReductionOnParry: 60
   SkillCooldown: 0

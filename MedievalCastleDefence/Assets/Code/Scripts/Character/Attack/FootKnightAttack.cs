@@ -9,7 +9,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     [SerializeField] private RPCDebugger _rpcdebugger;
     private FootknightAnimation _animation;
     private CharacterMovement _characterMovement;
-    private bool _isCharacterSpawned;
+  
     
     public override void Spawned()
     {
@@ -39,11 +39,15 @@ public class FootKnightAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        if (_characterMovement != null && _characterMovement.IsPlayerStunned) return;
+        if (_characterMovement != null && _characterMovement.IsPlayerStunned)
+        {
+            IsPlayerBlockingLocal = false;
+            _animation.IsPlayerParry = IsPlayerBlockingLocal;
+            return;
+        }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
-        
         if (_animation != null)
             _animation.IsPlayerParry = IsPlayerBlockingLocal;
 
@@ -54,7 +58,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
 
             if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Skill) && AttackCooldown.ExpiredOrNotRunning(Runner))
             {
-                ParryAttack();
+                //ParryAttack();
             }
            
         }
@@ -71,99 +75,90 @@ public class FootKnightAttack : CharacterAttackBehaviour
             if(_characterMovement != null)
                 _characterMovement.CurrentMoveSpeed = _characterStats.SprintSpeed;
         }
-        if (pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload))
-        {
-           
-            
-            var test = Runner.GetPlayerObject(Runner.LocalPlayer);
-           //IsPlayerParry = true;
-            
-            if(test != null)
-            {
-                
-               
-                _isCharacterSpawned = false;
-                //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
-                base.OnObjectDestroy();
-            }
-            
-        }
-      
-
+       
         PreviousButton = input.NetworkButtons;
     }
-   private void ParryAttack()
-    {
 
-    } 
     private void CheckAttackCollision(GameObject collidedObject)
     {
         if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
         if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        //if (collidedObject.transform.gameObject.layer == 3 && !collidedObject.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking) return;
-        
+       
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
             var opponentType = base.GetCharacterType(collidedObject);
+           
             switch (opponentType)
             {
                 case CharacterStats.CharacterType.None:
-                   
-                    break;
+                   break;
                 case CharacterStats.CharacterType.FootKnight:
                    DamageToFootknight(collidedObject, _weaponStats.Damage);
                     break;
                 case CharacterStats.CharacterType.Gallowglass:
+                    DamageToGallowGlass(collidedObject);
                     break;
                 case CharacterStats.CharacterType.KnightCommander:
                     DamageToKnightCommander(collidedObject, _weaponStats.Damage);
+                    break;
+                case CharacterStats.CharacterType.Ranger:
+                    var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
+                    opponentHealth.DealDamageRPC(_weaponStats.Damage);
                     break;
 
             }
         }
     }
-    
     protected override void SwingSword()
     {
-        if (IsPlayerBlockingLocal || !_characterController.isGrounded) return;
+        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
         _animation.UpdateSwingAnimationState(true);
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
-        StartCoroutine(CollisionDelay(0.20f));
-    }
-    private IEnumerator CollisionDelay(float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
-        Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 0.5f);
-        for (int i = 0; i < _hitColliders.Length; i++)
-        {
-           CheckAttackCollision(_hitColliders[i].transform.gameObject);
-        }
+        StartCoroutine(PerformAttack());
     }
    
+    private IEnumerator PerformAttack()
+    {
+        base._blockArea.enabled = false;
+        yield return new WaitForSeconds(0.20f);
+        float elapsedTime = 0f;
+        while (elapsedTime < 0.2f)
+        {
+            Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 0.5f);
+
+            if (_hitColliders.Length > 0)
+            {
+
+                CheckAttackCollision(_hitColliders[0].transform.gameObject);
+                yield break;
+            }
+            base._blockArea.enabled = true;
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+    }
+
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
-        Debug.Log("damage to footnight");
-        var dotValue = base.CalculateAttackPosition(opponent.transform);
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+      
         if (opponent.gameObject.layer == 10 && !isOpponentParrying)
         {
-            return;
+           return;
         }
-      
+        
         if (opponent.gameObject.layer == 10 && isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+           opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {
-            opponentHealth.DealDamageRPC(damageValue);
+           opponentHealth.DealDamageRPC(damageValue);
         }
-
     }
-
     protected override void DamageToKnightCommander(GameObject opponent, float damageValue)
     {
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
@@ -178,6 +173,33 @@ public class FootKnightAttack : CharacterAttackBehaviour
         {
             opponentHealth.DealDamageRPC(damageValue);
         }
+    }
+
+    protected override void DamageToGallowGlass(GameObject opponent)
+    {
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
+
+        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        {
+            if (opponentSwordPosition == PlayerSwordPositionLocal)
+            {
+                opponentHealth.DealDamageRPC(_weaponStats.Damage);
+            }
+            else
+            {
+                opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            }
+
+        }
+        else
+        {
+            opponentHealth.DealDamageRPC(_weaponStats.Damage);
+        }
+
+
     }
 
     private void OnDrawGizmos()

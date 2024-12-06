@@ -35,8 +35,12 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        if (_characterMovement != null && _characterMovement.IsPlayerStunned) return;
-        
+        if (_characterMovement != null && _characterMovement.IsPlayerStunned) 
+        {
+            IsPlayerBlockingLocal = false;
+            _knightCommanderAnimation.IsPlayerParry = IsPlayerBlocking;
+            return; 
+        }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
@@ -52,15 +56,17 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
                 SwingSword();
             }
         }
-
        
+
     }
     private void CheckAttackCollision(GameObject collidedObject)
     {
+       
         if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
-        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-     
+        Debug.Log(collidedObject.transform.GetComponentInParent<NetworkObject>().Id + " " + transform.GetComponentInParent<NetworkObject>().Id);
+        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id)  return;
 
+        //Debug.Log("ObjectName: " + collidedObject.transform.gameObject.name);
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
             var opponentType = base.GetCharacterType(collidedObject);
@@ -73,21 +79,23 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
                     DamageToFootknight(collidedObject, _weaponStats.Damage);
                     break;
                 case CharacterStats.CharacterType.Gallowglass:
+                    DamageToGallowGlass(collidedObject);
                     break;
                 case CharacterStats.CharacterType.KnightCommander:
                     DamageToKnightCommander(collidedObject, _weaponStats.Damage);
                     break;
                 case CharacterStats.CharacterType.Ranger:
-
+                    var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
+                    opponentHealth.DealDamageRPC(_weaponStats.Damage);
                     break;
-                    
+
 
             }
         }
     }
     protected override void SwingSword()
     {
-        if (IsPlayerBlockingLocal || !_characterController.isGrounded) return;
+        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
         _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition()));
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
@@ -121,8 +129,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
-        Debug.Log("damage to footnight");
-        var dotValue = base.CalculateAttackPosition(opponent.transform);
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
@@ -144,7 +150,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
     protected override void DamageToKnightCommander(GameObject opponent, float damageValue)
     {
-        Debug.Log("damage to knightCommander");
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
@@ -159,6 +164,32 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         }
     }
 
+    protected override void DamageToGallowGlass(GameObject opponent)
+    {
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
+
+        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        {
+            if (opponentSwordPosition == PlayerSwordPositionLocal)
+            {
+                opponentHealth.DealDamageRPC(_weaponStats.Damage);
+            }
+            else
+            {
+                opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            }
+
+        }
+        else
+        {
+            opponentHealth.DealDamageRPC(_weaponStats.Damage);
+        }
+
+
+    }
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

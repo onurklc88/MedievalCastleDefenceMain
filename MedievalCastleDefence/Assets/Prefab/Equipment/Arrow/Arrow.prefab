@@ -206,6 +206,7 @@ MonoBehaviour:
   _rigidbody: {fileID: 3154435040767007159}
   _weapon: {fileID: 11400000, guid: 18a73990dea2edc44a6ce931f21b823c, type: 2}
   _interpolationTarget: {fileID: 8016456241696588803}
+  _collison: {fileID: 2554954926652878852}
 --- !u!54 &3154435040767007159
 Rigidbody:
   m_ObjectHideFlags: 0

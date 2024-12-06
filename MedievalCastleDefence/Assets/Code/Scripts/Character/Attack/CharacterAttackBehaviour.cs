@@ -41,6 +41,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     protected virtual void DamageToFootknight(GameObject opponent, float damageValue) { }
     protected virtual void DamageToKnightCommander(GameObject opponent, float damageValue) { }
     protected virtual void DamageToGallowGlass(GameObject opponent) { }
+    protected virtual void DamageToRanger(GameObject opponent) { }
 
     private static void OnNetworkBlockChanged(Changed<CharacterAttackBehaviour> changed)
     {

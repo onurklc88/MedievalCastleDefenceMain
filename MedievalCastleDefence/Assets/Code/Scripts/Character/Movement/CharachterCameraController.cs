@@ -65,12 +65,22 @@ public class CharachterCameraController : BehaviourRegistry
 
     public void UpdateCameraPriority(bool state)
     {
-      
+        if (!state)
+        {
+            _cinemachineCamera.m_Lens.FieldOfView = 45;
+        }
+        else
+        {
+            if(_cinemachineCamera.m_Lens.FieldOfView > 30)
+                _cinemachineCamera.m_Lens.FieldOfView -= Time.deltaTime * 150f;
+        }
+
+        /*
        if(state)
         _cinemachineCamera.m_Lens.FieldOfView = 30;
        else
          _cinemachineCamera.m_Lens.FieldOfView = 45;
-        //_archeryCamera.Priority = state ? 20 : 0;
+       */
     }
 
    

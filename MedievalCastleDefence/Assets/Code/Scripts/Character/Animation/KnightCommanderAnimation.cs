@@ -25,6 +25,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
+        _characterMovement = GetScript<CharacterMovement>();
     }
   
     public override void FixedUpdateNetwork()
@@ -37,7 +38,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
-        if (!Object.HasStateAuthority) return;
+        if (!Object.HasStateAuthority || _characterMovement.IsPlayerStunned) return;
     
 
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)

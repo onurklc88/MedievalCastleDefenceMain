@@ -37,12 +37,17 @@ public class GallowglassAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        if (_characterMovement != null && _characterMovement.IsPlayerStunned) return;
+        if (_characterMovement != null && _characterMovement.IsPlayerStunned)
+        {
+            //IsPlayerBlocking = false;
+            //_gallowGlassAnimation.IsPlayerParry = IsPlayerBlocking;
+            return;
+        }
 
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-        //IsPlayerBlockingLocal = true;
+       // IsPlayerBlockingLocal = true;
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
         if (_gallowGlassAnimation != null) BlockWeapon();
         
@@ -59,15 +64,11 @@ public class GallowglassAttack : CharacterAttackBehaviour
             _characterMovement.IsInputDisabled = true;
             KickAction();
         }
-      //  Debug.Log($"IsPlayerBlockingLocal: {IsPlayerBlockingLocal}" + "PlayerSwordPos: " +PlayerSwordPositionLocal);
-        /*
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload))
-        {
+
+         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && _kickCooldown.ExpiredOrNotRunning(Runner))
+         {
            
-           StartCoroutine(_characterMovement.KnockbackPlayer(AttackDirection.Forward));
-            //_gallowGlassAnimation.UpdateStunAnimationState();
-        }
-        */
+         }
     }
     private void CheckAttackCollision(GameObject collidedObject)
     {
@@ -91,13 +92,17 @@ public class GallowglassAttack : CharacterAttackBehaviour
                 case CharacterStats.CharacterType.KnightCommander:
                     DamageToKnightCommander(collidedObject, _weaponStats.Damage);
                     break;
+                case CharacterStats.CharacterType.Ranger:
+                    var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
+                    opponentHealth.DealDamageRPC(_weaponStats.Damage);
+                    break;
 
             }
         }
     }
     protected override void SwingSword()
     {
-       if (IsPlayerBlockingLocal || !_characterController.isGrounded) return;
+       if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition()));
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
@@ -143,8 +148,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
     {
         yield return new WaitForSeconds(0.65f);
       
-        Vector3 kickPostion = transform.position + transform.up + transform.forward * 0.85f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
-        Collider[] _hitColliders = Physics.OverlapSphere(kickPostion, 0.5f);
+        Vector3 kickPostion = transform.position + transform.up + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+       
+        Collider[] _hitColliders = Physics.OverlapSphere(kickPostion, 0.55f);
         for(int i = 0; i < _hitColliders.Length; i++)
         {
             if (_hitColliders[i].gameObject.layer != 10)
@@ -156,8 +162,6 @@ public class GallowglassAttack : CharacterAttackBehaviour
     protected override void BlockWeapon()
     {
        _gallowGlassAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
-        
-        
     }
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
@@ -215,12 +219,15 @@ public class GallowglassAttack : CharacterAttackBehaviour
        
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            if(opponentSwordPosition == PlayerSwordPositionLocal)
+            Debug.Log("OpponentSwingPOs: " + opponentSwordPosition + " My sword position: " +PlayerSwordPositionLocal);
+            if (opponentSwordPosition == PlayerSwordPositionLocal)
             {
+                
                  opponentHealth.DealDamageRPC(_weaponStats.Damage);
             }
             else
             {
+                Debug.Log("Blocked");
                 opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
             }
            
@@ -258,7 +265,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         Gizmos.matrix = Matrix4x4.identity; // Varsayýlan matris
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward * 0.85f + transform.right * 0.3f, 0.4f);
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward * 1.1f + transform.right * 0.3f, 0.55f);
     }
 
 }

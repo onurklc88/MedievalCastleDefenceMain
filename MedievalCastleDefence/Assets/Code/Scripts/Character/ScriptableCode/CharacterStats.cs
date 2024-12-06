@@ -12,7 +12,6 @@ public class CharacterStats : ScriptableObject
         FootKnight,
         KnightCommander,
         Gallowglass,
-        TheSaxonMark,
         Ranger
    }
    public CharacterType WarriorType;

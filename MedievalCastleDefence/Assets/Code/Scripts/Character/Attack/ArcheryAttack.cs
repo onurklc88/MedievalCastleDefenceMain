@@ -8,9 +8,12 @@ public class ArcheryAttack : CharacterAttackBehaviour
     private PlayerHUD _playerHUD;
     private CharacterMovement _characterMovement;
     private CharachterCameraController _camController;
+    private RangerAnimation _rangerAnimation;
+    private RangerAnimationRigging _rangerAnimationRigging;
     [SerializeField] private GameObject _lookAtTarget;
     [SerializeField] private GameObject _arrow;
     [SerializeField] private GameObject _arrowFirePoint;
+    private bool _previousAimingInput;
  
   
     private float _drawDuration;
@@ -20,13 +23,15 @@ public class ArcheryAttack : CharacterAttackBehaviour
         _characterController = GetComponent<CharacterController>();
         _characterType = CharacterStats.CharacterType.Ranger;
         InitScript(this);
-        _drawDuration = 0.1f;
+        _drawDuration = .15f;
     }
     private void Start()
     {
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
         //_knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
+        _rangerAnimationRigging = GetScript<RangerAnimationRigging>();
+        _rangerAnimation = GetScript<RangerAnimation>();
         _characterMovement = GetScript<CharacterMovement>();
         _camController = GetScript<CharachterCameraController>();
     }
@@ -44,12 +49,17 @@ public class ArcheryAttack : CharacterAttackBehaviour
     {
         if (!Object.HasStateAuthority) return;
         if (_characterMovement == null || _camController == null) return;
-        var _isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-        _characterMovement.IsInputDisabled = _isPlayerAiming;
-        _camController.UpdateCameraPriority(_isPlayerAiming);
-        _playerHUD.UpdateAimTargetState(_isPlayerAiming);
+        var isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        if(isPlayerAiming != _previousAimingInput)
+        {
+            _characterMovement.IsInputDisabled = isPlayerAiming;
+            _playerHUD.UpdateAimTargetState(isPlayerAiming);
+            _rangerAnimationRigging.UpdateConstraits(isPlayerAiming);
+        }
+        _camController.UpdateCameraPriority(isPlayerAiming);
         UpdateTargetPosition();
-        CalculateDrawDuration(_isPlayerAiming);
+        CalculateDrawDuration(isPlayerAiming);
+        _previousAimingInput = isPlayerAiming;
     }
 
     private void UpdateTargetPosition()
@@ -74,10 +84,11 @@ public class ArcheryAttack : CharacterAttackBehaviour
     {
         if (condition)
         {
+            _rangerAnimation.UpdateDrawAnimState(true);
             if (_drawDuration > 0)
             {
                 _drawDuration -= Time.deltaTime;
-               
+              
             }
         }
         else
@@ -86,37 +97,12 @@ public class ArcheryAttack : CharacterAttackBehaviour
             {
                 RelaseArrow();
             }
-            _drawDuration = 0.1f;
+            _rangerAnimation.UpdateDrawAnimState(false);
+            _drawDuration = 0.15f;
         }
     }
 
-    
-    private void CheckAttackCollision(GameObject collidedObject)
-    {
-        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
-        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-
-
-        if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
-        {
-            var opponentType = base.GetCharacterType(collidedObject);
-            switch (opponentType)
-            {
-                case CharacterStats.CharacterType.None:
-
-                    break;
-                case CharacterStats.CharacterType.FootKnight:
-                    DamageToFootknight(collidedObject, _weaponStats.Damage);
-                    break;
-                case CharacterStats.CharacterType.Gallowglass:
-                    break;
-                case CharacterStats.CharacterType.KnightCommander:
-                    DamageToKnightCommander(collidedObject, _weaponStats.Damage);
-                    break;
-
-            }
-        }
-    }
+  
     void OnDrawGizmos()
     {
 

@@ -108,7 +108,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             case CharacterStats.CharacterType.Gallowglass:
                 _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
                 break;
-            case CharacterStats.CharacterType.TheSaxonMark:
+            case CharacterStats.CharacterType.Ranger:
                 _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
                 break;
 

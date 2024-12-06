@@ -17,16 +17,16 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private string[] _triggerAnimations;
     private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection;
-    [SerializeField] private string[] _attackStates;  
-   
+    [SerializeField] private string[] _attackStates;
+    private CharacterMovement _characterMovement;
     
 
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
+        _characterMovement = GetScript<CharacterMovement>();
     }
-    
     public override void FixedUpdateNetwork()
     {
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
@@ -37,7 +37,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
-       if (!Object.HasStateAuthority) return;
+       if (!Object.HasStateAuthority || _characterMovement.IsPlayerStunned) return;
       
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)
         {

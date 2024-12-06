@@ -78,6 +78,25 @@ public class PlayerHUD : BehaviourRegistry
 
         _respawnPanel.SetActive(false);
     }
+    public void OnRespawnGallowButtonClicked()
+    {
+        if (!Object.HasStateAuthority) return;
+        base.OnObjectDestroy();
+        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
+        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
+
+        _respawnPanel.SetActive(false);
+    }
+    public void OnRespawnRangerButtonClicked()
+    {
+        if (!Object.HasStateAuthority) return;
+        base.OnObjectDestroy();
+        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
+        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Ranger);
+
+        _respawnPanel.SetActive(false);
+    }
+
 
     public void UpdateAimTargetState(bool condition)
     {

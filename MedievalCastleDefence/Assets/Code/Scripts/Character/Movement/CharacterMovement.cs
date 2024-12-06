@@ -43,12 +43,16 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
             case CharacterStats.CharacterType.KnightCommander:
                 _animController = GetScript<KnightCommanderAnimation>();
                 break;
+            case CharacterStats.CharacterType.Ranger:
+                _animController = GetScript<RangerAnimation>();
+                break;
 
         }
     }
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
+      
        
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned && !IsInputDisabled)
         {
@@ -92,7 +96,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
   
     private void ApplyGravity()
     {
-        if (_characterController.isGrounded && _velocity < 0.0f)
+        if (IsPlayerGrounded() && _velocity < 0.0f)
              _velocity = -1.0f;
         else
          _velocity += _gravity * _gravityMultiplier * Runner.DeltaTime;
@@ -100,9 +104,15 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
         _currentMovement.y = _velocity;
     }
 
+    public bool IsPlayerGrounded()
+    {
+        float rayLength = 0.5f;
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+        return Physics.Raycast(rayOrigin, Vector3.down, rayLength);
+    }
     private void JumpPlayer()
     {
-        if (!_characterController.isGrounded) return;
+        if (!IsPlayerGrounded()) return;
         
             
        if(_characterStats.WarriorType != CharacterStats.CharacterType.Gallowglass)
@@ -153,7 +163,13 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
         IsPlayerStunned = false;
     }
 
-   
 
+    private void OnDrawGizmos()
+    {
+        float rayLength = 0.3f;
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(rayOrigin, Vector3.down * rayLength);
+    }
 
 }

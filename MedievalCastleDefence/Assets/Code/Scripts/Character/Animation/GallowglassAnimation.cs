@@ -19,12 +19,13 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     //[Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     public NetworkButtons PreviousButton { get; set; }
-   
+    private CharacterMovement _characterMovement;
     
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
+        _characterMovement = GetScript<CharacterMovement>();
     }
 
     public override void FixedUpdateNetwork()
@@ -37,7 +38,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
-        if (!Object.HasStateAuthority) return;
+        if (!Object.HasStateAuthority || _characterMovement.IsPlayerStunned) return;
 
 
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)
@@ -108,7 +109,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
          changed.Behaviour._animationController.SetInteger("SwingIndex", changed.Behaviour.SwingIndex);
         float animduration = changed.Behaviour._animationController.GetCurrentAnimatorStateInfo(0).length;
-        Debug.Log("anim time: " + animduration);
+      
     }
 
     private static void NetworkedDamageAnimationStateChange(Changed<GallowglassAnimation> changed)
