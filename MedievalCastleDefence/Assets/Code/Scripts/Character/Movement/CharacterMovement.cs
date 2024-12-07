@@ -52,8 +52,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
-      
-       
+        
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned && !IsInputDisabled)
         {
             ReadPlayerInputs(input);
@@ -62,6 +61,7 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
             CalculateCharacterDirection(input);
             _characterController.Move(_currentMovement * CurrentMoveSpeed * Runner.DeltaTime);
         }
+      
     }
     public void ReadPlayerInputs(PlayerInputData input)
     {

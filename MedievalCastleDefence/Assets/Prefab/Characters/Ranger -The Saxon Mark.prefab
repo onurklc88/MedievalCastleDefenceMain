@@ -4377,11 +4377,11 @@ CharacterController:
   serializedVersion: 2
   m_Height: 1.64
   m_Radius: 0.3
-  m_SlopeLimit: 35
+  m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0.03, y: 0.86, z: 0.06}
+  m_Center: {x: 0.03, y: 0.86, z: 0.14}
 --- !u!114 &8107039158861367189
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -91,6 +91,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     private static void NetworkDrawAnimationStateChange(Changed<RangerAnimation> changed)
     {
         changed.Behaviour._animationController.SetBool("IsPlayerDrawing", changed.Behaviour.IsPlayerDrawingBow);
+        //changed.Behaviour._animationController.Play("Draw-Ranger");
         //  changed.Behaviour._animationController.SetBool("IsRightSwing", changed.Behaviour.IsPlayerSwing);
         // if (changed.Behaviour.SwingIndex == 0) return;
 

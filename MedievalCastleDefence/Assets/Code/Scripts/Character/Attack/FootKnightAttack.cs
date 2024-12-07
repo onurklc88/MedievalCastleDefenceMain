@@ -145,12 +145,12 @@ public class FootKnightAttack : CharacterAttackBehaviour
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
       
-        if (opponent.gameObject.layer == 10 && !isOpponentParrying)
+        if (opponent.gameObject.layer == 11 && !isOpponentParrying)
         {
            return;
         }
         
-        if (opponent.gameObject.layer == 10 && isOpponentParrying)
+        if (opponent.gameObject.layer == 11 && isOpponentParrying)
         {
            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }

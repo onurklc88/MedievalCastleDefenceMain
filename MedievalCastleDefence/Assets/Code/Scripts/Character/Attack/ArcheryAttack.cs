@@ -50,15 +50,20 @@ public class ArcheryAttack : CharacterAttackBehaviour
         if (!Object.HasStateAuthority) return;
         if (_characterMovement == null || _camController == null) return;
         var isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-        if(isPlayerAiming != _previousAimingInput)
+        if(isPlayerAiming != _previousAimingInput && _characterMovement.IsPlayerGrounded())
         {
             _characterMovement.IsInputDisabled = isPlayerAiming;
             _playerHUD.UpdateAimTargetState(isPlayerAiming);
             _rangerAnimationRigging.UpdateConstraits(isPlayerAiming);
         }
-        _camController.UpdateCameraPriority(isPlayerAiming);
-        UpdateTargetPosition();
-        CalculateDrawDuration(isPlayerAiming);
+        
+        if (_characterMovement.IsPlayerGrounded())
+        {
+            _camController.UpdateCameraPriority(isPlayerAiming);
+            UpdateTargetPosition();
+            CalculateDrawDuration(isPlayerAiming);
+        }
+       
         _previousAimingInput = isPlayerAiming;
     }
 

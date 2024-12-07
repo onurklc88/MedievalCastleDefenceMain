@@ -1448,7 +1448,7 @@ GameObject:
   - component: {fileID: 2463083873813480124}
   - component: {fileID: 417241514422679158}
   - component: {fileID: 8649702103500753977}
-  m_Layer: 10
+  m_Layer: 11
   m_Name: shield-round-a
   m_TagString: Untagged
   m_Icon: {fileID: 0}

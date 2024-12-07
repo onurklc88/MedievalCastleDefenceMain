@@ -32,7 +32,7 @@ public class Arrow : NetworkBehaviour
     public void ExecuteShot(Vector3 pos)
     {
         IsArrowReleased = true;
-        Vector3 initialForce = pos * 40f + transform.forward + Vector3.up * 1f + Vector3.right * 0.5f;
+        Vector3 initialForce = pos * 50f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
         transform.rotation = Quaternion.LookRotation(initialForce);
         _rigidbody.AddForce(initialForce, ForceMode.Impulse);
     }
@@ -44,7 +44,7 @@ public class Arrow : NetworkBehaviour
         _isArrowCollided = true;
         if (Runner.IsClient)
         {
-            if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
+            if (collidedObject.transform.GetComponentInParent<IDamageable>() != null && collidedObject.gameObject.layer != 11)
             {
                 var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
                 opponentHealth.DealDamageRPC(25f);
@@ -68,7 +68,8 @@ public class Arrow : NetworkBehaviour
                 _rigidbody.isKinematic = true;
                 var networkRigidbody = transform.GetComponent<NetworkRigidbody>();
                 networkRigidbody.enabled = false;
-                StartCoroutine(DestroyArrow());
+                if (collidedObject.gameObject.layer != 11)
+                    StartCoroutine(DestroyArrow());
             }
         }
            
@@ -94,7 +95,7 @@ public class Arrow : NetworkBehaviour
     private IEnumerator DestroyArrow()
     {
         yield return new WaitForSeconds(2f);
-       // Runner.Despawn(transform.GetComponent<NetworkObject>());
+        Runner.Despawn(transform.GetComponent<NetworkObject>());
 
     }
 
