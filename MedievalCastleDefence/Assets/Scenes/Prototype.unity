@@ -341,7 +341,7 @@ MonoBehaviour:
   _stormshieldNetworkPrefab:
     RawGuidValue: 80c4a9049dee6674c9a542b1dd539792
   _knightCommanderdNetworkPrefab:
-    RawGuidValue: 7dbace0eaf080e948b56636a40a1f822
+    RawGuidValue: a9069b1c7d6e4ec43adf2a90c68afcb0
   _gallowglassNetworkPrefab:
     RawGuidValue: bf4a4aeba1e9c104f9700b167da1147d
   _theSaxonMarkNetworkPrefab:

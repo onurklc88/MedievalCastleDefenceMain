@@ -54,7 +54,97 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     {
         changed.Behaviour.PlayerSwordPosition = changed.Behaviour.PlayerSwordPositionLocal;
     }
-    
+
+    protected void CheckAttackCollisionTest(GameObject collidedObject)
+    {
+
+        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
+        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
+        if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
+        {
+            var opponentType = GetCharacterType(collidedObject);
+            switch (opponentType)
+            {
+                case CharacterStats.CharacterType.FootKnight:
+                    DamageToFootknightTest(collidedObject);
+                    break;
+                case CharacterStats.CharacterType.Gallowglass:
+                    DamageToGallowGlassTest(collidedObject);
+                    break;
+                case CharacterStats.CharacterType.KnightCommander:
+                    DamageToKnightCommanderTest(collidedObject);
+                    break;
+                case CharacterStats.CharacterType.Ranger:
+                    var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
+                    opponentHealth.DealDamageRPC(_weaponStats.Damage);
+                    break;
+            }
+        }
+    }
+
+    protected void DamageToFootknightTest(GameObject opponent)
+    {
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+
+        if (opponent.gameObject.layer == 11 && !isOpponentParrying)
+        {
+            return;
+        }
+
+        if (opponent.gameObject.layer == 11 && isOpponentParrying)
+        {
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+        }
+        else
+        {
+            opponentHealth.DealDamageRPC(_weaponStats.Damage);
+        }
+    }
+
+    protected void DamageToKnightCommanderTest(GameObject opponent)
+    {
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+
+        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        {
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+        }
+        else
+        {
+            opponentHealth.DealDamageRPC(_weaponStats.Damage);
+        }
+    }
+
+    protected void DamageToGallowGlassTest(GameObject opponent)
+    {
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
+
+        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        {
+            if (opponentSwordPosition == PlayerSwordPositionLocal)
+            {
+                opponentHealth.DealDamageRPC(_weaponStats.Damage);
+            }
+            else
+            {
+                opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            }
+
+        }
+        else
+        {
+            opponentHealth.DealDamageRPC(_weaponStats.Damage);
+        }
+
+
+    }
     protected SwordPosition GetSwordPosition() 
     {
        float mouseX = Input.GetAxis("Mouse X");
@@ -102,5 +192,6 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
        (crossProduct.y < -sideThreshold) ? AttackDirection.FromRight :
        AttackDirection.None;
     }
+
 
 }

@@ -16,14 +16,14 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         
         if (player == Runner.LocalPlayer)
             {
-                var playerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
-                //  Debug.Log("test: " + player.PlayerId);
+                var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
+               
                 if (playerObject != null)
                 {
                     Runner.SetPlayerObject(player, playerObject);
 
                 EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
-               // EventLibrary.Sex.AddListener(RespawnCharacter);
+              
                 Debug.Log("Player object set successfully for player: " + player.PlayerId);
                 }
 

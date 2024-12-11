@@ -7,6 +7,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private PlayerHUD _playerHUD;
     private KnightCommanderAnimation _knightCommanderAnimation;
     private CharacterMovement _characterMovement;
+    private ActiveRagdoll _ragdollManager;
     [SerializeField] private GameObject test;
     public override void Spawned()
     {
@@ -21,6 +22,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _characterStamina = GetScript<CharacterStamina>();
         _knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
         _characterMovement = GetScript<CharacterMovement>();
+        _ragdollManager = GetScript<ActiveRagdoll>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -56,9 +58,13 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
                 SwingSword();
             }
         }
-       
 
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && AttackCooldown.ExpiredOrNotRunning(Runner))
+        {
+            _ragdollManager.RPCActivateRagdoll();
+        }
     }
+    /*
     private void CheckAttackCollision(GameObject collidedObject)
     {
        
@@ -93,6 +99,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             }
         }
     }
+    */
     protected override void SwingSword()
     {
         if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
@@ -114,7 +121,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             if (_hitColliders.Length > 0)
             {
                
-                CheckAttackCollision(_hitColliders[0].transform.gameObject);
+                CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
                 yield break;
             }
 
@@ -127,6 +134,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     {
         _knightCommanderAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
     }
+    /*
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
@@ -190,6 +198,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
 
     }
+    */
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

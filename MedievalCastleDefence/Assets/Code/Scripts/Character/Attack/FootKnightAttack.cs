@@ -78,7 +78,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
        
         PreviousButton = input.NetworkButtons;
     }
-
+    /*
     private void CheckAttackCollision(GameObject collidedObject)
     {
         if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
@@ -109,6 +109,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             }
         }
     }
+    */
     protected override void SwingSword()
     {
         if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
@@ -130,7 +131,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             if (_hitColliders.Length > 0)
             {
 
-                CheckAttackCollision(_hitColliders[0].transform.gameObject);
+                CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
                 yield break;
             }
             base._blockArea.enabled = true;
@@ -138,7 +139,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             yield return null;
         }
     }
-
+    /*
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
@@ -201,7 +202,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
 
 
     }
-
+    */
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
