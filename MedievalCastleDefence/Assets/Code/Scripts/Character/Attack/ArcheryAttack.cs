@@ -14,6 +14,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
     [SerializeField] private GameObject _arrow;
     [SerializeField] private GameObject _arrowFirePoint;
     private bool _previousAimingInput;
+    private ActiveRagdoll _activeRagdoll;
  
   
     private float _drawDuration;
@@ -29,11 +30,11 @@ public class ArcheryAttack : CharacterAttackBehaviour
     {
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
-        //_knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
         _rangerAnimationRigging = GetScript<RangerAnimationRigging>();
         _rangerAnimation = GetScript<RangerAnimation>();
         _characterMovement = GetScript<CharacterMovement>();
         _camController = GetScript<CharachterCameraController>();
+        _activeRagdoll = GetScript<ActiveRagdoll>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -50,7 +51,8 @@ public class ArcheryAttack : CharacterAttackBehaviour
         if (!Object.HasStateAuthority) return;
         if (_characterMovement == null || _camController == null) return;
         var isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-        if(isPlayerAiming != _previousAimingInput && _characterMovement.IsPlayerGrounded())
+        var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
+        if (isPlayerAiming != _previousAimingInput && _characterMovement.IsPlayerGrounded())
         {
             _characterMovement.IsInputDisabled = isPlayerAiming;
             _playerHUD.UpdateAimTargetState(isPlayerAiming);
@@ -63,7 +65,11 @@ public class ArcheryAttack : CharacterAttackBehaviour
             UpdateTargetPosition();
             CalculateDrawDuration(isPlayerAiming);
         }
-       
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload))
+        {
+            _activeRagdoll.RPCActivateRagdoll();
+        }
+
         _previousAimingInput = isPlayerAiming;
     }
 

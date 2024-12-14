@@ -25,9 +25,12 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
+        
+    }
+    private void Start()
+    {
         _characterMovement = GetScript<CharacterMovement>();
     }
-
     public override void FixedUpdateNetwork()
     {
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
@@ -38,8 +41,8 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
-        if (!Object.HasStateAuthority || _characterMovement.IsPlayerStunned) return;
-
+        if (!Object.HasStateAuthority || _characterMovement == null) return;
+        if (_characterMovement.IsPlayerStunned) return;
 
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)
         {

@@ -37,8 +37,9 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
-       if (!Object.HasStateAuthority || _characterMovement.IsPlayerStunned) return;
-      
+        if (!Object.HasStateAuthority || _characterMovement == null) return;
+        if (_characterMovement.IsPlayerStunned) return;
+
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)
         {
             OnPlayerWalk = true;

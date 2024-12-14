@@ -10,6 +10,7 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
    [Networked] public float NetworkedHealth { get; set; }
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
+    private ActiveRagdoll _activeRagdoll;
 
     public override void Spawned()
     {
@@ -21,6 +22,8 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
         _playerHUD = GetScript<PlayerHUD>();
         if(_playerHUD != null)
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
+        _activeRagdoll = GetScript<ActiveRagdoll>();
+
         switch (_characterStats.WarriorType)
         {
             case CharacterStats.CharacterType.FootKnight:
@@ -53,6 +56,7 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
             _playerHUD.UpdatePlayerHealthUI(-1);
             _characterMovement.IsInputDisabled = true;
             _playerHUD.ShowRespawnPanel();
+            _activeRagdoll.RPCActivateRagdoll();
         }
         else
         {

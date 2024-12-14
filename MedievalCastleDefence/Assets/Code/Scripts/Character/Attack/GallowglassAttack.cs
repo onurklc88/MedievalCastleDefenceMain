@@ -9,6 +9,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private GallowglassAnimation _gallowGlassAnimation;
     private CharacterMovement _characterMovement;
     private Vector3 _halfExtens = new Vector3(1.7f, 0.9f, 0.5f);
+    private ActiveRagdoll _activeRagdoll;
     [Networked] private TickTimer _kickCooldown { get; set; }
     public override void Spawned()
     {
@@ -23,6 +24,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _characterStamina = GetScript<CharacterStamina>();
         _characterMovement = GetScript<CharacterMovement>();
         _gallowGlassAnimation = GetScript<GallowglassAnimation>();
+        _activeRagdoll = GetScript<ActiveRagdoll>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -46,8 +48,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-       // IsPlayerBlockingLocal = true;
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+     
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
         if (_gallowGlassAnimation != null) BlockWeapon();
         
@@ -67,37 +69,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
          if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && _kickCooldown.ExpiredOrNotRunning(Runner))
          {
-           
-         }
-    }
-    private void CheckAttackCollision(GameObject collidedObject)
-    {
-        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
-        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-       
-        if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
-        {
-            var opponentType = base.GetCharacterType(collidedObject);
-            switch (opponentType)
-            {
-                case CharacterStats.CharacterType.None:
-
-                    break;
-                case CharacterStats.CharacterType.FootKnight:
-                    DamageToFootknight(collidedObject, _weaponStats.Damage);
-                    break;
-                case CharacterStats.CharacterType.Gallowglass:
-                    DamageToGallowGlass(collidedObject);
-                    break;
-                case CharacterStats.CharacterType.KnightCommander:
-                    DamageToKnightCommander(collidedObject, _weaponStats.Damage);
-                    break;
-                case CharacterStats.CharacterType.Ranger:
-                    var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
-                    opponentHealth.DealDamageRPC(_weaponStats.Damage);
-                    break;
-
-            }
+            IsPlayerBlockingLocal = true;
+            //_activeRagdoll.RPCActivateRagdoll();
         }
     }
     protected override void SwingSword()
@@ -127,7 +100,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
                 if(networkObject != null && !hitPlayers.Contains(networkObject.Id))
                 {
                     hitPlayers.Add(networkObject.Id);
-                    CheckAttackCollision(_hitColliders[i].transform.gameObject);
+                    CheckAttackCollisionTest(_hitColliders[i].transform.gameObject);
                 }
                
             }
@@ -163,6 +136,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
     {
        _gallowGlassAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
     }
+    /*
     protected override void DamageToFootknight(GameObject opponent, float damageValue)
     {
         Debug.Log("damage to footnight");
@@ -239,7 +213,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
        
       
     }
-
+    */
     private void KickOpponent(GameObject opponent) 
     {
         var opponentType = base.GetCharacterType(opponent);

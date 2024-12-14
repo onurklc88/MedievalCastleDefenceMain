@@ -16,15 +16,17 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         
         if (player == Runner.LocalPlayer)
             {
-                var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
+                var playerObject = Runner.Spawn(_stormshieldNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
                
                 if (playerObject != null)
                 {
                     Runner.SetPlayerObject(player, playerObject);
+             
 
+                Debug.Log($"StateAuthority: {playerObject.HasStateAuthority}");
                 EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
               
-                Debug.Log("Player object set successfully for player: " + player.PlayerId);
+                //Debug.Log("Player object set successfully for player: " + player.PlayerId);
                 }
 
             }
@@ -34,35 +36,16 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 
   public void PlayerLeft(PlayerRef player)
   {
-        DespawnPlayer(player);
-  }
-    private void DespawnPlayer(PlayerRef playerRef)
-    {
-        if (Runner.IsServer)
+        var isPlayerAlreadySpawned = Runner.GetPlayerObject(player);
+       
+        if (isPlayerAlreadySpawned)
         {
-            var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
-            if (isPlayerAlreadySpawned)
-            {
-
-                if (Runner.TryGetPlayerObject(playerRef, out var playerNetworkObject))
-                {
-                    
-                    Runner.Despawn(playerNetworkObject);
-                }
-            }
+            Runner.Despawn(isPlayerAlreadySpawned);
+            
         }
+  }
+  
 
-    }
-
-    private void Start()
-    {
-      
-    }
-    private void OnEnable()
-    {
-      
-
-    }
     private void RespawnPlayer(PlayerRef playerRef)
     {
         var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);

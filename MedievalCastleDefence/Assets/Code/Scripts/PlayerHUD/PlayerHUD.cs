@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 public class PlayerHUD : BehaviourRegistry
 {
     [SerializeField] private TextMeshProUGUI _characterStaminaText;
@@ -11,6 +12,7 @@ public class PlayerHUD : BehaviourRegistry
     [SerializeField] private GameObject _respawnPanel;
     [SerializeField] private GameObject[] _arrowImage;
     [SerializeField] private GameObject _aimTarget;
+    [SerializeField] private TextMeshProUGUI _stateTest;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -24,11 +26,15 @@ public class PlayerHUD : BehaviourRegistry
         var type = transform.GetComponent<PlayerStatsController>().SelectedCharacter;
         _characterStamina = GetScript<CharacterStamina>();
     }
+
+  
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
         if(_characterStamina != null)
             _characterStaminaText.text = "Character Stamina: " +_characterStamina.CurrentStamina.ToString();
+
+        //_stateTest.text = Object.HasStateAuthority.ToString();
     }
 
     public void UpdatePlayerHealthUI(float updatedHealth)

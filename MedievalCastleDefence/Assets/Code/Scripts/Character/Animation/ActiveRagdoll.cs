@@ -5,37 +5,40 @@ using Fusion;
 
 public class ActiveRagdoll : BehaviourRegistry
 {
-    [SerializeField] private CharacterController _charcterController;
+    [SerializeField] private CharacterController _characterController;
     [SerializeField] private Animator _animator;
-    [SerializeField] private NetworkTransform _networkTransform;
-    private Collider[] _ragdollColliders;
-    private Rigidbody[] _limbsRigidbodies;
+ 
+    public Collider[] _ragdollColliders;
+    public Rigidbody[] _limbsRigidbodies;
     
 
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
+        GetRagdollBits();
+        StartCoroutine(Test());
     }
 
-    private void Start()
-    {
-        GetRagdollBits();
-        RPCDisableRagdoll();
-    }
     private void GetRagdollBits()
     {
-        _ragdollColliders = GetComponentsInChildren<CapsuleCollider>();
+        if (!Object.HasStateAuthority) return;
+       
+        _ragdollColliders = GetComponentsInChildren<Collider>();
         _limbsRigidbodies = GetComponentsInChildren<Rigidbody>();
+        EventLibrary.DebugMessage.Invoke("Girdi <3 " + _ragdollColliders.Length.ToString());
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void RPCActivateRagdoll()
     {
-       
+
+        
         foreach (Collider col in _ragdollColliders)
         {
-            col.enabled = true;
+            if(col.gameObject.layer != 11)
+                col.enabled = true;
+           
         }
 
         foreach (Rigidbody rb in _limbsRigidbodies)
@@ -44,17 +47,32 @@ public class ActiveRagdoll : BehaviourRegistry
         }
 
         _animator.enabled = false;
+        _characterController.enabled = false;
         ApplyForce();
 
     }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
+
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPCDisableRagdoll()
     {
-        foreach (Collider rb in _ragdollColliders)
+        
+        
+        if (_ragdollColliders == null|| _limbsRigidbodies == null)
         {
-            rb.enabled = false;
-            
+          
+            return;
+        }
+      
+        foreach (Collider col in _ragdollColliders)
+        {
+           
+            if (col.gameObject.GetComponent<Rigidbody>() != null && col.gameObject.layer != 10)
+            {
+                col.enabled = false;
+               
+            }
         }
 
         foreach (Rigidbody rb in _limbsRigidbodies)
@@ -62,12 +80,12 @@ public class ActiveRagdoll : BehaviourRegistry
             rb.isKinematic = true;
         }
 
-
+        EventLibrary.DebugMessage.Invoke(_ragdollColliders.Length.ToString());
     }
 
     private void ApplyForce()
     {
-        Vector3 attackDirection = new Vector3(-1f, 0f, 0f);
+        Vector3 attackDirection = new Vector3(0f, 0f, 1f);
         float forceMagnitude = 10f; 
         foreach (Rigidbody rb in _limbsRigidbodies)
         {
@@ -75,4 +93,9 @@ public class ActiveRagdoll : BehaviourRegistry
         }
     }
 
+    private IEnumerator Test()
+    {
+        yield return new WaitForSeconds(1f);
+        RPCDisableRagdoll();
+    }
 }
