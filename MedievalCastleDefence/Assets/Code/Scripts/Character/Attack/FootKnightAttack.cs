@@ -81,7 +81,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
             IsPlayerBlockingLocal = true;
-            //_activeRagdoll.RPCActivateRagdoll();
+            _activeRagdoll.RPCActivateRagdoll();
         }
 
         PreviousButton = input.NetworkButtons;
@@ -103,21 +103,22 @@ public class FootKnightAttack : CharacterAttackBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < 0.2f)
         {
-            int layerMask = ~LayerMask.GetMask("test");
+            int layerMask = ~LayerMask.GetMask("Ragdoll");
             Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 0.5f, layerMask);
 
             if (_hitColliders.Length > 0)
             {
-                //Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name+ "PlayerID: " +_hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
-              
-                Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name);
+                Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name+ "PlayerID: " +_hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
                 CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
                 yield break;
             }
-           // base._blockArea.enabled = true;
+          
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+
+        yield return new WaitForSeconds(0.2f);
+        base._blockArea.enabled = true;
     }
    
     private void OnDrawGizmos()

@@ -84,6 +84,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
     }
     private IEnumerator PerformAttack(float time)
     {
+        base._blockArea.enabled = false;
         yield return new WaitForSeconds(time);
         HashSet<NetworkId> hitPlayers = new HashSet<NetworkId>();
       
@@ -91,7 +92,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
         while (elapsedTime < 0.2f)
         {
             Vector3 swingDirection = transform.position + transform.forward + Vector3.up + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.1f : -0.1f);
-            Collider[] _hitColliders = Physics.OverlapBox(swingDirection, _halfExtens, Quaternion.Euler(0, transform.eulerAngles.y, 0));
+            int layerMask = ~LayerMask.GetMask("Ragdoll");
+            Collider[] _hitColliders = Physics.OverlapBox(swingDirection, _halfExtens, Quaternion.Euler(0, transform.eulerAngles.y, 0), layerMask);
 
             for (int i = 0; i < _hitColliders.Length; i++)
             {
@@ -100,14 +102,17 @@ public class GallowglassAttack : CharacterAttackBehaviour
                 if(networkObject != null && !hitPlayers.Contains(networkObject.Id))
                 {
                     hitPlayers.Add(networkObject.Id);
+                    Debug.Log("Collided Object: " + _hitColliders[i].transform.gameObject.name + "PlayerID: " + _hitColliders[i].transform.GetComponentInParent<NetworkObject>().Id);
                     CheckAttackCollisionTest(_hitColliders[i].transform.gameObject);
                 }
                
             }
-
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+
+        yield return new WaitForSeconds(0.2f);
+        base._blockArea.enabled = true;
     }
 
     private void KickAction()

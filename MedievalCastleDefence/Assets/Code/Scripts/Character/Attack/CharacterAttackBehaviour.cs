@@ -125,12 +125,12 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
         var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
-
+       
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
             if (opponentSwordPosition == PlayerSwordPositionLocal)
             {
-                opponentHealth.DealDamageRPC(_weaponStats.Damage);
+               opponentHealth.DealDamageRPC(_weaponStats.Damage);
             }
             else
             {

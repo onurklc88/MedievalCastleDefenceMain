@@ -16,28 +16,29 @@ public class ActiveRagdoll : BehaviourRegistry
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
+   }
+
+    private void Start()
+    {
+        if (!Object.HasStateAuthority) return;
         GetRagdollBits();
-        StartCoroutine(Test());
+        RPCDisableRagdoll();
     }
 
     private void GetRagdollBits()
     {
         if (!Object.HasStateAuthority) return;
-       
-        _ragdollColliders = GetComponentsInChildren<Collider>();
-        _limbsRigidbodies = GetComponentsInChildren<Rigidbody>();
-        EventLibrary.DebugMessage.Invoke("Girdi <3 " + _ragdollColliders.Length.ToString());
+       _ragdollColliders = GetComponentsInChildren<Collider>();
+       _limbsRigidbodies = GetComponentsInChildren<Rigidbody>();
+
     }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPCActivateRagdoll()
     {
-
-        
         foreach (Collider col in _ragdollColliders)
         {
-            if(col.gameObject.layer != 11)
-                col.enabled = true;
+          col.enabled = true;
            
         }
 
@@ -57,12 +58,9 @@ public class ActiveRagdoll : BehaviourRegistry
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPCDisableRagdoll()
     {
-        
-        
         if (_ragdollColliders == null|| _limbsRigidbodies == null)
         {
-          
-            return;
+           return;
         }
       
         foreach (Collider col in _ragdollColliders)
@@ -79,8 +77,6 @@ public class ActiveRagdoll : BehaviourRegistry
         {
             rb.isKinematic = true;
         }
-
-        EventLibrary.DebugMessage.Invoke(_ragdollColliders.Length.ToString());
     }
 
     private void ApplyForce()
@@ -96,6 +92,6 @@ public class ActiveRagdoll : BehaviourRegistry
     private IEnumerator Test()
     {
         yield return new WaitForSeconds(1f);
-        RPCDisableRagdoll();
+        
     }
 }

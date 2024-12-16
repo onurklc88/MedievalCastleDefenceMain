@@ -432,7 +432,7 @@ GameObject:
   - component: {fileID: 8198146113879934552}
   - component: {fileID: 7066050644888781391}
   - component: {fileID: 7047721656568701222}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightUpLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -677,7 +677,7 @@ GameObject:
   - component: {fileID: 5889701754144505207}
   - component: {fileID: 9144593133427964190}
   - component: {fileID: 547709650243711495}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -849,7 +849,7 @@ GameObject:
   - component: {fileID: 4208612572209071313}
   - component: {fileID: 8883610589342905467}
   - component: {fileID: 8771433686325449436}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftUpLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1752,8 +1752,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.0969427, y: 0.8459932, z: 0.3580462}
-  m_Center: {x: 0.0066252, y: 0.1896988, z: 0.0577193}
+  m_Size: {x: 0.16315758, y: 0.8459932, z: 0.3580462}
+  m_Center: {x: 0.016760653, y: 0.1896988, z: 0.057719797}
 --- !u!1 &2291008390411589713
 GameObject:
   m_ObjectHideFlags: 0
@@ -1861,7 +1861,7 @@ GameObject:
   - component: {fileID: 8549438235593356826}
   - component: {fileID: 3691174494646067488}
   - component: {fileID: 3928515191073344748}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2904,7 +2904,7 @@ GameObject:
   - component: {fileID: 666040273863639831}
   - component: {fileID: 913446008771677776}
   - component: {fileID: 5841236383924366085}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightForeArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3416,7 +3416,7 @@ GameObject:
   - component: {fileID: 5242214573230292590}
   - component: {fileID: 7743724003609657460}
   - component: {fileID: 4749798084068744556}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4023,7 +4023,7 @@ GameObject:
   - component: {fileID: 6411570936409817091}
   - component: {fileID: 4424140619151359378}
   - component: {fileID: 8312439181379521556}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4238,7 +4238,7 @@ GameObject:
   - component: {fileID: 456053341488514802}
   - component: {fileID: 6542171485464590443}
   - component: {fileID: 4245294810381328119}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hips
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4487,7 +4487,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.5
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0.02, y: 1.1, z: 0}
+  m_Center: {x: 0.02, y: 1.2, z: 0}
 --- !u!114 &8107039158861367189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4599,6 +4599,7 @@ MonoBehaviour:
   - {fileID: 1271247894814255012}
   - {fileID: 6745414335553703350}
   _aimTarget: {fileID: 0}
+  _stateTest: {fileID: 0}
 --- !u!95 &534399287956474617
 Animator:
   serializedVersion: 5
@@ -4698,6 +4699,8 @@ MonoBehaviour:
   _characterStats: {fileID: 0}
   _characterController: {fileID: 894651988034674950}
   _animator: {fileID: 534399287956474617}
+  _ragdollColliders: []
+  _limbsRigidbodies: []
 --- !u!1 &6032827100199767512
 GameObject:
   m_ObjectHideFlags: 0
@@ -5041,7 +5044,7 @@ GameObject:
   - component: {fileID: 627864110972625462}
   - component: {fileID: 11931355813847411}
   - component: {fileID: 8974354980598784315}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5186,7 +5189,7 @@ GameObject:
   - component: {fileID: 8367088439937918040}
   - component: {fileID: 7768008022772622298}
   - component: {fileID: 4885525408971560828}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5526,7 +5529,7 @@ GameObject:
   - component: {fileID: 9222452493519782382}
   - component: {fileID: 893949511658915116}
   - component: {fileID: 3146795111567031057}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftForeArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}

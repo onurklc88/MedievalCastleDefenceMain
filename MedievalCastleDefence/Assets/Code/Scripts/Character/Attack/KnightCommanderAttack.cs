@@ -80,11 +80,12 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         {
            
             Vector3 swingDirection = transform.position + transform.up + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
-            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f);
+            int layerMask = ~LayerMask.GetMask("Ragdoll");
+            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
            
             if (_hitColliders.Length > 0)
             {
-                Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name);
+                Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name + "PlayerID: " + _hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
                 CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
                 yield break;
             }

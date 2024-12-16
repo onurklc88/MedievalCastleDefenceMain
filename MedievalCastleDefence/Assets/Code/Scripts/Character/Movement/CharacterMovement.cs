@@ -51,13 +51,8 @@ public class CharacterMovement : BehaviourRegistry, IReadInput
     }
     public override void FixedUpdateNetwork()
     {
-        //if (!Object.HasStateAuthority) return;
-        //Debug.Log("State: " + HasStateAuthority);
-        if (HasStateAuthority == false)
-        {
-            return;
-        }
-
+        if (!Object.HasStateAuthority) return;
+       
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned && !IsInputDisabled)
         {
             ReadPlayerInputs(input);

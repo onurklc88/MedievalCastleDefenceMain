@@ -16,15 +16,12 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         
         if (player == Runner.LocalPlayer)
             {
-                var playerObject = Runner.Spawn(_stormshieldNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
+                var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
                
                 if (playerObject != null)
                 {
                     Runner.SetPlayerObject(player, playerObject);
-             
-
-                Debug.Log($"StateAuthority: {playerObject.HasStateAuthority}");
-                EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+                    EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
               
                 //Debug.Log("Player object set successfully for player: " + player.PlayerId);
                 }
