@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-using System;
+using System.Linq;
 
 public class FootKnightAttack : CharacterAttackBehaviour
 {
@@ -10,6 +10,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     private FootknightAnimation _animation;
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _activeRagdoll;
+    private PlayerVFXSytem _playerVFX;
   
     
     public override void Spawned()
@@ -26,6 +27,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         _characterMovement = GetScript<CharacterMovement>();
         _characterStamina = GetScript<CharacterStamina>();
         _activeRagdoll = GetScript<ActiveRagdoll>();
+        _playerVFX = GetScript<PlayerVFXSytem>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -47,7 +49,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             return;
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
         if (_animation != null)
             _animation.IsPlayerParry = IsPlayerBlockingLocal;
@@ -81,7 +83,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
             IsPlayerBlockingLocal = true;
-            _activeRagdoll.RPCActivateRagdoll();
+            //_activeRagdoll.RPCActivateRagdoll();
         }
 
         PreviousButton = input.NetworkButtons;
@@ -90,6 +92,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     protected override void SwingSword()
     {
         if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
+        _playerVFX.EnableWeaponParticles();
         _animation.UpdateSwingAnimationState(true);
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
@@ -104,13 +107,13 @@ public class FootKnightAttack : CharacterAttackBehaviour
         while (elapsedTime < 0.2f)
         {
             int layerMask = ~LayerMask.GetMask("Ragdoll");
-            Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 0.5f, layerMask);
-
+            Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up * 1.2f + transform.forward, 0.5f, layerMask);
+            _hitColliders = _hitColliders.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
             if (_hitColliders.Length > 0)
             {
                 Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name+ "PlayerID: " +_hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
                 CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
-                yield break;
+               yield break;
             }
           
             elapsedTime += Time.deltaTime;
@@ -120,7 +123,8 @@ public class FootKnightAttack : CharacterAttackBehaviour
         yield return new WaitForSeconds(0.2f);
         base._blockArea.enabled = true;
     }
-   
+
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

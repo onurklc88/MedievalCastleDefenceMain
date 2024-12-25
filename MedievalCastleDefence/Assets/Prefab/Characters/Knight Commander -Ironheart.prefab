@@ -1267,7 +1267,7 @@ Canvas:
   m_GameObject: {fileID: 1772364175365182920}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 1206425045858921329}
   m_PlaneDistance: 5
   m_PixelPerfect: 0
@@ -4940,6 +4940,7 @@ MonoBehaviour:
   _weaponStats: {fileID: 11400000, guid: ef03e385307a14e49adba4e5dd941361, type: 2}
   _blockArea: {fileID: 5605669304815212120}
   _characterType: 2
+  _debugger: {fileID: 0}
   test: {fileID: 7911425352771709435, guid: 9e6eeefe952f74d43a5afa019efc4a05, type: 3}
 --- !u!114 &6511355011640638625
 MonoBehaviour:
@@ -4980,6 +4981,7 @@ MonoBehaviour:
   - {fileID: 1271247894814255012}
   - {fileID: 6745414335553703350}
   _aimTarget: {fileID: 0}
+  _stateTest: {fileID: 0}
 --- !u!1 &5830883500373072389
 GameObject:
   m_ObjectHideFlags: 0
@@ -7548,8 +7550,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Size: {x: 0.11735139, y: 0.96368587, z: 0.13385166}
-  m_Center: {x: 0.02105417, y: 0.67092586, z: 0.007884663}
+  m_Size: {x: 0.20503443, y: 1.2591482, z: 0.2181561}
+  m_Center: {x: 0.015315693, y: 0.5231871, z: -0.006584654}
 --- !u!1 &9052040225473284090
 GameObject:
   m_ObjectHideFlags: 0

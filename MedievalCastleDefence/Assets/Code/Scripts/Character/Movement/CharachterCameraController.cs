@@ -25,9 +25,12 @@ public class CharachterCameraController : BehaviourRegistry
             Cursor.visible = false;
             _cinemachineCamera = FindObjectOfType<CinemachineFreeLook>();
             _playerCamera = Camera.main;
+            
             var cameraData = _playerCamera.GetUniversalAdditionalCameraData();
             cameraData.cameraStack.Add(_uiCamera);
+           
             _uiCamera.enabled = true;
+            
             _cinemachineCamera.Follow = _cameraTargetPoint;
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
             InitScript(this);
@@ -75,13 +78,13 @@ public class CharachterCameraController : BehaviourRegistry
                 _cinemachineCamera.m_Lens.FieldOfView -= Time.deltaTime * 150f;
         }
 
-        /*
-       if(state)
-        _cinemachineCamera.m_Lens.FieldOfView = 30;
-       else
-         _cinemachineCamera.m_Lens.FieldOfView = 45;
-       */
     }
 
-   
+    public void EnableCameraDepth()
+    {
+      
+
+    }
+
+
 }

@@ -11,7 +11,9 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _activeRagdoll;
-
+    private PlayerVFXSytem _playerVFX;
+    private CharacterDecals _characterDecals;
+    private CharachterCameraController _camController;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -23,12 +25,15 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
         if(_playerHUD != null)
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
         _activeRagdoll = GetScript<ActiveRagdoll>();
-
+        _playerVFX = GetScript<PlayerVFXSytem>();
+        _characterDecals = GetScript<CharacterDecals>();
+        _camController = GetScript<CharachterCameraController>();
         switch (_characterStats.WarriorType)
         {
             case CharacterStats.CharacterType.FootKnight:
                 _characterAnim = GetScript<FootknightAnimation>();
                 _characterMovement = GetScript<CharacterMovement>();
+               
                 break;
             case CharacterStats.CharacterType.Gallowglass:
                 _characterMovement = GetScript<CharacterMovement>();
@@ -51,18 +56,20 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
     {
         NetworkedHealth -= givenDamage;
         _characterAnim.UpdateDamageAnimationState();
+        _playerVFX.PlayBloodVFX();
         if (NetworkedHealth <= 0)
         {
             _playerHUD.UpdatePlayerHealthUI(-1);
             _characterMovement.IsInputDisabled = true;
             _playerHUD.ShowRespawnPanel();
             _activeRagdoll.RPCActivateRagdoll();
+            _camController.EnableCameraDepth();
         }
         else
         {
+            _characterDecals.EnableRandomBloodDecal();
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
-           
-        }
+         }
     }
    
     public void DestroyObject()

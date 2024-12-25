@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using System.Linq;
 public class KnightCommanderAttack : CharacterAttackBehaviour
 {
     private PlayerHUD _playerHUD;
     private KnightCommanderAnimation _knightCommanderAnimation;
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _ragdollManager;
+    private PlayerVFXSytem _playerVFXSystem;
+    [SerializeField] private RPCDebugger _debugger;
+   
     [SerializeField] private GameObject test;
     public override void Spawned()
     {
@@ -15,14 +19,16 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _characterController = GetComponent<CharacterController>();
         _characterType = CharacterStats.CharacterType.FootKnight;
         InitScript(this);
+        _knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
     }
     private void Start()
     {
+       
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
-        _knightCommanderAnimation = GetScript<KnightCommanderAnimation>();
         _characterMovement = GetScript<CharacterMovement>();
         _ragdollManager = GetScript<ActiveRagdoll>();
+        _playerVFXSystem = GetScript<PlayerVFXSytem>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -45,7 +51,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+       // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
         if (_knightCommanderAnimation != null) BlockWeapon();
@@ -61,13 +67,21 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
-            _ragdollManager.RPCActivateRagdoll();
+            IsPlayerBlockingLocal = true;
+            //_ragdollManager.RPCActivateRagdoll();
         }
+        Test();
     }
     protected override void SwingSword()
     {
         if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
-        _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition()));
+        //_playerVFXSystem.EnableWeaponParticles();
+        if(_knightCommanderAnimation == null)
+        {
+            Debug.Log("is null? :");
+        }
+      
+        _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
         StartCoroutine(PerformAttack());
@@ -79,13 +93,17 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         while (elapsedTime < 0.5f)
         {
            
-            Vector3 swingDirection = transform.position + transform.up + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
             Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
-           
+            _hitColliders = _hitColliders.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
+            foreach (Collider collider in _hitColliders)
+            {
+                Debug.Log("Collided with: " + collider.gameObject.name);
+            }
             if (_hitColliders.Length > 0)
             {
-                Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name + "PlayerID: " + _hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
+               // Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name + "PlayerID: " + _hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
                 CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
                 yield break;
             }
@@ -94,17 +112,38 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             yield return null; 
         }
     }
+
+    private void Test()
+    {
+        Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+        int layerMask = ~LayerMask.GetMask("Ragdoll");
+        Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
+        _hitColliders = _hitColliders.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
+        foreach (Collider collider in _hitColliders)
+        {
+            Debug.Log("Collided with: " + collider.gameObject.name);
+        }
+        if (_hitColliders.Length > 0)
+        {
+            // Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name + "PlayerID: " + _hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
+           // CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
+          
+        }
+
+    }
     protected override void BlockWeapon()
     {
         _knightCommanderAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
+        //_debugger.ShowDebugMessageRPC("Is Block area active: " + base._blockArea.enabled.ToString());
+        //Debug.Log("IsplayerBlocking: " + IsPlayerBlocking + " Sword pos: " + PlayerSwordPositionLocal);
     }
   
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + -transform.right * 0.3f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward + -transform.right * 0.3f, 0.5f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward + transform.right * 0.3f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward + transform.right * 0.3f, 0.5f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
 

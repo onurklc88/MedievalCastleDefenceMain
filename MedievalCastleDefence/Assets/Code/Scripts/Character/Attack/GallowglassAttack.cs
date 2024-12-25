@@ -10,6 +10,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private CharacterMovement _characterMovement;
     private Vector3 _halfExtens = new Vector3(1.7f, 0.9f, 0.5f);
     private ActiveRagdoll _activeRagdoll;
+    private PlayerVFXSytem _playerVFX;
     [Networked] private TickTimer _kickCooldown { get; set; }
     public override void Spawned()
     {
@@ -25,6 +26,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _characterMovement = GetScript<CharacterMovement>();
         _gallowGlassAnimation = GetScript<GallowglassAnimation>();
         _activeRagdoll = GetScript<ActiveRagdoll>();
+        _playerVFX = GetScript<PlayerVFXSytem>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -76,7 +78,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
     protected override void SwingSword()
     {
        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
-        AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
+        _playerVFX.EnableWeaponParticles();
+         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition()));
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
         float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;

@@ -8,6 +8,8 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     [Networked] public NetworkButtons PreviousButton { get; set; }
     [Networked(OnChanged = nameof(OnNetworkBlockChanged))] public NetworkBool IsPlayerBlockingLocal { get; set; }
     [Networked(OnChanged = nameof(OnNetworkBlockPositionChanged))] public SwordPosition PlayerSwordPositionLocal { get; set; }
+ 
+    
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
     [Networked] public SwordPosition PlayerSwordPosition { get; set; }
     public enum SwordPosition
@@ -48,6 +50,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         changed.Behaviour.IsPlayerBlocking = changed.Behaviour.IsPlayerBlockingLocal;
         if (changed.Behaviour._characterStats.WarriorType == CharacterStats.CharacterType.FootKnight) return;
         changed.Behaviour._blockArea.enabled = changed.Behaviour.IsPlayerBlockingLocal;
+     
     }
 
     private static void OnNetworkBlockPositionChanged(Changed<CharacterAttackBehaviour> changed)
@@ -108,6 +111,9 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
+        Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
+
 
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
