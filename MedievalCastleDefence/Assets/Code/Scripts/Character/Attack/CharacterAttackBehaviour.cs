@@ -127,30 +127,55 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
 
     protected void DamageToGallowGlassTest(GameObject opponent)
     {
+        /*
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+        var opponentBehaviour = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>();
+        var isOpponentBlocking = opponentBehaviour != null && opponentBehaviour.IsPlayerBlocking;
+        var opponentSwordPosition = opponentBehaviour.PlayerSwordPosition;
+
+        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        {
+            Vector3 attackDirection = (opponent.transform.position - transform.position).normalized;
+            float sideCheck = Vector3.Dot(opponent.transform.right, attackDirection);
+            float distance = Vector3.Distance(transform.position, opponent.transform.position);
+
+            // Mesafe yakýn ve blok uyumluysa parry
+            if (distance < 0.5f &&
+               (opponentSwordPosition == SwordPosition.Right && sideCheck > 0f ||
+                opponentSwordPosition == SwordPosition.Left && sideCheck < 0f))
+            {
+                opponentStamina?.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            }
+            else
+            {
+                opponentHealth?.DealDamageRPC(_weaponStats.Damage);
+            }
+        }
+        else
+        {
+            opponentHealth?.DealDamageRPC(_weaponStats.Damage);
+        }
+        */
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
         var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
-       
+        Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
+
+
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            if (opponentSwordPosition == PlayerSwordPositionLocal)
-            {
-               opponentHealth.DealDamageRPC(_weaponStats.Damage);
-            }
-            else
-            {
-                opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-            }
-
+            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage);
         }
-
-
     }
+
+
+
     protected SwordPosition GetSwordPosition() 
     {
        float mouseX = Input.GetAxis("Mouse X");

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31711101b9d87754293454d7db3b4ddf, type: 3}
   m_Name: Axe-WarAxe
   m_EditorClassIdentifier: 
-  TimeBetweenSwings: 1.8
+  TimeBetweenSwings: 2
   Damage: 55
   StaminaWaste: 35
   WeaponStaminaReductionOnParry: 60

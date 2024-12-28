@@ -49,7 +49,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             return;
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
         if (_animation != null)
             _animation.IsPlayerParry = IsPlayerBlockingLocal;
@@ -106,16 +106,19 @@ public class FootKnightAttack : CharacterAttackBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < 0.2f)
         {
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
-            Collider[] _hitColliders = Physics.OverlapSphere(transform.position + transform.up * 1.2f + transform.forward, 0.5f, layerMask);
-            _hitColliders = _hitColliders.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
-            if (_hitColliders.Length > 0)
+            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
+
+            var target = _hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
+                         ?? _hitColliders.FirstOrDefault();
+
+            if (target != null)
             {
-                Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name+ "PlayerID: " +_hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
-                CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
-               yield break;
+                CheckAttackCollisionTest(target.transform.gameObject);
+                yield break;
             }
-          
+
             elapsedTime += Time.deltaTime;
             yield return null;
         }

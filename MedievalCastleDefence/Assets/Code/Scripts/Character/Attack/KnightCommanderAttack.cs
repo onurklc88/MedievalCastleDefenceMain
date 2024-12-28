@@ -70,7 +70,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }
-        Test();
+        //Test();
     }
     protected override void SwingSword()
     {
@@ -96,40 +96,19 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
             Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
-            _hitColliders = _hitColliders.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
-            foreach (Collider collider in _hitColliders)
+
+            var target = _hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
+                         ?? _hitColliders.FirstOrDefault();
+
+            if (target != null)
             {
-                Debug.Log("Collided with: " + collider.gameObject.name);
-            }
-            if (_hitColliders.Length > 0)
-            {
-               // Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name + "PlayerID: " + _hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
-                CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
+                CheckAttackCollisionTest(target.transform.gameObject);
                 yield break;
             }
 
             elapsedTime += Time.deltaTime;
             yield return null; 
         }
-    }
-
-    private void Test()
-    {
-        Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
-        int layerMask = ~LayerMask.GetMask("Ragdoll");
-        Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
-        _hitColliders = _hitColliders.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
-        foreach (Collider collider in _hitColliders)
-        {
-            Debug.Log("Collided with: " + collider.gameObject.name);
-        }
-        if (_hitColliders.Length > 0)
-        {
-            // Debug.Log("Collided Object: " + _hitColliders[0].transform.gameObject.name + "PlayerID: " + _hitColliders[0].transform.GetComponentInParent<NetworkObject>().Id);
-           // CheckAttackCollisionTest(_hitColliders[0].transform.gameObject);
-          
-        }
-
     }
     protected override void BlockWeapon()
     {
