@@ -6,6 +6,7 @@ using UnityEngine;
 using Fusion;
 public class PlayerHUD : BehaviourRegistry
 {
+    [SerializeField] private GameObject _playerUI;
     [SerializeField] private TextMeshProUGUI _characterStaminaText;
     [SerializeField] private TextMeshProUGUI _characterHealth;
     private CharacterStamina _characterStamina;
@@ -18,6 +19,7 @@ public class PlayerHUD : BehaviourRegistry
         if (!Object.HasStateAuthority) return;
         var type = transform.GetComponent<PlayerStatsController>().SelectedCharacter;
         InitScript(this);
+        _playerUI.SetActive(true);
         //_characterStamina = GetScript<CharacterStamina>(type);
     }
     private void Start()

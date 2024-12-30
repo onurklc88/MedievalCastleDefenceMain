@@ -5,10 +5,10 @@ using Fusion;
 
 public class PlayerStatsController : BehaviourRegistry
 {
-    [Networked] public PlayerStats PlayerNetworkStats { get; set; }
-    private PlayerStats _playerLocalStats;
+    [Networked] public PlayerInfo PlayerNetworkStats { get; set; }
+    private PlayerInfo _playerLocalStats;
     public CharacterStats.CharacterType SelectedCharacter;
-    [Networked(OnChanged = nameof(OnNetworkStatsChanged))] public PlayerStats PlayerLocalStats { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkStatsChanged))] public PlayerInfo PlayerLocalStats { get; set; }
  
 
     public override void Spawned()
@@ -23,7 +23,7 @@ public class PlayerStatsController : BehaviourRegistry
         
     }
 
-    public void SetPlayerInfo(PlayerStats playerInfo)
+    public void SetPlayerInfo(PlayerInfo playerInfo)
     {
         _playerLocalStats = playerInfo;
         PlayerLocalStats = _playerLocalStats;

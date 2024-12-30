@@ -25,7 +25,7 @@ public class CharachterCameraController : BehaviourRegistry
             Cursor.visible = false;
             _cinemachineCamera = FindObjectOfType<CinemachineFreeLook>();
             _playerCamera = Camera.main;
-            
+            _uiCamera = GameObject.Find("PlayerUICamera").transform.GetComponent<Camera>();
             var cameraData = _playerCamera.GetUniversalAdditionalCameraData();
             cameraData.cameraStack.Add(_uiCamera);
            

@@ -18,7 +18,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         
         if (player == Runner.LocalPlayer)
             {
-                var playerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
+                var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
                
                 if (playerObject != null)
                 {
@@ -95,7 +95,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 break;
 
         }
-        PlayerStats stats = new PlayerStats();
+        PlayerInfo stats = new PlayerInfo();
         stats.PlayerWarrior = selectedWarrirorType;
         _currentPlayerObject.transform.GetComponentInChildren<PlayerStatsController>().SetPlayerInfo(stats);
 
