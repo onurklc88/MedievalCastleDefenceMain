@@ -47,7 +47,7 @@ public class Arrow : NetworkBehaviour
             if (collidedObject.transform.GetComponentInParent<IDamageable>() != null && collidedObject.gameObject.layer != 11)
             {
                 var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
-                opponentHealth.DealDamageRPC(25f);
+                //opponentHealth.DealDamageRPC(25f);
                 _parentTransform = collidedObject.transform;
               
                 Transform closestBone = GetClosestBone(collidedObject.transform, transform.position);

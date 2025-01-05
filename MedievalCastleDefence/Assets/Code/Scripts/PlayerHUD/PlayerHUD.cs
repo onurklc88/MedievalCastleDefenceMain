@@ -6,6 +6,7 @@ using UnityEngine;
 using Fusion;
 public class PlayerHUD : BehaviourRegistry
 {
+    [Networked(OnChanged = nameof(OnNetworkNickNameChanged))] public NetworkString<_16> PlayerNickName { get; set; }
     [SerializeField] private GameObject _playerUI;
     [SerializeField] private TextMeshProUGUI _characterStaminaText;
     [SerializeField] private TextMeshProUGUI _characterHealth;
@@ -14,6 +15,8 @@ public class PlayerHUD : BehaviourRegistry
     [SerializeField] private GameObject[] _arrowImage;
     [SerializeField] private GameObject _aimTarget;
     [SerializeField] private TextMeshProUGUI _stateTest;
+    [SerializeField] private TextMeshProUGUI _nickNameText;
+   
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -25,6 +28,7 @@ public class PlayerHUD : BehaviourRegistry
     private void Start()
     {
         if (!Object.HasStateAuthority) return;
+        //_nickNameText.maxVisibleCharacters = 3;
         var type = transform.GetComponent<PlayerStatsController>().SelectedCharacter;
         _characterStamina = GetScript<CharacterStamina>();
     }
@@ -92,7 +96,6 @@ public class PlayerHUD : BehaviourRegistry
         base.OnObjectDestroy();
         //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
         EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
-
         _respawnPanel.SetActive(false);
     }
     public void OnRespawnRangerButtonClicked()
@@ -101,7 +104,6 @@ public class PlayerHUD : BehaviourRegistry
         base.OnObjectDestroy();
         //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
         EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Ranger);
-
         _respawnPanel.SetActive(false);
     }
 
@@ -111,5 +113,28 @@ public class PlayerHUD : BehaviourRegistry
         if (!Object.HasStateAuthority) return;
         
         _aimTarget.SetActive(condition);
+    }
+
+    public void UpdatePlayerNickname(string nickname)
+    {
+        if (!Object.HasStateAuthority) return;
+        PlayerNickName = nickname;
+        _nickNameText.enabled = false;
+        EventLibrary.DebugMessage.Invoke(nickname);
+    }
+
+    public static void OnNetworkNickNameChanged(Changed<PlayerHUD> changed)
+    {
+        if (changed.Behaviour._nickNameText == null) return;
+        string nickName = changed.Behaviour.PlayerNickName.ToString();
+        changed.Behaviour._nickNameText.text = nickName.Length > 10
+            ? nickName.Substring(0, 10) + "..."
+            : nickName;
+
+
+    }
+    public void ShowNickName(bool condition)
+    {
+        _nickNameText.enabled = condition;
     }
 }

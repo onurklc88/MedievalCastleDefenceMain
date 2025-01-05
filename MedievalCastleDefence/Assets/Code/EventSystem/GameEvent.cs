@@ -59,5 +59,23 @@ public class GameEvent<T>
  }
 
 
+public class GameEvent<T1, T2, T3>
+{
+    private event Action<T1, T2, T3> _action = delegate { };
 
+    public void Invoke(T1 param1, T2 param2, T3 param3) 
+    {
+        _action.Invoke(param1, param2, param3);
+    }
+
+    public void AddListener(Action<T1, T2, T3> listener)
+    {
+        _action += listener;
+    }
+
+    public void RemoveListener(Action<T1, T2, T3> listener)
+    {
+        _action -= listener;
+    }
+}
 

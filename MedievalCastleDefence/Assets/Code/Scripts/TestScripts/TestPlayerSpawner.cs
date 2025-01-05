@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-
+using Steamworks;
 public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 {
     [SerializeField] private GameObject _playerPrefab;
@@ -18,19 +18,53 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         
         if (player == Runner.LocalPlayer)
             {
-                var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
+            
+            var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
                
                 if (playerObject != null)
                 {
-                    Runner.SetPlayerObject(player, playerObject);
-                    EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+                PlayerInfo stats = new PlayerInfo();
+               
+                if (SteamManager.Initialized)
+                {
+
+                    string playerName = SteamFriends.GetPersonaName();
+                    stats.PlayerNickName = playerName;
+                }
+                else
+                {
+                    Debug.LogError("Steam baþlatýlamadý!");
+                }
+                stats.PlayerWarrior = CharacterStats.CharacterType.KnightCommander;
+                Runner.SetPlayerObject(player, playerObject);
+                EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+                playerObject.transform.GetComponentInChildren<PlayerStatsController>().SetPlayerInfo(stats);
+                
+                //Runner.SetPlayerObject(player, playerObject);
+                // EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
               
                 //Debug.Log("Player object set successfully for player: " + player.PlayerId);
                 }
 
+
+
             }
       
-          
+          /*
+        if (player == Runner.LocalPlayer)
+        {
+            var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
+
+            if (playerObject != null)
+            {
+                Runner.SetPlayerObject(player, playerObject);
+                EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+
+                //Debug.Log("Player object set successfully for player: " + player.PlayerId);
+            }
+
+        }
+          */
     }
 
   public void PlayerLeft(PlayerRef player)
@@ -97,9 +131,20 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         }
         PlayerInfo stats = new PlayerInfo();
         stats.PlayerWarrior = selectedWarrirorType;
-        _currentPlayerObject.transform.GetComponentInChildren<PlayerStatsController>().SetPlayerInfo(stats);
+        if (SteamManager.Initialized)
+        {
+          
+            string playerName = SteamFriends.GetPersonaName();
+            stats.PlayerNickName = playerName;
+         
 
-        Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+        }
+        else
+        {
+            Debug.LogError("Steam baþlatýlamadý!");
+        }
+       _currentPlayerObject.transform.GetComponentInChildren<PlayerStatsController>().SetPlayerInfo(stats);
+       Runner.SetPlayerObject(playerRef, _currentPlayerObject);
     }
 
  

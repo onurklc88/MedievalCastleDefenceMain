@@ -28,9 +28,7 @@ public class CharachterCameraController : BehaviourRegistry
             _uiCamera = GameObject.Find("PlayerUICamera").transform.GetComponent<Camera>();
             var cameraData = _playerCamera.GetUniversalAdditionalCameraData();
             cameraData.cameraStack.Add(_uiCamera);
-           
             _uiCamera.enabled = true;
-            
             _cinemachineCamera.Follow = _cameraTargetPoint;
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
             InitScript(this);
@@ -77,12 +75,6 @@ public class CharachterCameraController : BehaviourRegistry
             if(_cinemachineCamera.m_Lens.FieldOfView > 30)
                 _cinemachineCamera.m_Lens.FieldOfView -= Time.deltaTime * 150f;
         }
-
-    }
-
-    public void EnableCameraDepth()
-    {
-      
 
     }
 

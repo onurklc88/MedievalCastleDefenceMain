@@ -10,6 +10,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _ragdollManager;
     private PlayerVFXSytem _playerVFXSystem;
+
+
     [SerializeField] private RPCDebugger _debugger;
    
     [SerializeField] private GameObject test;
@@ -23,12 +25,12 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     private void Start()
     {
-       
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
         _characterMovement = GetScript<CharacterMovement>();
         _ragdollManager = GetScript<ActiveRagdoll>();
         _playerVFXSystem = GetScript<PlayerVFXSytem>();
+        _playerStatsController = GetScript<PlayerStatsController>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -102,7 +104,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
             if (target != null)
             {
-                CheckAttackCollisionTest(target.transform.gameObject);
+                CheckAttackCollision(target.transform.gameObject);
                 yield break;
             }
 

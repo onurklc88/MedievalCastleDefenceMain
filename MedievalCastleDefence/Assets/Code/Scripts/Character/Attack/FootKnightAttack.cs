@@ -28,6 +28,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         _characterStamina = GetScript<CharacterStamina>();
         _activeRagdoll = GetScript<ActiveRagdoll>();
         _playerVFX = GetScript<PlayerVFXSytem>();
+        _playerStatsController = GetScript<PlayerStatsController>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -115,7 +116,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
 
             if (target != null)
             {
-                CheckAttackCollisionTest(target.transform.gameObject);
+                CheckAttackCollision(target.transform.gameObject);
                 yield break;
             }
 

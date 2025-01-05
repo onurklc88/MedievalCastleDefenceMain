@@ -105,7 +105,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
             if (target != null)
             {
-                CheckAttackCollisionTest(target.transform.gameObject);
+                CheckAttackCollision(target.transform.gameObject);
                 yield break;
             }
 

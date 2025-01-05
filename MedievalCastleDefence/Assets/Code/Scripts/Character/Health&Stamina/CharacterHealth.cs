@@ -13,7 +13,7 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
     private ActiveRagdoll _activeRagdoll;
     private PlayerVFXSytem _playerVFX;
     private CharacterDecals _characterDecals;
-    private CharachterCameraController _camController;
+    private PlayerStatsController _playerStatsController;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -27,13 +27,12 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
         _activeRagdoll = GetScript<ActiveRagdoll>();
         _playerVFX = GetScript<PlayerVFXSytem>();
         _characterDecals = GetScript<CharacterDecals>();
-        _camController = GetScript<CharachterCameraController>();
+        _playerStatsController = GetScript<PlayerStatsController>();
         switch (_characterStats.WarriorType)
         {
             case CharacterStats.CharacterType.FootKnight:
                 _characterAnim = GetScript<FootknightAnimation>();
                 _characterMovement = GetScript<CharacterMovement>();
-               
                 break;
             case CharacterStats.CharacterType.Gallowglass:
                 _characterMovement = GetScript<CharacterMovement>();
@@ -52,8 +51,9 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void DealDamageRPC(float givenDamage)
+    public void DealDamageRPC(float givenDamage, string opponentName, CharacterStats.CharacterType opponentWarrior)
     {
+        Debug.Log("Given Damage: " + givenDamage + " DamageDealer: " + opponentName + " OpponentWarrior: " + opponentWarrior);
         NetworkedHealth -= givenDamage;
         _characterAnim.UpdateDamageAnimationState();
         _playerVFX.PlayBloodVFX();
@@ -63,13 +63,13 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
             _characterMovement.IsInputDisabled = true;
             _playerHUD.ShowRespawnPanel();
             _activeRagdoll.RPCActivateRagdoll();
-            _camController.EnableCameraDepth();
+            _playerStatsController.UpdatePlayerDieCount();
         }
         else
         {
             _characterDecals.EnableRandomBloodDecal();
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
-         }
+        }
     }
    
     public void DestroyObject()
