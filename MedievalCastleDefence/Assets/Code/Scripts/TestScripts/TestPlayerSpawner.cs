@@ -10,15 +10,18 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     [SerializeField] private NetworkPrefabRef _knightCommanderdNetworkPrefab = NetworkPrefabRef.Empty;
     [SerializeField] private NetworkPrefabRef _gallowglassNetworkPrefab = NetworkPrefabRef.Empty;
     [SerializeField] private NetworkPrefabRef _theSaxonMarkNetworkPrefab = NetworkPrefabRef.Empty;
+   
     private NetworkObject _currentPlayerObject;
-
+   
+    private PlayerInfo _oldPlayerInfo;
 
     public void PlayerJoined(PlayerRef player)
     {
         
         if (player == Runner.LocalPlayer)
             {
-            
+            EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+            /*
             var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
                
                 if (playerObject != null)
@@ -35,20 +38,17 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 {
                     Debug.LogError("Steam baþlatýlamadý!");
                 }
+               
                 stats.PlayerWarrior = CharacterStats.CharacterType.KnightCommander;
                 Runner.SetPlayerObject(player, playerObject);
                 EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
-                playerObject.transform.GetComponentInChildren<PlayerStatsController>().SetPlayerInfo(stats);
-                
-                //Runner.SetPlayerObject(player, playerObject);
-                // EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
-              
-                //Debug.Log("Player object set successfully for player: " + player.PlayerId);
-                }
-
-
-
+                playerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
+               */
             }
+
+
+
+        //}
       
           /*
         if (player == Runner.LocalPlayer)
@@ -67,6 +67,41 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
           */
     }
 
+    public void SpawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType, TeamManager.Teams selectedTeam)
+    {
+        if (playerRef == Runner.LocalPlayer)
+        {
+
+            var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+
+            if (playerObject != null)
+            {
+                PlayerInfo stats = new PlayerInfo();
+
+                if (SteamManager.Initialized)
+                {
+
+                    string playerName = SteamFriends.GetPersonaName();
+                    stats.PlayerNickName = playerName;
+                }
+                else
+                {
+                    Debug.LogError("Steam baþlatýlamadý!");
+                }
+
+                stats.PlayerWarrior = CharacterStats.CharacterType.KnightCommander;
+                stats.PlayerTeam = selectedTeam;
+                Runner.SetPlayerObject(playerRef, playerObject);
+              //  EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+                playerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
+
+            }
+
+
+
+        }
+    }
+ 
   public void PlayerLeft(PlayerRef player)
   {
         var isPlayerAlreadySpawned = Runner.GetPlayerObject(player);
@@ -102,6 +137,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         {
             if (Runner.TryGetPlayerObject(playerRef, out var playerNetworkObject))
             {
+                _oldPlayerInfo = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats;
                 Runner.Despawn(playerNetworkObject);
                 StartCoroutine(SpawnDelay(playerRef, warriorType));
 
@@ -129,22 +165,10 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 break;
 
         }
-        PlayerInfo stats = new PlayerInfo();
-        stats.PlayerWarrior = selectedWarrirorType;
-        if (SteamManager.Initialized)
-        {
-          
-            string playerName = SteamFriends.GetPersonaName();
-            stats.PlayerNickName = playerName;
-         
-
-        }
-        else
-        {
-            Debug.LogError("Steam baþlatýlamadý!");
-        }
-       _currentPlayerObject.transform.GetComponentInChildren<PlayerStatsController>().SetPlayerInfo(stats);
-       Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+      
+        _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
+        Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+       _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
     }
 
  

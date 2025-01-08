@@ -63,7 +63,8 @@ public class CharacterHealth : BehaviourRegistry, IDamageable
             _characterMovement.IsInputDisabled = true;
             _playerHUD.ShowRespawnPanel();
             _activeRagdoll.RPCActivateRagdoll();
-            _playerStatsController.UpdatePlayerDieCount();
+            if (!Object.HasStateAuthority) return;
+            _playerStatsController.UpdatePlayerDieCountRpc();
         }
         else
         {

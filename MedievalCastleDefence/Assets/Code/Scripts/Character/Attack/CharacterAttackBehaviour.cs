@@ -8,8 +8,6 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
     [Networked] public NetworkButtons PreviousButton { get; set; }
     [Networked(OnChanged = nameof(OnNetworkBlockChanged))] public NetworkBool IsPlayerBlockingLocal { get; set; }
     [Networked(OnChanged = nameof(OnNetworkBlockPositionChanged))] public SwordPosition PlayerSwordPositionLocal { get; set; }
- 
-    
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
     [Networked] public SwordPosition PlayerSwordPosition { get; set; }
     public enum SwordPosition
@@ -86,7 +84,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentDead = (opponentHealth.NetworkedHealth - _weaponStats.Damage) <= 0;
+        //var isOpponentDead = (opponentHealth.NetworkedHealth - _weaponStats.Damage) <= 0;
 
         if (opponent.gameObject.layer == 11 && !isOpponentParrying)
         {
@@ -100,9 +98,9 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         else
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
-            if (isOpponentDead)
+            if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
-                _playerStatsController.UpdatePlayerKillCount();
+                _playerStatsController.UpdatePlayerKillCountRpc();
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
 
             }
@@ -114,8 +112,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var opponentInfo = opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName;
-        var isOpponentDead = (opponentHealth.NetworkedHealth - _weaponStats.Damage) <= 0;
+        //var isOpponentDead = (opponentHealth.NetworkedHealth - _weaponStats.Damage) <= 0;
         //Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
 
 
@@ -126,11 +123,11 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         else
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
-            if (isOpponentDead)
+            if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
-                _playerStatsController.UpdatePlayerKillCount();
+                _playerStatsController.UpdatePlayerKillCountRpc();
+                if (!Object.HasStateAuthority) return;
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
-
             }
         }
     }
@@ -170,7 +167,7 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
+       
         //Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
 
 
@@ -181,10 +178,18 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         else
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
+            if (IsOpponentDead(opponentHealth.NetworkedHealth))
+            {
+                _playerStatsController.UpdatePlayerKillCountRpc();
+                EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            }
         }
     }
 
-
+    private bool IsOpponentDead(float opponentHealth)
+    {
+        return (opponentHealth - _weaponStats.Damage) <= 0;
+    }
 
     protected SwordPosition GetSwordPosition() 
     {
@@ -200,11 +205,6 @@ public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
         return value;
     }
 
-    protected bool IsSwordHitShield()
-    {
-        Ray shieldRay = new Ray(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
-        return Physics.Raycast(shieldRay, out RaycastHit hit, 5f) && hit.collider.transform.gameObject.layer == 3;
-    }
 
     protected CharacterStats.CharacterType GetCharacterType(GameObject collidedObject)
     {   

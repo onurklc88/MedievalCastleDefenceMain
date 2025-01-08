@@ -13,12 +13,10 @@ public class PlayerStatsController : BehaviourRegistry
 
     public override void Spawned()
     {
-        _playerLocalStats.PlayerWarrior = SelectedCharacter;
-        PlayerLocalStats = _playerLocalStats;
-        //SelectedCharacter = _testStats.PlayerWarrior;
         if (!Object.HasStateAuthority) return;
         InitScript(this);
         
+
     }
 
     private void Start()
@@ -27,25 +25,29 @@ public class PlayerStatsController : BehaviourRegistry
         _playerHUD = GetScript<PlayerHUD>();
         _playerHUD.UpdatePlayerNickname(_playerLocalStats.PlayerNickName.ToString());
     }
-
+   // [Rpc(RpcSources.All, RpcTargets.All)]
     public void SetPlayerInfo(PlayerInfo playerInfo)
     {
         _playerLocalStats = playerInfo;
         PlayerLocalStats = _playerLocalStats;
-        Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerWarrior: " + PlayerLocalStats.PlayerWarrior);
+        //Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerWarrior: " + PlayerLocalStats.PlayerWarrior);
 
     }
-
-    public void UpdatePlayerKillCount()
+   
+    public void UpdatePlayerKillCountRpc()
     {
+        if (!Object.HasStateAuthority) return;
         _playerLocalStats.PlayerKillCount += 1;
         PlayerLocalStats = _playerLocalStats;
+        Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount+ "PlayerDieCount: " +PlayerLocalStats.PlayerDieCount);
     }
-
-    public void UpdatePlayerDieCount()
+    
+    public void UpdatePlayerDieCountRpc()
     {
+        if (!Object.HasStateAuthority) return;
         _playerLocalStats.PlayerDieCount += 1;
         PlayerLocalStats = _playerLocalStats;
+        Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount + "PlayerDieCount: " + PlayerLocalStats.PlayerDieCount);
     }
 
 

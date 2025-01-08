@@ -6,7 +6,7 @@ using Fusion;
 public struct PlayerInfo : INetworkStruct
 {
     public NetworkString<_16> PlayerNickName { get; set; }
-    //public PlayerStats.Team PlayerTeam;
+    public TeamManager.Teams PlayerTeam;
     public CharacterStats.CharacterType PlayerWarrior;
     public int PlayerKillCount;
     public int PlayerDieCount;
