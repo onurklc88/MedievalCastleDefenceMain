@@ -30,6 +30,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
 
     private void Start()
     {
+        if (!Object.HasStateAuthority) return;
         _characterMovement = GetScript<CharacterMovement>();
     }
 
@@ -80,7 +81,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     private static void NetworkHorizontalWalkAnimationStateChanged(Changed<KnightCommanderAnimation> changed)
     {
         changed.Behaviour._animationController.SetFloat(changed.Behaviour._characterDirections[1], changed.Behaviour.PlayerHorizontalDirection);
-        changed.Behaviour._animationController.SetBool("OnPlayerWalk", true);
+        //changed.Behaviour._animationController.SetBool("OnPlayerWalk", true);
         if (changed.Behaviour.PlayerHorizontalDirection == -1)
             changed.Behaviour._animationController.speed = 0.9f;
         else
@@ -104,7 +105,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     }
     private static void NetworkedUpperbodyWalkAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
-        changed.Behaviour._animationController.SetBool("OnPlayerWalk", changed.Behaviour.OnPlayerWalk);
+        //changed.Behaviour._animationController.SetBool("OnPlayerWalk", changed.Behaviour.OnPlayerWalk);
     }
     private static void NetworkedUpperbodyBlockAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {

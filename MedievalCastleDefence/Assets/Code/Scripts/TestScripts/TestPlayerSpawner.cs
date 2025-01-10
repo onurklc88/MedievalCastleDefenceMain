@@ -15,12 +15,27 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
    
     private PlayerInfo _oldPlayerInfo;
 
+
+    private void OnEnable()
+    {
+        //EventLibrary.OnPlayerSelectTeam.AddListener(SpawnPlayer);
+    }
+
+    private void OnDisable()
+    {
+        EventLibrary.OnPlayerSelectTeam.RemoveListener(SpawnPlayer);
+        EventLibrary.OnRespawnRequested.RemoveListener(RespawnPlayer);
+    }
+
+
     public void PlayerJoined(PlayerRef player)
     {
         
+
         if (player == Runner.LocalPlayer)
             {
             EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+            EventLibrary.OnPlayerSelectTeam.AddListener(SpawnPlayer);
             /*
             var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, player);
                
@@ -44,7 +59,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
                 playerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
                */
-            }
+        }
 
 
 
@@ -69,12 +84,35 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 
     public void SpawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType, TeamManager.Teams selectedTeam)
     {
+       
+        if (Runner == null)
+        {
+            Debug.Log("Runner yok");
+            return;
+        }
+       
         if (playerRef == Runner.LocalPlayer)
         {
 
-            var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+            //var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+            switch (warriorType)
+            {
+                case CharacterStats.CharacterType.FootKnight:
+                    _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.KnightCommander:
+                    _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Gallowglass:
+                    _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Ranger:
+                    _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    break;
 
-            if (playerObject != null)
+            }
+
+            if (_currentPlayerObject != null)
             {
                 PlayerInfo stats = new PlayerInfo();
 
@@ -91,14 +129,15 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 
                 stats.PlayerWarrior = CharacterStats.CharacterType.KnightCommander;
                 stats.PlayerTeam = selectedTeam;
-                Runner.SetPlayerObject(playerRef, playerObject);
-              //  EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
-                playerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
+                Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+                //  EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
+                _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
 
             }
-
-
-
+        }
+        else
+        {
+            Debug.Log("Local player yok");
         }
     }
  
@@ -172,13 +211,6 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     }
 
  
-
-    private void OnDisable()
-    {
-       EventLibrary.OnRespawnRequested.RemoveListener(RespawnPlayer);
-       // FootKnightAttack.Test -= RespawnPlayer;
-    }
-
    
 
   

@@ -25,6 +25,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     private void Start()
     {
+        if (!Object.HasStateAuthority) return;
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
         _characterMovement = GetScript<CharacterMovement>();

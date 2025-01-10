@@ -9,8 +9,11 @@ public class PlayerStatsController : BehaviourRegistry
     private PlayerInfo _playerLocalStats;
     public CharacterStats.CharacterType SelectedCharacter;
     [Networked(OnChanged = nameof(OnNetworkStatsChanged))] public PlayerInfo PlayerLocalStats { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkPlayerTeamChange))] public TeamManager.Teams PlayerTeam { get; set; }
+    [SerializeField] private Material[] _teamMaterials;
+    [SerializeField] private SkinnedMeshRenderer _playerMeshrenderer;
     private PlayerHUD _playerHUD;
-
+    
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -25,13 +28,14 @@ public class PlayerStatsController : BehaviourRegistry
         _playerHUD = GetScript<PlayerHUD>();
         _playerHUD.UpdatePlayerNickname(_playerLocalStats.PlayerNickName.ToString());
     }
-   // [Rpc(RpcSources.All, RpcTargets.All)]
+  
     public void SetPlayerInfo(PlayerInfo playerInfo)
     {
         _playerLocalStats = playerInfo;
         PlayerLocalStats = _playerLocalStats;
+        PlayerTeam = playerInfo.PlayerTeam;
+        Debug.Log("PlayerTeam: " + PlayerTeam);
         //Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerWarrior: " + PlayerLocalStats.PlayerWarrior);
-
     }
    
     public void UpdatePlayerKillCountRpc()
@@ -55,6 +59,31 @@ public class PlayerStatsController : BehaviourRegistry
     private static void OnNetworkStatsChanged(Changed<PlayerStatsController> changed)
     {
         changed.Behaviour.PlayerNetworkStats = changed.Behaviour.PlayerLocalStats;
+    }
+
+    private static void OnNetworkPlayerTeamChange(Changed<PlayerStatsController> changed)
+    {
+        if (changed.Behaviour.PlayerTeam == TeamManager.Teams.None) return;
+
+        var renderer = changed.Behaviour._playerMeshrenderer;
+        if (renderer != null)
+        {
+           
+            var materials = renderer.materials;
+
+            
+            if (changed.Behaviour.PlayerTeam == TeamManager.Teams.Red)
+            {
+                materials[0] = changed.Behaviour._teamMaterials[0];
+            }
+            else
+            {
+                materials[0] = changed.Behaviour._teamMaterials[1];
+            }
+
+           
+            renderer.materials = materials;
+        }
     }
     
 

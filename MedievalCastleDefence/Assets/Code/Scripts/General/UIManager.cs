@@ -12,7 +12,8 @@ public class UIManager : NetworkBehaviour, IReadInput
     [SerializeField] private GameObject _characterPanel;
     private TeamManager.Teams _playerTeam;
     private CharacterStats.CharacterType _playerWarrior;
-
+    [Header("Warrior Panel Variables")]
+    [SerializeField] private Button[] _warriorButtons;
 
     [Header("Killfeed Variables")]
     [SerializeField] private Transform _killfeedContext;
@@ -21,6 +22,7 @@ public class UIManager : NetworkBehaviour, IReadInput
     [SerializeField] private GameObject _scoreboard;
     private bool _previousCondition = false;
 
+    
     public NetworkButtons PreviousButton { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
     private void OnEnable()
@@ -37,6 +39,11 @@ public class UIManager : NetworkBehaviour, IReadInput
     {
         _teamSelectButton[0].onClick.AddListener(() => UpdatePlayerTeamButton(TeamManager.Teams.Red));
         _teamSelectButton[1].onClick.AddListener(() => UpdatePlayerTeamButton(TeamManager.Teams.Blue));
+        _warriorButtons[0].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.FootKnight));
+        _warriorButtons[1].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.KnightCommander));
+        _warriorButtons[2].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Gallowglass));
+        _warriorButtons[3].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Ranger));
+        
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
@@ -73,11 +80,16 @@ public class UIManager : NetworkBehaviour, IReadInput
     {
         Debug.Log("selectedTeam: " + selectedTeam);
         _playerTeam = selectedTeam;
+        _teamPanel.SetActive(false);
+        _characterPanel.SetActive(true);
     }
 
     public void UpdatePlayerSelectedWarrior(CharacterStats.CharacterType selectedCharacter)
     {
         _playerWarrior = selectedCharacter;
+        EventLibrary.OnPlayerSelectTeam.Invoke(Runner.LocalPlayer, _playerWarrior, _playerTeam);
+        EventLibrary.OnPlayerSelectWarrior.Invoke();
+        _characterPanel.SetActive(false);
     }
 
     

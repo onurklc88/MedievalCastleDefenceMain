@@ -8,7 +8,9 @@ public static class EventLibrary
     public static readonly GameEvent<PlayerInfo> OnPlayerStatsUpdated = new GameEvent<PlayerInfo>();
     public static readonly GameEvent<String> DebugMessage = new GameEvent<String>();
     public static readonly GameEvent<PlayerRef> OnPlayerJoiningServer = new GameEvent<PlayerRef>();
+    public static readonly GameEvent OnPlayerSelectWarrior = new GameEvent();
     public static readonly GameEvent<CharacterStats.CharacterType, string, string> OnPlayerKill = new GameEvent<CharacterStats.CharacterType, string, string>();
+    public static readonly GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams> OnPlayerSelectTeam = new GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams>();
 
 
 }
