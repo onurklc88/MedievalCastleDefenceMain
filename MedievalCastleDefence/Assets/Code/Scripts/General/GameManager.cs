@@ -5,5 +5,15 @@ using Fusion;
 
 public class GameManager : NetworkBehaviour
 {
-   
+   public enum GameModes
+    {
+        None,
+        OneVsOne,
+        TwoVsTwo,
+        ThreeVsThree,
+        Tournament,
+        Conquest
+   }
+
+    public GameMode GameMode;
 }

@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-public class CharacterAnimationController : BehaviourRegistry
+using static BehaviourRegistry;
+public class CharacterAnimationController : CharacterRegistry
 {
     [SerializeField] protected Animator _animationController;
     [SerializeField] protected string[] _characterDirections;

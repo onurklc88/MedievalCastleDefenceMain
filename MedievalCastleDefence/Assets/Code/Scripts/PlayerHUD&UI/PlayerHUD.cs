@@ -4,7 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-public class PlayerHUD : BehaviourRegistry
+using static BehaviourRegistry;
+public class PlayerHUD : CharacterRegistry
 {
     [Networked(OnChanged = nameof(OnNetworkNickNameChanged))] public NetworkString<_16> PlayerNickName { get; set; }
     [SerializeField] private GameObject _playerUI;

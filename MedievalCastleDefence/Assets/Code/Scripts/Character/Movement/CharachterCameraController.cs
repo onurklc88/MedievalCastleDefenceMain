@@ -2,9 +2,9 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine;
 using Fusion;
 using Cinemachine;
+using static BehaviourRegistry;
 
-
-public class CharachterCameraController : BehaviourRegistry
+public class CharachterCameraController : CharacterRegistry
 {
     [SerializeField] private Transform _orientation;
     [SerializeField] private Transform _cameraTargetPoint;

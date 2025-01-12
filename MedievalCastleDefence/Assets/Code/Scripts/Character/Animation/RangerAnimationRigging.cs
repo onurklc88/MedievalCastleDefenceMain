@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using static BehaviourRegistry;
 
-public class RangerAnimationRigging : BehaviourRegistry
+public class RangerAnimationRigging : CharacterRegistry
 {
     [SerializeField] private MultiAimConstraint _leftHandConstrait;
     [SerializeField] private MultiAimConstraint _rightHandConstrait;

@@ -4,7 +4,8 @@ using UnityEngine;
 using Fusion;
 using TMPro;
 using UnityEngine.UI;
-public class UIManager : NetworkBehaviour, IReadInput
+using static BehaviourRegistry;
+public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 {
     [Header("TeamSelect Panel Variables")]
     [SerializeField] private Button[] _teamSelectButton;
@@ -21,13 +22,17 @@ public class UIManager : NetworkBehaviour, IReadInput
     
     [SerializeField] private GameObject _scoreboard;
     private bool _previousCondition = false;
-
+    [Header("Timer Variables")]
+    [SerializeField] private TextMeshProUGUI _timer;
+   
     
     public NetworkButtons PreviousButton { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public LevelManager.GamePhase CurrentGameState { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
     private void OnEnable()
     {
         EventLibrary.OnPlayerKill.AddListener(ShowKillFeedRpc);
+       
     }
 
     private void OnDisable()
@@ -37,13 +42,24 @@ public class UIManager : NetworkBehaviour, IReadInput
 
     private void Awake()
     {
+        InitScript(this);
         _teamSelectButton[0].onClick.AddListener(() => UpdatePlayerTeamButton(TeamManager.Teams.Red));
         _teamSelectButton[1].onClick.AddListener(() => UpdatePlayerTeamButton(TeamManager.Teams.Blue));
         _warriorButtons[0].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.FootKnight));
         _warriorButtons[1].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.KnightCommander));
         _warriorButtons[2].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Gallowglass));
         _warriorButtons[3].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Ranger));
-        
+       
+    }
+
+   
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _teamPanel.SetActive(true);
+        }
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
@@ -55,6 +71,8 @@ public class UIManager : NetworkBehaviour, IReadInput
         playerNames[1].text = deadPlayer;
         StartCoroutine(HideKillfeed(killFeed));
     }
+
+
     private IEnumerator HideKillfeed(GameObject context)
     {
         yield return new WaitForSeconds(3f);
@@ -68,6 +86,11 @@ public class UIManager : NetworkBehaviour, IReadInput
             _previousCondition = condition;
             _scoreboard.SetActive(condition); 
         }
+    }
+
+    public void UpdateTimer(string value)
+    {
+        _timer.text = value;
     }
 
     public void ReadPlayerInputs(PlayerInputData input)
@@ -92,5 +115,15 @@ public class UIManager : NetworkBehaviour, IReadInput
         _characterPanel.SetActive(false);
     }
 
-    
+    public void UpdateGameState(LevelManager.GamePhase currentGameState)
+    {
+       
+    }
+
+    private IEnumerator PanelDelay()
+    {
+       
+        yield return new WaitForSeconds(5f);
+        _teamPanel.SetActive(true);
+    }
 }

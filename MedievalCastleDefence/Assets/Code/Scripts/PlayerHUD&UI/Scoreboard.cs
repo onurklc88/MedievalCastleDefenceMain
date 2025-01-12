@@ -7,7 +7,7 @@ using System.Linq;
 
 public class Scoreboard : NetworkBehaviour
 {
-    [SerializeField] private ActivePlayerList _activePlayerList;
+    
     [SerializeField] private GameObject _playerStatsEntry;
     [SerializeField] private Transform _content;
     private List<GameObject> _entryList = new List<GameObject>();

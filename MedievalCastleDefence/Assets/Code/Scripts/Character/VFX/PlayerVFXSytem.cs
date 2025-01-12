@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-public class PlayerVFXSytem : BehaviourRegistry
+using static BehaviourRegistry;
+public class PlayerVFXSytem : CharacterRegistry
 {
     [SerializeField] private GameObject _weaponParticles;
     [SerializeField] private ParticleSystem[] _bloodVFX;

@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-public class BehaviourRegistry : NetworkBehaviour
+public abstract class BehaviourRegistry : NetworkBehaviour
 {
-    private static List<BehaviourRegistry> _scriptList = new List<BehaviourRegistry>();
-    [SerializeField] protected CharacterStats _characterStats;
-   
+    protected abstract List<BehaviourRegistry> ScriptList { get; }
+
     protected void InitScript(BehaviourRegistry type)
     {
 
-        foreach (var script in _scriptList)
+        foreach (var script in ScriptList)
         {
             if (script.GetType() == type.GetType())
             {
@@ -20,12 +19,12 @@ public class BehaviourRegistry : NetworkBehaviour
             }
         }
 
-        _scriptList.Add(type);
+        ScriptList.Add(type);
         Debug.Log($"{this.GetType().Name} registered with type: {type.GetType().Name}.");
     }
     protected T GetScript<T>() where T : BehaviourRegistry
     {
-        foreach (var script in _scriptList)
+        foreach (var script in ScriptList)
         {
             if (script is T)
             {
@@ -39,7 +38,20 @@ public class BehaviourRegistry : NetworkBehaviour
 
     protected void OnObjectDestroy()
     {
-        _scriptList.Clear();
+        ScriptList.Clear();
+    }
+
+    public class CharacterRegistry : BehaviourRegistry
+    {
+        private static List<BehaviourRegistry> _characterScripts = new List<BehaviourRegistry>();
+        protected override List<BehaviourRegistry> ScriptList => _characterScripts;
+        [SerializeField] protected CharacterStats _characterStats;
+    }
+
+    public class ManagerRegistry : BehaviourRegistry
+    {
+        private static List<BehaviourRegistry> _managerScripts = new List<BehaviourRegistry>();
+        protected override List<BehaviourRegistry> ScriptList => _managerScripts;
     }
 }
 

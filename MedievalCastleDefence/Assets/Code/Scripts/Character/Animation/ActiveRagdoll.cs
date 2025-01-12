@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using static BehaviourRegistry;
 
-public class ActiveRagdoll : BehaviourRegistry
+public class ActiveRagdoll : CharacterRegistry
 {
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private Animator _animator;

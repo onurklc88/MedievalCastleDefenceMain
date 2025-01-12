@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-
-public class CharacterStamina : BehaviourRegistry
+using static BehaviourRegistry;
+public class CharacterStamina : CharacterRegistry
 {
     public float CurrentStamina { get; set; }
     public bool CanStaminaRegenerating { get; set; }

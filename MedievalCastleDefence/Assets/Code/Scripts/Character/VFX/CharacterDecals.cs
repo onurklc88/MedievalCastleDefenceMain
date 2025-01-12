@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Fusion;   
+using Fusion;
+using static BehaviourRegistry;
 
-public class CharacterDecals : BehaviourRegistry
+public class CharacterDecals : CharacterRegistry
 {
     [SerializeField] private GameObject[] _bloodDecals;
     [SerializeField] private GameObject _swordDecal;

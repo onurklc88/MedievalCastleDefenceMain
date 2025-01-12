@@ -1,0 +1,92 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Fusion;
+using System.Linq;
+using static BehaviourRegistry;
+using UnityEngine.UI;
+
+public class TeamSelectUI : ManagerRegistry
+{
+    [SerializeField] private Button _redTeamButton;
+    [SerializeField] private Button _blueTeamButton;
+    [SerializeField] private LevelManager _levelManager;
+    private void Start()
+    {
+        /*
+        if (_levelManager != null)
+            _levelManager = GetScript<LevelManager>();
+        else
+            Debug.Log("LevelManagerNull");
+        */
+       // CheckTeamPlayerCount();
+    }
+
+
+    private void OnEnable()
+    {
+        CheckTeamPlayerCount();
+    }
+
+    public override void Spawned()
+    {
+        //CheckTeamPlayerCount();
+    }
+
+    private void CheckTeamPlayerCount()
+    {
+        Debug.Log("MaxPlayerCount: " + _levelManager.MaxPlayerCount);
+        if(Runner == null)
+        {
+            Debug.Log("runner is null?");
+            //return;
+        }
+        var playerList = Runner.ActivePlayers.ToList();
+        var redTeamPlayerCount = 0;
+        var blueTeamPlayerCount = 0;
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            var player = playerList[i];
+            var playerNetworkObject = Runner.GetPlayerObject(player);
+            if (playerNetworkObject != null)
+            {
+                if (playerNetworkObject.gameObject.GetComponentInParent<PlayerStatsController>() != null)
+                {
+                    var playerTeam = playerNetworkObject.gameObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+
+                    Debug.Log("önceki Oyuncunun takýmý: " + playerTeam);
+                    if (playerTeam == TeamManager.Teams.Red)
+                    {
+                        redTeamPlayerCount += 1;
+                    }
+                    else
+                    {
+                        blueTeamPlayerCount += 1;
+                    }
+                }
+                else
+                {
+                    Debug.Log("Runner not Ready");
+                }
+            }
+           
+
+        }
+        
+        
+        Debug.Log("redTeamPlayerCount: " + redTeamPlayerCount);
+        Debug.Log("blueTeamPlayerCount: " + blueTeamPlayerCount);
+
+        if (redTeamPlayerCount == _levelManager.MaxPlayerCount / 2)
+        {
+            _redTeamButton.interactable = false;
+        }
+        
+        if(blueTeamPlayerCount == _levelManager.MaxPlayerCount / 2)
+        {
+            _blueTeamButton.interactable = false;
+        }
+
+    }
+
+}

@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-public class CharacterAttackBehaviour : BehaviourRegistry, IReadInput
+using static BehaviourRegistry;
+public class CharacterAttackBehaviour : CharacterRegistry, IReadInput
 {
     [Networked] protected TickTimer AttackCooldown { get; set; }
     [Networked] public NetworkButtons PreviousButton { get; set; }

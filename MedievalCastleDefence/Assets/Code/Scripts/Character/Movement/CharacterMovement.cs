@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using static BehaviourRegistry;
 
-
-public class CharacterMovement : BehaviourRegistry, IReadInput
+public class CharacterMovement : CharacterRegistry, IReadInput
 {
     public NetworkBool IsInputDisabled { get; set; }
     public float CurrentMoveSpeed { get; set; }

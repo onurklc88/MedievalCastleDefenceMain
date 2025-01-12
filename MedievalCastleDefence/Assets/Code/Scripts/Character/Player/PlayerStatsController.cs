@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-
-public class PlayerStatsController : BehaviourRegistry
+using static BehaviourRegistry;
+public class PlayerStatsController : CharacterRegistry
 {
     [Networked] public PlayerInfo PlayerNetworkStats { get; set; }
     private PlayerInfo _playerLocalStats;
