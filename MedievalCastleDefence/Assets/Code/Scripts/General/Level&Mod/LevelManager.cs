@@ -15,14 +15,14 @@ public class LevelManager : ManagerRegistry
     [Networked(OnChanged = nameof(OnPlayerCountChange))]
     public int CurrentPlayerCount { get; set; }
     private int _localPlayerCount;
-    private int _redTeamPlayerCount;
-    private int _blueTeamPlayerCount;
+    
     
     
     public enum GamePhase
     {
         None,
         Warmup,
+        Prepertaion,
         RoundStart,
         RoundEnd,
         GameEnd
@@ -33,7 +33,7 @@ public class LevelManager : ManagerRegistry
     public override void Spawned()
     {
         //InitScript(this);
-        EventLibrary.OnPlayerSelectWarrior.AddListener(UpdatePlayerCount);
+        EventLibrary.OnPlayerSelectWarrior.AddListener(UpdatePlayerCountRpc);
         
        CurrentGamePhase = GamePhase.Warmup;
        EventLibrary.OnGamePhaseChange.Invoke(CurrentGamePhase);
@@ -68,13 +68,17 @@ public class LevelManager : ManagerRegistry
         }
     }
 
-    
-    private void UpdatePlayerCount()
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    private void UpdatePlayerCountRpc()
     {
-         CurrentPlayerCount += 1;
+        if (!Runner.IsSharedModeMasterClient) return;
+        CurrentPlayerCount += 1;
+        //Debug.Log("CurrentPlayerCount: " + CurrentPlayerCount);
         if(CurrentPlayerCount == MaxPlayerCount)
         {
+            Debug.LogWarning("MaxPlayerCount reached.");
             CurrentGamePhase = GamePhase.RoundStart;
+            EventLibrary.OnGamePhaseChange.Invoke(CurrentGamePhase);
         }
     }
 
@@ -82,7 +86,13 @@ public class LevelManager : ManagerRegistry
 
     private static void OnPlayerCountChange(Changed<LevelManager> changed)
     {
+        if (!changed.Behaviour.Object.HasStateAuthority) return;
         Debug.LogWarning($"<color=yellow>Player count updated: {changed.Behaviour.CurrentPlayerCount}</color>");
+        if(changed.Behaviour.CurrentPlayerCount == changed.Behaviour.MaxPlayerCount)
+        {
+            changed.Behaviour.CurrentGamePhase = GamePhase.RoundStart;
+            
+        }
     }
 
  

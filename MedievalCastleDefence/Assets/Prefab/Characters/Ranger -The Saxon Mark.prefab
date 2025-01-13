@@ -19673,6 +19673,11 @@ MonoBehaviour:
   _interpolationDataSource: 0
   _characterStats: {fileID: 11400000, guid: 507e7d87490c4314786c7dd3b9e4d809, type: 2}
   SelectedCharacter: 5
+  _PlayerTeam: 0
+  _teamMaterials:
+  - {fileID: 2100000, guid: 51e5bdd762167b346bd74f3232109584, type: 2}
+  - {fileID: 2100000, guid: 95163532aca88fa4bbff67b9d4985617, type: 2}
+  _playerMeshrenderer: {fileID: 8628485998195113194}
 --- !u!114 &999193052347185007
 MonoBehaviour:
   m_ObjectHideFlags: 0

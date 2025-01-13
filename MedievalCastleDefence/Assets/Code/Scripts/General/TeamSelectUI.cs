@@ -10,7 +10,7 @@ public class TeamSelectUI : ManagerRegistry
 {
     [SerializeField] private Button _redTeamButton;
     [SerializeField] private Button _blueTeamButton;
-    [SerializeField] private LevelManager _levelManager;
+    private LevelManager _levelManager;
     private void Start()
     {
         /*
@@ -25,6 +25,7 @@ public class TeamSelectUI : ManagerRegistry
 
     private void OnEnable()
     {
+        _levelManager = GetScript<LevelManager>();
         CheckTeamPlayerCount();
     }
 
@@ -35,12 +36,7 @@ public class TeamSelectUI : ManagerRegistry
 
     private void CheckTeamPlayerCount()
     {
-        Debug.Log("MaxPlayerCount: " + _levelManager.MaxPlayerCount);
-        if(Runner == null)
-        {
-            Debug.Log("runner is null?");
-            //return;
-        }
+      
         var playerList = Runner.ActivePlayers.ToList();
         var redTeamPlayerCount = 0;
         var blueTeamPlayerCount = 0;
@@ -54,7 +50,7 @@ public class TeamSelectUI : ManagerRegistry
                 {
                     var playerTeam = playerNetworkObject.gameObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
 
-                    Debug.Log("önceki Oyuncunun takýmý: " + playerTeam);
+                  
                     if (playerTeam == TeamManager.Teams.Red)
                     {
                         redTeamPlayerCount += 1;
@@ -73,10 +69,7 @@ public class TeamSelectUI : ManagerRegistry
 
         }
         
-        
-        Debug.Log("redTeamPlayerCount: " + redTeamPlayerCount);
-        Debug.Log("blueTeamPlayerCount: " + blueTeamPlayerCount);
-
+       
         if (redTeamPlayerCount == _levelManager.MaxPlayerCount / 2)
         {
             _redTeamButton.interactable = false;
@@ -86,6 +79,7 @@ public class TeamSelectUI : ManagerRegistry
         {
             _blueTeamButton.interactable = false;
         }
+       
 
     }
 

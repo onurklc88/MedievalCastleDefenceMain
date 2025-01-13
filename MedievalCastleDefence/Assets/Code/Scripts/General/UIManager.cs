@@ -28,6 +28,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     
     public NetworkButtons PreviousButton { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public LevelManager.GamePhase CurrentGameState { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    private bool _test;
 
     private void OnEnable()
     {
@@ -56,8 +57,9 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !_test)
         {
+            _test = true;
             _teamPanel.SetActive(true);
         }
     }

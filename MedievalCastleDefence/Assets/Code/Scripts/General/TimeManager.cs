@@ -4,26 +4,21 @@ using UnityEngine;
 using Fusion;
 using System;
 using static BehaviourRegistry;
-public class TimeManager : ManagerRegistry, IGameStateListener
+public class TimeManager : ManagerRegistry
 {
     [Networked] private TickTimer _matchTimer { get; set; }
     public LevelManager.GamePhase CurrentGameState { get; set; }
 
-    private const float WARMUP_MATCH_TIME = 300f;
-   
+    private const float WARMUP_MATCH_TIME = 20f;
+    private const float MATCH_PREPERATION_TIME = 10f;
+
     private float _currentTimeAmount;
     private UIManager _uiManager;
+    [Networked(OnChanged = nameof(OnTimerChanged))] public float RemainingTime { get; set; }
+    private float _matchDuration;
 
 
-    private void OnEnable()
-    {
-        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
-    }
 
-    private void OnDisable()
-    {
-        
-    }
     private void Awake()
     {
         InitScript(this);
@@ -31,6 +26,7 @@ public class TimeManager : ManagerRegistry, IGameStateListener
 
     private void Start()
     {
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
         _uiManager = GetScript<UIManager>();
     }
 
@@ -38,50 +34,58 @@ public class TimeManager : ManagerRegistry, IGameStateListener
 
     public override void FixedUpdateNetwork()
     {
-        if (_matchTimer.Expired(Runner) == false && _matchTimer.RemainingTime(Runner).HasValue)
+      
+        if (Runner.IsSharedModeMasterClient)
         {
-            var timeSpan = TimeSpan.FromSeconds(_matchTimer.RemainingTime(Runner).Value);
-            _uiManager.UpdateTimer($"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}");
-          
-        }
-        else if (_matchTimer.Expired(Runner))
-        {
-            _matchTimer = TickTimer.None;
-            /*
-            if (CurrentGameState == GameManager.GameState.Warmup)
+            if (RemainingTime > 0)
             {
-                CurrentGameState = GameManager.GameState.MatchStart;
-                EventLibrary.OnGameStateChange?.Invoke(CurrentGameState);
-                StartCoroutine(DelayEvents());
+                RemainingTime -= Runner.DeltaTime;
             }
-            */
+            else
+            {
+                RemainingTime = 0;
+                //CurrentGameState = LevelManager.GamePhase.RoundStart;
+                EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundStart);
+            }
         }
     }
-
+    private static void OnTimerChanged(Changed<TimeManager> changed)
+    {
+        var time = TimeSpan.FromSeconds(changed.Behaviour.RemainingTime);
+        changed.Behaviour._uiManager.UpdateTimer($"{time.Minutes:D2}:{time.Seconds:D2}");
+    }
 
     public void UpdateMatchTimer()
     {
 
     }
 
-    public void UpdateGameState(LevelManager.GamePhase currentGameState)
+  
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
     {
-        Debug.Log("Current: " + currentGameState);
+
         CurrentGameState = currentGameState;
 
         switch (currentGameState)
         {
             case LevelManager.GamePhase.Warmup:
-                _currentTimeAmount = WARMUP_MATCH_TIME;
+               _matchDuration = WARMUP_MATCH_TIME;
+                break;
+            case LevelManager.GamePhase.Prepertaion:
+                _matchDuration = MATCH_PREPERATION_TIME;
                 break;
             case LevelManager.GamePhase.RoundStart:
-               
+                
                 break;
             case LevelManager.GamePhase.RoundEnd:
-
+                _matchDuration = 0;
                 break;
         }
+      
+        if (Runner.IsSharedModeMasterClient)
+        {
+           RemainingTime = _matchDuration;
+        }
 
-        _matchTimer = TickTimer.CreateFromSeconds(Runner, _currentTimeAmount);
     }
 }
