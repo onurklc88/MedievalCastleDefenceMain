@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IGameStateListener
 {
-    public LevelManager.GamePhase CurrentGameState { get; set; }
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState);
 

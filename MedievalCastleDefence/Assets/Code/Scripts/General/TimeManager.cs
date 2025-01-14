@@ -9,14 +9,15 @@ public class TimeManager : ManagerRegistry
     [Networked] private TickTimer _matchTimer { get; set; }
     public LevelManager.GamePhase CurrentGameState { get; set; }
 
-    private const float WARMUP_MATCH_TIME = 20f;
-    private const float MATCH_PREPERATION_TIME = 10f;
+    private const float WARMUP_MATCH_TIME = 25f;
+    private const float MATCH_PREPARATION_TIME = 3f;
 
     private float _currentTimeAmount;
     private UIManager _uiManager;
     [Networked(OnChanged = nameof(OnTimerChanged))] public float RemainingTime { get; set; }
     private float _matchDuration;
 
+    private LevelManager _levelManager;
 
 
     private void Awake()
@@ -27,6 +28,7 @@ public class TimeManager : ManagerRegistry
     private void Start()
     {
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
+        _levelManager = GetScript<LevelManager>();
         _uiManager = GetScript<UIManager>();
     }
 
@@ -34,20 +36,38 @@ public class TimeManager : ManagerRegistry
 
     public override void FixedUpdateNetwork()
     {
-      
-        if (Runner.IsSharedModeMasterClient)
+        if (!Runner.IsSharedModeMasterClient) return;
+
+        if (RemainingTime > 0)
         {
-            if (RemainingTime > 0)
-            {
-                RemainingTime -= Runner.DeltaTime;
-            }
-            else
-            {
-                RemainingTime = 0;
-                //CurrentGameState = LevelManager.GamePhase.RoundStart;
-                EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundStart);
-            }
+            RemainingTime -= Runner.DeltaTime;
         }
+        else
+        {
+            HandlePhaseTransition();
+        }
+    }
+
+    private void HandlePhaseTransition()
+    {
+        RemainingTime = 0;
+
+        switch (CurrentGameState)
+        {
+            case LevelManager.GamePhase.Warmup:
+                ChangeGamePhase(LevelManager.GamePhase.Preparation, MATCH_PREPARATION_TIME);
+                break;
+            case LevelManager.GamePhase.Preparation:
+                ChangeGamePhase(LevelManager.GamePhase.RoundStart, 0);
+                break;
+        }
+    }
+
+    private void ChangeGamePhase(LevelManager.GamePhase newPhase, float newTime)
+    {
+        CurrentGameState = newPhase;
+        RemainingTime = newTime;
+        EventLibrary.OnGamePhaseChange.Invoke(newPhase);
     }
     private static void OnTimerChanged(Changed<TimeManager> changed)
     {
@@ -55,12 +75,6 @@ public class TimeManager : ManagerRegistry
         changed.Behaviour._uiManager.UpdateTimer($"{time.Minutes:D2}:{time.Seconds:D2}");
     }
 
-    public void UpdateMatchTimer()
-    {
-
-    }
-
-  
     public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
     {
 
@@ -71,14 +85,14 @@ public class TimeManager : ManagerRegistry
             case LevelManager.GamePhase.Warmup:
                _matchDuration = WARMUP_MATCH_TIME;
                 break;
-            case LevelManager.GamePhase.Prepertaion:
-                _matchDuration = MATCH_PREPERATION_TIME;
+            case LevelManager.GamePhase.Preparation:
+                _matchDuration = MATCH_PREPARATION_TIME;
                 break;
             case LevelManager.GamePhase.RoundStart:
-                
+                RemainingTime = 0;
                 break;
             case LevelManager.GamePhase.RoundEnd:
-                _matchDuration = 0;
+               
                 break;
         }
       

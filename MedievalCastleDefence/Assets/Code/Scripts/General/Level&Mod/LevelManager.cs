@@ -5,39 +5,56 @@ using System.Linq;
 using Fusion;
 using static BehaviourRegistry;
 
-public class LevelManager : ManagerRegistry
+public class LevelManager : ManagerRegistry, IGameStateListener
 {
-    public int MaxPlayerCount;
-    protected int MaxTeamPlayerCount;
-    
-    protected int CurrentLevelIndex;
-    protected int TotalLevelRound;
-    [Networked(OnChanged = nameof(OnPlayerCountChange))]
-    public int CurrentPlayerCount { get; set; }
-    private int _localPlayerCount;
-    
-    
-    
+   
+  
+    [Networked(OnChanged = nameof(OnPlayerCountChange))]  public int CurrentPlayerCount { get; set; }
+   
+
+    [Networked(OnChanged = nameof(OnRoundCounterChange))] public int RoundIndex { get; set; }
+    public GamePhase CurrentGamePhase { get; set; }
+
     public enum GamePhase
     {
         None,
+        GameStart,
         Warmup,
-        Prepertaion,
+        Preparation,
         RoundStart,
         RoundEnd,
         GameEnd
     }
-    public GamePhase CurrentGamePhase;
+    public int MaxPlayerCount;
     public GameManager.GameModes GameMode;
+    protected int CurrentLevelIndex;
+    protected int TotalLevelRound;
+    private int _localPlayerCount;
+    private UIManager _uiManager;
+    public int TeamsPlayerCount;
+    private int _redTeamDeadCount;
+    private int _blueTeamDeadCount;
+    private int _redTeamScore;
+    private int _blueTeamScore;
 
+    private void OnEnable()
+    {
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
+       // EventLibrary.OnPlayerKillRegistryUpdated.AddListener(CheckRoundEndByDefeatRpc);
+    }
+
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
+        EventLibrary.OnPlayerKillRegistryUpdated.RemoveListener(CheckRoundEndByDefeatRpc);
+    }
     public override void Spawned()
     {
         //InitScript(this);
         EventLibrary.OnPlayerSelectWarrior.AddListener(UpdatePlayerCountRpc);
-        
-       CurrentGamePhase = GamePhase.Warmup;
+        EventLibrary.OnPlayerKillRegistryUpdated.AddListener(CheckRoundEndByDefeatRpc);
+        CurrentGamePhase = GamePhase.Warmup;
        EventLibrary.OnGamePhaseChange.Invoke(CurrentGamePhase);
-        Debug.Log("PlayerMax: " + MaxPlayerCount);
     }
 
     private void Awake()
@@ -46,11 +63,11 @@ public class LevelManager : ManagerRegistry
         InitScript(this);
     }
 
-    private void CheckCurrentPlayerCount()
+    private void Start()
     {
-
+        _uiManager = GetScript<UIManager>();
     }
-
+  
     private void SetGameMode()
     {
         switch (GameMode)
@@ -64,8 +81,9 @@ public class LevelManager : ManagerRegistry
             case GameManager.GameModes.ThreeVsThree:
                 MaxPlayerCount = 6;
                 break;
-          
         }
+
+        TeamsPlayerCount = MaxPlayerCount / 2;
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
@@ -77,25 +95,78 @@ public class LevelManager : ManagerRegistry
         if(CurrentPlayerCount == MaxPlayerCount)
         {
             Debug.LogWarning("MaxPlayerCount reached.");
-            CurrentGamePhase = GamePhase.RoundStart;
+            CurrentGamePhase = GamePhase.Preparation;
             EventLibrary.OnGamePhaseChange.Invoke(CurrentGamePhase);
         }
     }
 
-  
+    public void UpdateGameState(GamePhase currentGameState)
+    {
+       
+        switch (currentGameState)
+        {
+            case GamePhase.GameStart:
+                break;
+            case GamePhase.Warmup:
+               
+                break;
+            case GamePhase.Preparation:
+                RoundIndex = 0;
+                break;
+            case GamePhase.RoundStart:
+                
+                RoundIndex += 1;
+                break;
+            case GamePhase.RoundEnd:
+                
+                break;
+            case GamePhase.GameEnd:
+
+                break;
+        } 
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    private void CheckRoundEndByDefeatRpc(TeamManager.Teams playerTeam)
+    {
+        if (!Runner.IsSharedModeMasterClient) return;
+        if (playerTeam == TeamManager.Teams.Red)
+        {
+            _blueTeamDeadCount += 1;
+          
+        }
+        else
+        {
+            _redTeamDeadCount += 1;
+        }
+
+
+        
+       
+        if (_redTeamDeadCount == TeamsPlayerCount)
+        {
+            _blueTeamScore += 1;
+            _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Blue, _blueTeamScore);
+        }
+        if (_blueTeamDeadCount == TeamsPlayerCount)
+        {
+            _redTeamScore += 1;
+            _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Red, _redTeamScore);
+        }
+        _blueTeamScore = 0;
+        _redTeamScore = 0;
+    }
+
 
     private static void OnPlayerCountChange(Changed<LevelManager> changed)
     {
-        if (!changed.Behaviour.Object.HasStateAuthority) return;
-        Debug.LogWarning($"<color=yellow>Player count updated: {changed.Behaviour.CurrentPlayerCount}</color>");
-        if(changed.Behaviour.CurrentPlayerCount == changed.Behaviour.MaxPlayerCount)
-        {
-            changed.Behaviour.CurrentGamePhase = GamePhase.RoundStart;
-            
-        }
+       Debug.LogWarning($"<color=yellow>Player count updated: {changed.Behaviour.CurrentPlayerCount}</color>");
+     
     }
 
- 
+    private static void OnRoundCounterChange(Changed<LevelManager> changed)
+    {
+        changed.Behaviour._uiManager.UpdateRoundCounterText(changed.Behaviour.RoundIndex.ToString());
+    }
 
-
+  
 }

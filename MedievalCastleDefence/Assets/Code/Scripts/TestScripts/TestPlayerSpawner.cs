@@ -206,6 +206,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         }
       
         _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
+     
         Runner.SetPlayerObject(playerRef, _currentPlayerObject);
        _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
     }

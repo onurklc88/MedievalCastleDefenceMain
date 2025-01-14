@@ -24,21 +24,33 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     private bool _previousCondition = false;
     [Header("Timer Variables")]
     [SerializeField] private TextMeshProUGUI _timer;
-   
+    [Header("Round Variables")]
+    [SerializeField] private TextMeshProUGUI _gameStateText;
+    [SerializeField] private TextMeshProUGUI _redTeamScore;
+    [SerializeField] private TextMeshProUGUI _blueTeamScore;
+    [SerializeField] private GameObject[] _teamImages;
+    [SerializeField] private TextMeshProUGUI _roundIndex;
+    [SerializeField] private TextMeshProUGUI _roundText;
+
+    [Networked(OnChanged = nameof(OnGameStateTextChange))] public NetworkString<_16> GameStateTxt { get; set; }
     
+
+
     public NetworkButtons PreviousButton { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-    public LevelManager.GamePhase CurrentGameState { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
     private bool _test;
 
     private void OnEnable()
     {
         EventLibrary.OnPlayerKill.AddListener(ShowKillFeedRpc);
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
        
     }
 
     private void OnDisable()
     {
         EventLibrary.OnPlayerKill.RemoveListener(ShowKillFeedRpc);
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
     }
 
     private void Awake()
@@ -50,11 +62,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         _warriorButtons[1].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.KnightCommander));
         _warriorButtons[2].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Gallowglass));
         _warriorButtons[3].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Ranger));
-       
     }
-
-   
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space) && !_test)
@@ -73,8 +81,6 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         playerNames[1].text = deadPlayer;
         StartCoroutine(HideKillfeed(killFeed));
     }
-
-
     private IEnumerator HideKillfeed(GameObject context)
     {
         yield return new WaitForSeconds(3f);
@@ -119,13 +125,78 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)
     {
+        CurrentGamePhase = currentGameState;
+        switch (currentGameState)
+        {
+            case LevelManager.GamePhase.Warmup:
+                if (Object.HasStateAuthority)
+                    EnableTeamImagesRpc(false);
+                GameStateTxt = "WARMUP";
+               
+                break;
+            case LevelManager.GamePhase.Preparation:
+                GameStateTxt = "PREPERATION";
+                EnableTeamImagesRpc(true);
+                break;
+            case LevelManager.GamePhase.GameStart:
+             
+
+                break;
+            case LevelManager.GamePhase.RoundStart:
+                if (Object.HasStateAuthority)
+                {
+                    EnableTimerImageRpc(false);
+                   
+                }
+                GameStateTxt = "ROUND";
+                break;
+            case LevelManager.GamePhase.RoundEnd:
+                break;
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void EnableTeamImagesRpc(bool condition)
+    {
+     
+        _teamImages[0].SetActive(condition);
+        _teamImages[1].SetActive(condition);
        
     }
 
-    private IEnumerator PanelDelay()
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void EnableTimerImageRpc(bool condition)
     {
+        if (_timer.enabled != false)
+        {
+            _timer.enabled = false;
+        }
+
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateTeamScoreRpc(TeamManager.Teams team, int killCount)
+    {
+        Debug.Log("VBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+        if (team == TeamManager.Teams.Red)
+        {
+            _redTeamScore.text = killCount.ToString();
+        }
+        else
+        {
+            _blueTeamScore.text = killCount.ToString();
+        }
+
+    }
+
+    public void UpdateRoundCounterText(string index)
+    {
+        _roundIndex.text = index;
+    }
+
+    private static void OnGameStateTextChange(Changed<UIManager> changed)
+    {
+        changed.Behaviour._gameStateText.text = changed.Behaviour.GameStateTxt.ToString();
        
-        yield return new WaitForSeconds(5f);
-        _teamPanel.SetActive(true);
     }
 }

@@ -11,29 +11,14 @@ public class TeamSelectUI : ManagerRegistry
     [SerializeField] private Button _redTeamButton;
     [SerializeField] private Button _blueTeamButton;
     private LevelManager _levelManager;
-    private void Start()
-    {
-        /*
-        if (_levelManager != null)
-            _levelManager = GetScript<LevelManager>();
-        else
-            Debug.Log("LevelManagerNull");
-        */
-       // CheckTeamPlayerCount();
-    }
-
-
+   
     private void OnEnable()
     {
         _levelManager = GetScript<LevelManager>();
         CheckTeamPlayerCount();
     }
 
-    public override void Spawned()
-    {
-        //CheckTeamPlayerCount();
-    }
-
+ 
     private void CheckTeamPlayerCount()
     {
       

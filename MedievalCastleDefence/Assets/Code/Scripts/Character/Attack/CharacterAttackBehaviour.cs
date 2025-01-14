@@ -129,6 +129,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput
                 _playerStatsController.UpdatePlayerKillCountRpc();
                 if (!Object.HasStateAuthority) return;
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+                EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
             }
         }
     }
