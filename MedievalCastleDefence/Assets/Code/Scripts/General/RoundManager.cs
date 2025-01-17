@@ -16,23 +16,43 @@ public class RoundManager : ManagerRegistry, IGameStateListener
     private int _redTeamScore;
     private int _blueTeamScore;
 
-    public void Initialize(LevelManager levelManager, UIManager uiManager)
+    private void OnEnable()
     {
-        _levelManager = levelManager;
-        _uiManager = uiManager;
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
+        // EventLibrary.OnPlayerKillRegistryUpdated.AddListener(CheckRoundEndByDefeatRpc);
+    }
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
+        EventLibrary.OnPlayerKillRegistryUpdated.RemoveListener(CheckRoundEndByDefeatRpc);
+    }
+    public override void Spawned()
+    {
+         EventLibrary.OnPlayerKillRegistryUpdated.AddListener(CheckRoundEndByDefeatRpc);
     }
 
+    private void Start()
+    {
+        _uiManager = GetScript<UIManager>();
+        _levelManager = GetScript<LevelManager>();
+    }
     public void StartNewRound()
     {
         RoundIndex += 1;
-        ResetRoundStats();
-        
     }
 
     public void EndRound()
     {
-        Debug.Log("<color=red>Round Ended</color>");
-        // Add additional end-round logic here.
+        if(RoundIndex < _levelManager.TotalLevelRound)
+        {
+            _redTeamDeadCount = 0;
+            _blueTeamDeadCount = 0;
+        }
+        else
+        {
+            Debug.Log("EndMatch");
+        }
+       
     }
   
     [Rpc(RpcSources.All, RpcTargets.All)]
@@ -53,22 +73,18 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         {
             _blueTeamScore += 1;
             _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Blue, _blueTeamScore);
-            EndRound();
+           // ResetRoundStats();
         }
 
         if (_blueTeamDeadCount == _levelManager.TeamsPlayerCount)
         {
             _redTeamScore += 1;
             _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Red, _redTeamScore);
-            EndRound();
+           // ResetRoundStats();
         }
     }
 
-    private void ResetRoundStats()
-    {
-        _redTeamDeadCount = 0;
-        _blueTeamDeadCount = 0;
-    }
+   
 
     private static void OnRoundCounterChange(Changed<RoundManager> changed)
     {
@@ -77,6 +93,25 @@ public class RoundManager : ManagerRegistry, IGameStateListener
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)
     {
-        throw new System.NotImplementedException();
+        switch (currentGameState)
+        {
+            case LevelManager.GamePhase.GameStart:
+                break;
+            case LevelManager.GamePhase.Warmup:
+
+                break;
+            case LevelManager.GamePhase.Preparation:
+                RoundIndex = 0;
+                break;
+            case LevelManager.GamePhase.RoundStart:
+                StartNewRound();
+                break;
+            case LevelManager.GamePhase.RoundEnd:
+                EndRound();
+                break;
+            case LevelManager.GamePhase.GameEnd:
+
+                break;
+        }
     }
 }

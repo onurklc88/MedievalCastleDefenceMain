@@ -11,16 +11,24 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     [Networked] public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private CharacterController _characterController;
     public bool IsPlayerStunned { get; set; }
-  
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
+
     private Vector3 _currentMovement;
     private float _gravity = -7.96f;
     private float _velocity;
     private float _gravityMultiplier = 2f;
     private float _jumpPower = 4.5f;
     private CharacterAnimationController _animController;
-    
-  
-    
+
+    private void OnEnable()
+    {
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
+    }
+
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
+    }
     public override void Spawned()
     {
        if (!Object.HasStateAuthority) return;
@@ -51,7 +59,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     }
     public override void FixedUpdateNetwork()
     {
-        if (!Object.HasStateAuthority) return;
+        if (!Object.HasStateAuthority || _characterController.enabled == false) return;
        
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned && !IsInputDisabled)
         {
@@ -172,4 +180,18 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         Gizmos.DrawRay(rayOrigin, Vector3.down * rayLength);
     }
 
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
+        switch (CurrentGamePhase)
+        {
+            case LevelManager.GamePhase.Preparation:
+                _characterController.enabled = false;
+                break;
+            case LevelManager.GamePhase.RoundStart:
+                _characterController.enabled = true;
+                break;
+        }
+    }
 }

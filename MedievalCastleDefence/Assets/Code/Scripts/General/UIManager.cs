@@ -177,7 +177,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void UpdateTeamScoreRpc(TeamManager.Teams team, int killCount)
     {
-        Debug.Log("VBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+        
         if (team == TeamManager.Teams.Red)
         {
             _redTeamScore.text = killCount.ToString();
