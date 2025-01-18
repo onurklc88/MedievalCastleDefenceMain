@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
 
 public class RoundManager : ManagerRegistry, IGameStateListener
 {
     [Networked(OnChanged = nameof(OnRoundCounterChange))] public int RoundIndex { get; set; }
     public LevelManager.GamePhase CurrentGamePhase { get; set; }
-
+    private TeamManager.Teams _roundWinnerTeam;
     private UIManager _uiManager;
     private LevelManager _levelManager;
     private int _redTeamDeadCount;
@@ -19,7 +20,6 @@ public class RoundManager : ManagerRegistry, IGameStateListener
     private void OnEnable()
     {
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
-        // EventLibrary.OnPlayerKillRegistryUpdated.AddListener(CheckRoundEndByDefeatRpc);
     }
     private void OnDisable()
     {
@@ -39,14 +39,21 @@ public class RoundManager : ManagerRegistry, IGameStateListener
     public void StartNewRound()
     {
         RoundIndex += 1;
+        if(_roundWinnerTeam != TeamManager.Teams.None)
+        {
+            _uiManager.UpdateTeamScoreRpc(_roundWinnerTeam, _roundWinnerTeam == TeamManager.Teams.Red ? _redTeamScore : _blueTeamScore);
+        }
     }
 
     public void EndRound()
     {
+       
         if(RoundIndex < _levelManager.TotalLevelRound)
         {
             _redTeamDeadCount = 0;
             _blueTeamDeadCount = 0;
+            EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.Preparation);
+
         }
         else
         {
@@ -56,10 +63,10 @@ public class RoundManager : ManagerRegistry, IGameStateListener
     }
   
     [Rpc(RpcSources.All, RpcTargets.All)]
-    public void CheckRoundEndByDefeatRpc(TeamManager.Teams playerTeam)
+    public async void CheckRoundEndByDefeatRpc(TeamManager.Teams playerTeam)
     {
         if (!Runner.IsSharedModeMasterClient) return;
-
+        
         if (playerTeam == TeamManager.Teams.Red)
         {
             _blueTeamDeadCount += 1;
@@ -72,15 +79,16 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         if (_redTeamDeadCount == _levelManager.TeamsPlayerCount)
         {
             _blueTeamScore += 1;
-            _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Blue, _blueTeamScore);
-           // ResetRoundStats();
+            _roundWinnerTeam = TeamManager.Teams.Blue;
+            await UniTask.Delay(3000);
+             EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundEnd);
         }
-
-        if (_blueTeamDeadCount == _levelManager.TeamsPlayerCount)
+        else if (_blueTeamDeadCount == _levelManager.TeamsPlayerCount)
         {
             _redTeamScore += 1;
-            _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Red, _redTeamScore);
-           // ResetRoundStats();
+            _roundWinnerTeam = TeamManager.Teams.Red;
+            await UniTask.Delay(3000);
+            EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundEnd);
         }
     }
 
@@ -101,8 +109,7 @@ public class RoundManager : ManagerRegistry, IGameStateListener
 
                 break;
             case LevelManager.GamePhase.Preparation:
-                RoundIndex = 0;
-                break;
+              break;
             case LevelManager.GamePhase.RoundStart:
                 StartNewRound();
                 break;

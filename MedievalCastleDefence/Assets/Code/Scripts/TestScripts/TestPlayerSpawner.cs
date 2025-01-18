@@ -90,7 +90,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             Debug.Log("Runner yok");
             return;
         }
-       
+      
         if (playerRef == Runner.LocalPlayer)
         {
 
@@ -183,7 +183,20 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             }
         }
     }
+    private void ForceSpawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType, TeamManager.Teams playerTeam)
+    {
+        var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
+        if (isPlayerAlreadySpawned)
+        {
+            if (Runner.TryGetPlayerObject(playerRef, out var playerNetworkObject))
+            {
+                _oldPlayerInfo = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats;
+                Runner.Despawn(playerNetworkObject);
+                StartCoroutine(SpawnDelay(playerRef, warriorType));
 
+            }
+        }
+    }
     private IEnumerator SpawnDelay(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType)
     {
         yield return new WaitForSeconds(1f);

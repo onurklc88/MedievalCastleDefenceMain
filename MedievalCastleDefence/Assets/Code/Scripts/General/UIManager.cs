@@ -31,7 +31,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     [SerializeField] private GameObject[] _teamImages;
     [SerializeField] private TextMeshProUGUI _roundIndex;
     [SerializeField] private TextMeshProUGUI _roundText;
-
+    private bool _phaseProcessed = false;
     [Networked(OnChanged = nameof(OnGameStateTextChange))] public NetworkString<_16> GameStateTxt { get; set; }
     
 
@@ -125,30 +125,26 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)
     {
+        if (_phaseProcessed) return;
         CurrentGamePhase = currentGameState;
         switch (currentGameState)
         {
             case LevelManager.GamePhase.Warmup:
-                if (Object.HasStateAuthority)
-                    EnableTeamImagesRpc(false);
+                if (!Runner.IsSharedModeMasterClient) return;
+                EnableTeamImagesRpc(false);
                 GameStateTxt = "WARMUP";
                
                 break;
             case LevelManager.GamePhase.Preparation:
+                if (!Runner.IsSharedModeMasterClient) return;
                 GameStateTxt = "PREPERATION";
                 EnableTeamImagesRpc(true);
                 break;
-            case LevelManager.GamePhase.GameStart:
-             
-
-                break;
             case LevelManager.GamePhase.RoundStart:
-                if (Object.HasStateAuthority)
-                {
-                    EnableTimerImageRpc(false);
-                   
-                }
+                if (!Runner.IsSharedModeMasterClient) return;
+                EnableTimerImageRpc(false);
                 GameStateTxt = "ROUND";
+                _phaseProcessed = true;
                 break;
             case LevelManager.GamePhase.RoundEnd:
                 break;

@@ -15,10 +15,10 @@ public static class EventLibrary
     //Level Evets
 
     public static readonly GameEvent<PlayerRef, CharacterStats.CharacterType> OnRespawnRequested = new GameEvent<PlayerRef, CharacterStats.CharacterType>();
-    public static readonly GameEvent<int, int> OnRoundCompleted = new GameEvent<int, int>();
     public static readonly GameEvent OnPlayerSelectWarrior = new GameEvent();
     public static readonly GameEvent<LevelManager.GamePhase> OnGamePhaseChange = new GameEvent<LevelManager.GamePhase>();
     public static readonly GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams> OnPlayerSelectTeam = new GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams>();
+ 
     
     
     

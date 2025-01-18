@@ -34,7 +34,7 @@ public class CharacterDecals : CharacterRegistry
         _usedIndices.Add(newIndex);
         BloodDecalIndex = newIndex;
 
-        Debug.Log("BloodDecalIndex: " + BloodDecalIndex);
+       
     }
 
     public static void OnNetworkBloodDecalStateChange(Changed<CharacterDecals> changed)

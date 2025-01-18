@@ -20,7 +20,7 @@ public abstract class BehaviourRegistry : NetworkBehaviour
         }
 
         ScriptList.Add(type);
-        Debug.Log($"{this.GetType().Name} registered with type: {type.GetType().Name}.");
+        //Debug.Log($"{this.GetType().Name} registered with type: {type.GetType().Name}.");
     }
     protected T GetScript<T>() where T : BehaviourRegistry
     {
@@ -32,7 +32,7 @@ public abstract class BehaviourRegistry : NetworkBehaviour
             }
         }
 
-        Debug.LogWarning($"No script of type {typeof(T).Name} found.");
+        //Debug.LogWarning($"No script of type {typeof(T).Name} found.");
         return null;
     }
 

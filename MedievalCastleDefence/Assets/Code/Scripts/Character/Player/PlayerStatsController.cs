@@ -34,7 +34,7 @@ public class PlayerStatsController : CharacterRegistry
         _playerLocalStats = playerInfo;
         PlayerLocalStats = _playerLocalStats;
         PlayerTeam = playerInfo.PlayerTeam;
-        Debug.Log("PlayerTeam: " + PlayerTeam);
+        //Debug.Log("PlayerTeam: " + PlayerTeam);
         //Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerWarrior: " + PlayerLocalStats.PlayerWarrior);
     }
    
@@ -43,7 +43,7 @@ public class PlayerStatsController : CharacterRegistry
         if (!Object.HasStateAuthority) return;
         _playerLocalStats.PlayerKillCount += 1;
         PlayerLocalStats = _playerLocalStats;
-        Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount+ "PlayerDieCount: " +PlayerLocalStats.PlayerDieCount);
+        //Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount+ "PlayerDieCount: " +PlayerLocalStats.PlayerDieCount);
     }
     
     public void UpdatePlayerDieCountRpc()
@@ -51,7 +51,7 @@ public class PlayerStatsController : CharacterRegistry
         if (!Object.HasStateAuthority) return;
         _playerLocalStats.PlayerDieCount += 1;
         PlayerLocalStats = _playerLocalStats;
-        Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount + "PlayerDieCount: " + PlayerLocalStats.PlayerDieCount);
+       // Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount + "PlayerDieCount: " + PlayerLocalStats.PlayerDieCount);
     }
 
 

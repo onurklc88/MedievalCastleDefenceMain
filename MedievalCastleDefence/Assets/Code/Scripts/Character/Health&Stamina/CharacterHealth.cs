@@ -5,15 +5,17 @@ using Fusion;
 using static BehaviourRegistry;
 public class CharacterHealth : CharacterRegistry, IDamageable
 {
-    
+    [Networked(OnChanged = nameof(OnPlayerDead))] public NetworkBool IsPlayerDead { get; set; }
     private PlayerHUD _playerHUD;
    [Networked] public float NetworkedHealth { get; set; }
+
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _activeRagdoll;
     private PlayerVFXSytem _playerVFX;
     private CharacterDecals _characterDecals;
     private PlayerStatsController _playerStatsController;
+  
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -65,6 +67,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable
             _activeRagdoll.RPCActivateRagdoll();
             if (!Object.HasStateAuthority) return;
             _playerStatsController.UpdatePlayerDieCountRpc();
+            IsPlayerDead = true;
         }
         else
         {
@@ -86,5 +89,8 @@ public class CharacterHealth : CharacterRegistry, IDamageable
     }
    
 
-
+    private static void OnPlayerDead(Changed<CharacterHealth> changed)
+    {
+        //Debug.Log("IsplayerDead: " + changed.Behaviour.IsPlayerDead);
+    }
 }

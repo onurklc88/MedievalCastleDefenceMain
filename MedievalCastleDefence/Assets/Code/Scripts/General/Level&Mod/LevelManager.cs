@@ -20,6 +20,8 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         RoundEnd,
         GameEnd
    }
+    public int RedTeamPlayerCount { get; private set; }
+    public int BlueTeamPlayerCount { get; private set; }
     public int MaxPlayerCount;
     public int TeamsPlayerCount;
     public GameManager.GameModes GameMode;
@@ -27,7 +29,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     private UIManager _uiManager;
     [SerializeField] private Transform[] _redTeamPlayerSpawnPositions;
     [SerializeField] private Transform[] _blueTeamPlayerSpawnPositions;
-  
+    
 
     private void OnEnable()
     {
@@ -90,7 +92,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
     
 
-    public void UpdateGameState(GamePhase currentGameState)
+    public async void UpdateGameState(GamePhase currentGameState)
     {
         //    CurrentGamePhase = currentGameState;
         switch (currentGameState)
@@ -101,11 +103,19 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                
                 break;
             case GamePhase.Preparation:
-                
+                await UniTask.Delay(3000);
+                if (!Runner.IsSharedModeMasterClient) return;
+                ForcePlayersSpawnRpc();
+                await UniTask.Delay(2000);
+                DisablePlayerInputsRpc(false);
                 break;
             case GamePhase.RoundStart:
                 if (!Runner.IsSharedModeMasterClient) return;
                 TeleportPlayersToStartPositionsRpc();
+                await UniTask.Delay(2000);
+                if (!Runner.IsSharedModeMasterClient) return;
+                DisablePlayerInputsRpc(true);
+
                 break;
             case GamePhase.RoundEnd:
                 
@@ -115,6 +125,49 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 break;
         } 
     }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void ForcePlayersSpawnRpc()
+    {
+        int nullPlayerObjectCount = 0;
+        foreach (var player in Runner.ActivePlayers)
+        {
+
+            var playerObject = Runner.GetPlayerObject(player);
+            if (playerObject != null) continue;
+            nullPlayerObjectCount++;
+            UpdateTeamPlayerCounts();
+
+            TeamManager.Teams availableTeam = DetermineAvailableTeam();
+
+            EventLibrary.OnPlayerSelectTeam.Invoke(
+                player,
+                CharacterStats.CharacterType.KnightCommander,
+                availableTeam
+            );
+        }
+        Debug.Log($"Null player objects: {nullPlayerObjectCount}");
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void DisablePlayerInputsRpc(bool condition)
+    {
+        foreach (var player in Runner.ActivePlayers)
+        {
+
+            var playerObject = Runner.GetPlayerObject(player);
+            if(playerObject != null)
+            {
+                playerObject.GetComponentInParent<CharacterController>().enabled = condition;
+            }
+            else
+            {
+                Debug.LogWarning("playerObjectYok");
+            }
+        }
+        }
+
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void TeleportPlayersToStartPositionsRpc()
     {
@@ -173,10 +226,42 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             }
         }
     }
-   
+
+    public void UpdateTeamPlayerCounts()
+    {
+        var playerList = Runner.ActivePlayers.ToList();
+        RedTeamPlayerCount = 0;
+        BlueTeamPlayerCount = 0;
+
+        foreach (var player in playerList)
+        {
+            var playerNetworkObject = Runner.GetPlayerObject(player);
+            if (playerNetworkObject != null)
+            {
+                var playerStats = playerNetworkObject.GetComponentInParent<PlayerStatsController>();
+                if (playerStats != null)
+                {
+                    var playerTeam = playerStats.PlayerNetworkStats.PlayerTeam;
+                    if (playerTeam == TeamManager.Teams.Red)
+                        RedTeamPlayerCount++;
+                    else if (playerTeam == TeamManager.Teams.Blue)
+                        BlueTeamPlayerCount++;
+                }
+            }
+        }
+    }
+    TeamManager.Teams DetermineAvailableTeam()
+    {
+        if (RedTeamPlayerCount >= MaxPlayerCount / 2) return TeamManager.Teams.Blue;
+        if (BlueTeamPlayerCount >= MaxPlayerCount / 2) return TeamManager.Teams.Red;
+        return RedTeamPlayerCount <= BlueTeamPlayerCount ? TeamManager.Teams.Red : TeamManager.Teams.Blue;
+    }
+
+ 
+
     private static void OnPlayerCountChange(Changed<LevelManager> changed)
     {
-        Debug.LogWarning($"<color=yellow>Player count updated: {changed.Behaviour.CurrentPlayerCount}</color>");
+        //Debug.LogWarning($"<color=yellow>Player count updated: {changed.Behaviour.CurrentPlayerCount}</color>");
 
     }
 

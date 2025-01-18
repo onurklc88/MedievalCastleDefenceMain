@@ -903,11 +903,10 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _CurrentPlayerCount: 0
-  _CurrentGamePhase: 0
   MaxPlayerCount: 0
   TeamsPlayerCount: 0
   GameMode: 1
-  TotalLevelRound: 0
+  TotalLevelRound: 15
   _redTeamPlayerSpawnPositions:
   - {fileID: 1999494525}
   - {fileID: 41474539}

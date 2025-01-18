@@ -20,20 +20,10 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     private float _jumpPower = 4.5f;
     private CharacterAnimationController _animController;
 
-    private void OnEnable()
-    {
-        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
-    }
-
-    private void OnDisable()
-    {
-        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
-    }
     public override void Spawned()
     {
        if (!Object.HasStateAuthority) return;
-       
-        IsInputDisabled = false;
+       IsInputDisabled = false;
         InitScript(this);
         CurrentMoveSpeed = _characterStats.SprintSpeed;
     }
@@ -180,18 +170,5 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         Gizmos.DrawRay(rayOrigin, Vector3.down * rayLength);
     }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
-    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
-    {
-        CurrentGamePhase = currentGameState;
-        switch (CurrentGamePhase)
-        {
-            case LevelManager.GamePhase.Preparation:
-                _characterController.enabled = false;
-                break;
-            case LevelManager.GamePhase.RoundStart:
-                _characterController.enabled = true;
-                break;
-        }
-    }
+    
 }
