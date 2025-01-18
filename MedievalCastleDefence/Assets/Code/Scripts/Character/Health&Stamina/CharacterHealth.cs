@@ -67,7 +67,8 @@ public class CharacterHealth : CharacterRegistry, IDamageable
             _activeRagdoll.RPCActivateRagdoll();
             if (!Object.HasStateAuthority) return;
             _playerStatsController.UpdatePlayerDieCountRpc();
-            IsPlayerDead = true;
+            Debug.Log($"Player {transform.GetComponentInParent<NetworkObject>().Id} died. IsPlayerDead: {IsPlayerDead}");
+            //IsPlayerDead = true;
         }
         else
         {

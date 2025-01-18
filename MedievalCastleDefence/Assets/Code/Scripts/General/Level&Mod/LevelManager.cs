@@ -129,24 +129,41 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void ForcePlayersSpawnRpc()
     {
+
         int nullPlayerObjectCount = 0;
         foreach (var player in Runner.ActivePlayers)
         {
-
             var playerObject = Runner.GetPlayerObject(player);
-            if (playerObject != null) continue;
-            nullPlayerObjectCount++;
-            UpdateTeamPlayerCounts();
 
-            TeamManager.Teams availableTeam = DetermineAvailableTeam();
+            if (playerObject != null)
+            {
+               
+                var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
+               
+                if (characterHealth != null && characterHealth.NetworkedHealth <= 0)
+                {
+                    nullPlayerObjectCount++;
+                    characterHealth.IsPlayerDead = false;
+                    var playerWarriorType = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerWarrior;
+                    EventLibrary.OnRespawnRequested.Invoke(player, playerWarriorType);
+                }
+            }
+            else
+            {
+               
+                UpdateTeamPlayerCounts();
 
-            EventLibrary.OnPlayerSelectTeam.Invoke(
-                player,
-                CharacterStats.CharacterType.KnightCommander,
-                availableTeam
-            );
+                TeamManager.Teams availableTeam = DetermineAvailableTeam();
+
+                
+                EventLibrary.OnPlayerSelectTeam.Invoke(
+                    player,
+                    CharacterStats.CharacterType.KnightCommander,
+                    availableTeam
+                );
+            }
+           
         }
-        Debug.Log($"Null player objects: {nullPlayerObjectCount}");
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
