@@ -905,7 +905,7 @@ MonoBehaviour:
   _CurrentPlayerCount: 0
   MaxPlayerCount: 0
   TeamsPlayerCount: 0
-  GameMode: 1
+  GameMode: 2
   TotalLevelRound: 15
   _redTeamPlayerSpawnPositions:
   - {fileID: 1999494525}

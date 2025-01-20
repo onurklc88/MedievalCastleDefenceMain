@@ -10,6 +10,7 @@ public class CharacterDecals : CharacterRegistry
     [SerializeField] private GameObject _swordDecal;
     [Networked(OnChanged = nameof(OnNetworkBloodDecalStateChange))] public int BloodDecalIndex { get; set; }
     private List<int> _usedIndices = new List<int>();
+    private bool _condition;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -24,7 +25,7 @@ public class CharacterDecals : CharacterRegistry
             Debug.LogWarning("All indices have been used. Resetting the index pool.");
             _usedIndices.Clear();
         }
-
+      
         int newIndex;
         do
         {
@@ -33,13 +34,30 @@ public class CharacterDecals : CharacterRegistry
 
         _usedIndices.Add(newIndex);
         BloodDecalIndex = newIndex;
+    }
 
-       
+    public void DisableBloodDecals()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        BloodDecalIndex = -1; 
+        _usedIndices.Clear();
     }
 
     public static void OnNetworkBloodDecalStateChange(Changed<CharacterDecals> changed)
     {
-        changed.Behaviour._bloodDecals[changed.Behaviour.BloodDecalIndex].gameObject.SetActive(true);
+        
+        if (changed.Behaviour.BloodDecalIndex >= 0)
+        {
+            changed.Behaviour._bloodDecals[changed.Behaviour.BloodDecalIndex].gameObject.SetActive(true);
+        }
+        else
+        {
+            foreach (var decal in changed.Behaviour._bloodDecals)
+            {
+                decal.gameObject.SetActive(false);
+            }
+        }
     }
 
 

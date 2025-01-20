@@ -15,7 +15,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable
     private PlayerVFXSytem _playerVFX;
     private CharacterDecals _characterDecals;
     private PlayerStatsController _playerStatsController;
-  
+    private CharacterCameraController _characterCameraController;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -23,6 +23,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable
     }
     private void Start()
     {
+       // if (!Object.HasStateAuthority) return;
         _playerHUD = GetScript<PlayerHUD>();
         if(_playerHUD != null)
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
@@ -30,6 +31,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable
         _playerVFX = GetScript<PlayerVFXSytem>();
         _characterDecals = GetScript<CharacterDecals>();
         _playerStatsController = GetScript<PlayerStatsController>();
+        _characterCameraController = GetScript<CharacterCameraController>();
         switch (_characterStats.WarriorType)
         {
             case CharacterStats.CharacterType.FootKnight:
@@ -67,7 +69,8 @@ public class CharacterHealth : CharacterRegistry, IDamageable
             _activeRagdoll.RPCActivateRagdoll();
             if (!Object.HasStateAuthority) return;
             _playerStatsController.UpdatePlayerDieCountRpc();
-            Debug.Log($"Player {transform.GetComponentInParent<NetworkObject>().Id} died. IsPlayerDead: {IsPlayerDead}");
+            _characterCameraController.UpdateCameraFollow();
+             // Debug.Log($"Player {transform.GetComponentInParent<NetworkObject>().Id} died. IsPlayerDead: {IsPlayerDead}");
             //IsPlayerDead = true;
         }
         else
@@ -76,11 +79,8 @@ public class CharacterHealth : CharacterRegistry, IDamageable
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
         }
     }
-   
-    public void DestroyObject()
-    {
-      
-    }
+
+    public void DestroyObject() { }
 
     private void KillPlayer()
     {
@@ -88,8 +88,16 @@ public class CharacterHealth : CharacterRegistry, IDamageable
 
 
     }
-   
 
+    public void ResetPlayerHealth()
+    {
+       NetworkedHealth = _characterStats.TotalHealth;
+        if (_playerHUD != null)
+        {
+            _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
+        }
+      
+    }
     private static void OnPlayerDead(Changed<CharacterHealth> changed)
     {
         //Debug.Log("IsplayerDead: " + changed.Behaviour.IsPlayerDead);

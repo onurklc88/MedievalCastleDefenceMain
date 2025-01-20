@@ -19860,7 +19860,7 @@ CharacterController:
   m_Height: 1.44
   m_Radius: 0.3
   m_SlopeLimit: 40
-  m_StepOffset: 0.3
+  m_StepOffset: 0.1
   m_SkinWidth: 0.3
   m_MinMoveDistance: 0.001
   m_Center: {x: 0.03, y: 1, z: 0.18}
@@ -20074,6 +20074,8 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
+  _IsPlayerDead:
+    _value: 0
   _NetworkedHealth: 0
 --- !u!114 &4060013980439461772
 MonoBehaviour:

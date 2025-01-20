@@ -118,7 +118,8 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
                 break;
             case GamePhase.RoundEnd:
-                
+                if (!Runner.IsSharedModeMasterClient) return;
+                RestorePlayerWarriorRpc();
                 break;
             case GamePhase.GameEnd:
 
@@ -126,11 +127,35 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         } 
     }
 
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RestorePlayerWarriorRpc()
+    {
+        var alivePlayerList = 0;
+        foreach (var player in Runner.ActivePlayers)
+        {
+            var playerObject = Runner.GetPlayerObject(player);
+            var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
+            if (playerObject != null && characterHealth.NetworkedHealth > 0)
+            {
+                alivePlayerList++;
+                   var characterStamina = playerObject.GetComponentInParent<CharacterStamina>();
+                var characterDecals = playerObject.GetComponentInParent<CharacterDecals>();
+                characterHealth.ResetPlayerHealth();
+                characterStamina.ResetPlayerStamina();
+                characterDecals.DisableBloodDecals();
+
+            }
+        }
+       Debug.Log("AlivePlayerList: " + alivePlayerList);
+    }
+
+   
+
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void ForcePlayersSpawnRpc()
     {
-
-        int nullPlayerObjectCount = 0;
         foreach (var player in Runner.ActivePlayers)
         {
             var playerObject = Runner.GetPlayerObject(player);
@@ -140,22 +165,18 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                
                 var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
                
-                if (characterHealth != null && characterHealth.NetworkedHealth <= 0)
+                if (characterHealth.NetworkedHealth <= 0)
                 {
-                    nullPlayerObjectCount++;
-                    characterHealth.IsPlayerDead = false;
+                    //characterHealth.IsPlayerDead = false;
                     var playerWarriorType = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerWarrior;
                     EventLibrary.OnRespawnRequested.Invoke(player, playerWarriorType);
                 }
+                
             }
             else
             {
-               
                 UpdateTeamPlayerCounts();
-
                 TeamManager.Teams availableTeam = DetermineAvailableTeam();
-
-                
                 EventLibrary.OnPlayerSelectTeam.Invoke(
                     player,
                     CharacterStats.CharacterType.KnightCommander,

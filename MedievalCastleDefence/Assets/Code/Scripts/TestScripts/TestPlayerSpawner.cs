@@ -93,8 +93,6 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
       
         if (playerRef == Runner.LocalPlayer)
         {
-
-            //var playerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
             switch (warriorType)
             {
                 case CharacterStats.CharacterType.FootKnight:
@@ -209,10 +207,9 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             }
         
       
-        _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
-     
-        Runner.SetPlayerObject(playerRef, _currentPlayerObject);
-       _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
+              _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
+              Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+              _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
         }
 }
 

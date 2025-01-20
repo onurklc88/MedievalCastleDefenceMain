@@ -22,7 +22,9 @@ public class LocalInputPoller : NetworkBehaviour, INetworkRunnerCallbacks, IBefo
         Mouse1,
         Reload,
         Hotkey1,
-        Hotkey2
+        Hotkey2,
+        LeftArrow,
+        RightArrow
     }
     private float _horizontal;
     private float _vertical;
@@ -71,6 +73,8 @@ public class LocalInputPoller : NetworkBehaviour, INetworkRunnerCallbacks, IBefo
         data.NetworkButtons.Set(PlayerInputButtons.Hotkey1, Input.GetKey(KeyCode.Alpha1));
         data.NetworkButtons.Set(PlayerInputButtons.Hotkey2, Input.GetKey(KeyCode.Alpha2));
         data.NetworkButtons.Set(PlayerInputButtons.Skill, Input.GetKey(KeyCode.R));
+        data.NetworkButtons.Set(PlayerInputButtons.LeftArrow, Input.GetKey(KeyCode.LeftArrow));
+        data.NetworkButtons.Set(PlayerInputButtons.RightArrow, Input.GetKey(KeyCode.RightArrow));
         return data;
     }
 

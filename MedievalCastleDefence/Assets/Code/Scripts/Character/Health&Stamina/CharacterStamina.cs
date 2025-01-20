@@ -21,8 +21,14 @@ public class CharacterStamina : CharacterRegistry
         _characterMovement = GetScript<CharacterMovement>();
     }
 
+    public void ResetPlayerStamina()
+    {
+        CurrentStamina = _totalStamina;
+    }
+
     private void Start()
     {
+        if (!Object.HasStateAuthority) return;
         switch (_characterStats.WarriorType)
         {
             case CharacterStats.CharacterType.FootKnight:
