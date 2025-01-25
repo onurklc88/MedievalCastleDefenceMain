@@ -16,6 +16,7 @@ public class LocalInputPoller : NetworkBehaviour, INetworkRunnerCallbacks, IBefo
         Jump,
         Slide,
         Interact,
+        Back,
         Tab,
         Skill,
         Mouse0,
@@ -66,6 +67,7 @@ public class LocalInputPoller : NetworkBehaviour, INetworkRunnerCallbacks, IBefo
         data.NetworkButtons.Set(PlayerInputButtons.Crouch, Input.GetKey(KeyCode.C));
         data.NetworkButtons.Set(PlayerInputButtons.Jump, Input.GetKey(KeyCode.Space));
         data.NetworkButtons.Set(PlayerInputButtons.Interact, Input.GetKey(KeyCode.E));
+        data.NetworkButtons.Set(PlayerInputButtons.Back, Input.GetKey(KeyCode.Q));
         data.NetworkButtons.Set(PlayerInputButtons.Tab, Input.GetKey(KeyCode.Tab));
         data.NetworkButtons.Set(PlayerInputButtons.Mouse0, Input.GetKey(KeyCode.Mouse0));
         data.NetworkButtons.Set(PlayerInputButtons.Mouse1, Input.GetKey(KeyCode.Mouse1));

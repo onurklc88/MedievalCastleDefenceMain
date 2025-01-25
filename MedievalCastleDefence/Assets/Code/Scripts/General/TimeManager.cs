@@ -9,8 +9,8 @@ public class TimeManager : ManagerRegistry
     [Networked] private TickTimer _matchTimer { get; set; }
     public LevelManager.GamePhase CurrentGameState { get; set; }
 
-    private const float WARMUP_MATCH_TIME = 25f;
-    private const float MATCH_PREPARATION_TIME = 10f;
+    private const float WARMUP_MATCH_TIME = 10f;
+    private const float MATCH_PREPARATION_TIME = 3f;
 
     private float _currentTimeAmount;
     private UIManager _uiManager;

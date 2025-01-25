@@ -24,6 +24,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     private bool _previousCondition = false;
     [Header("Timer Variables")]
     [SerializeField] private TextMeshProUGUI _timer;
+    
     [Header("Round Variables")]
     [SerializeField] private TextMeshProUGUI _gameStateText;
     [SerializeField] private TextMeshProUGUI _redTeamScore;
@@ -44,6 +45,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     {
         EventLibrary.OnPlayerKill.AddListener(ShowKillFeedRpc);
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
+        EventLibrary.OnPlayerRespawn.AddListener(UpdatePlayerTeamButton);
        
     }
 
@@ -51,6 +53,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     {
         EventLibrary.OnPlayerKill.RemoveListener(ShowKillFeedRpc);
         EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
+        EventLibrary.OnPlayerRespawn.RemoveListener(UpdatePlayerTeamButton);
     }
 
     private void Awake()
@@ -103,13 +106,19 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
+        if (CurrentGamePhase == LevelManager.GamePhase.Warmup || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
          ShowScoreboard(input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Tab));
     }
 
 
     public void UpdatePlayerTeamButton(TeamManager.Teams selectedTeam)
     {
-        Debug.Log("selectedTeam: " + selectedTeam);
+        if(Cursor.visible == false)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+      
         _playerTeam = selectedTeam;
         _teamPanel.SetActive(false);
         _characterPanel.SetActive(true);
@@ -141,6 +150,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
                 EnableTeamImagesRpc(true);
                 break;
             case LevelManager.GamePhase.RoundStart:
+                HideSelectionPanel();
                 if (!Runner.IsSharedModeMasterClient) return;
                 EnableTimerImageRpc(false);
                 GameStateTxt = "ROUND";
@@ -184,7 +194,11 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         }
 
     }
-
+    private void HideSelectionPanel()
+    {
+        _teamPanel.SetActive(false);
+        _characterPanel.SetActive(false);
+    }
     public void UpdateRoundCounterText(string index)
     {
         _roundIndex.text = index;

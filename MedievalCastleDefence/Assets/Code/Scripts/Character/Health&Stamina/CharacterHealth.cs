@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using static BehaviourRegistry;
-public class CharacterHealth : CharacterRegistry, IDamageable
+public class CharacterHealth : CharacterRegistry, IDamageable, IGameStateListener
 {
     [Networked(OnChanged = nameof(OnPlayerDead))] public NetworkBool IsPlayerDead { get; set; }
     private PlayerHUD _playerHUD;
    [Networked] public float NetworkedHealth { get; set; }
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
 
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
@@ -16,9 +17,21 @@ public class CharacterHealth : CharacterRegistry, IDamageable
     private CharacterDecals _characterDecals;
     private PlayerStatsController _playerStatsController;
     private CharacterCameraController _characterCameraController;
+
+    private void OnEnable()
+    {
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
+    }
+
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
+    }
+
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
+        InitScript(this);
         NetworkedHealth = _characterStats.TotalHealth;
     }
     private void Start()
@@ -57,7 +70,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void DealDamageRPC(float givenDamage, string opponentName, CharacterStats.CharacterType opponentWarrior)
     {
-        Debug.Log("Given Damage: " + givenDamage + " DamageDealer: " + opponentName + " OpponentWarrior: " + opponentWarrior);
+       // Debug.Log("Given Damage: " + givenDamage + " DamageDealer: " + opponentName + " OpponentWarrior: " + opponentWarrior);
         NetworkedHealth -= givenDamage;
         _characterAnim.UpdateDamageAnimationState();
         _playerVFX.PlayBloodVFX();
@@ -69,9 +82,8 @@ public class CharacterHealth : CharacterRegistry, IDamageable
             _activeRagdoll.RPCActivateRagdoll();
             if (!Object.HasStateAuthority) return;
             _playerStatsController.UpdatePlayerDieCountRpc();
-            _characterCameraController.UpdateCameraFollow();
-             // Debug.Log($"Player {transform.GetComponentInParent<NetworkObject>().Id} died. IsPlayerDead: {IsPlayerDead}");
-            //IsPlayerDead = true;
+            _characterCameraController.FollowTeamPlayerCams();
+            IsPlayerDead = true;
         }
         else
         {
@@ -101,5 +113,10 @@ public class CharacterHealth : CharacterRegistry, IDamageable
     private static void OnPlayerDead(Changed<CharacterHealth> changed)
     {
         //Debug.Log("IsplayerDead: " + changed.Behaviour.IsPlayerDead);
+    }
+
+    public void UpdateGameState(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
     }
 }

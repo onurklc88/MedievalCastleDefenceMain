@@ -15,11 +15,11 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     [SerializeField] private Camera _uiCamera;
     private CinemachineFreeLook _cinemachineCamera;
     private Camera _playerCamera;
-    private List<PlayerRef> _teamPlayers = new List<PlayerRef>();
-    private PlayerStatsController _playerStatController;
+    private List<PlayerRef> _playerTeamMates = new List<PlayerRef>();
+    private PlayerStatsController _playerStatsController;
     [SerializeField] private RectTransform targetUIElement;
     private int _currentFollowingPlayerIndex = 0;
-
+    private CharacterHealth _characterHealth;
     public NetworkButtons PreviousButton { get; set; }
 
     public override void Spawned()
@@ -37,13 +37,13 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
             _cinemachineCamera.Follow = _cameraTargetPoint;
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
             InitScript(this);
-           // Test();
         }
     }
 
     private void Start()
     {
-        _playerStatController = GetScript<PlayerStatsController>();
+        _playerStatsController = GetScript<PlayerStatsController>();
+        _characterHealth = GetScript<CharacterHealth>();
     }
 
  
@@ -62,88 +62,73 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        var switchButton = input.NetworkButtons.GetPressed(PreviousButton);
 
-        if (switchButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.RightArrow))
+      
+        var currentButtons = input.NetworkButtons;
+
+      
+        if (currentButtons.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Interact))
         {
+           
             _currentFollowingPlayerIndex++;
-            if (_currentFollowingPlayerIndex >= _teamPlayers.Count)
+            if (_currentFollowingPlayerIndex >= _playerTeamMates.Count)
             {
-                _currentFollowingPlayerIndex = 0;
+                _currentFollowingPlayerIndex = 0; 
             }
-            ChangeFollowingPlayer();
+            FollowTeamPlayerCams();
         }
-        else if(switchButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.LeftArrow))
+        
+        else if (currentButtons.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Back))
         {
+           
             _currentFollowingPlayerIndex--;
             if (_currentFollowingPlayerIndex < 0)
             {
-                _currentFollowingPlayerIndex = _teamPlayers.Count - 1;
+                _currentFollowingPlayerIndex = _playerTeamMates.Count - 1; 
             }
-            ChangeFollowingPlayer();
+            FollowTeamPlayerCams();
         }
+
+    
+        PreviousButton = currentButtons;
     }
 
-    public void UpdateCameraFollow()
+    public async void FollowTeamPlayerCams()
     {
-        if (!Object.HasStateAuthority) return;
+       _playerTeamMates = _playerStatsController.GetAliveTeamPlayers();
 
-        //_teamPlayers.Clear();
-
-        Debug.Log("ARAMA BAÞLADI");
-        foreach (var player in Runner.ActivePlayers)
-        {
-            var playerObject = Runner.GetPlayerObject(player);
-            var playerStats = playerObject.GetComponentInParent<PlayerStatsController>();
-            var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
-
-            if (playerStats != null && playerStats.PlayerNetworkStats.PlayerTeam == _playerStatController.PlayerLocalStats.PlayerTeam && characterHealth.NetworkedHealth > 0)
-            {
-                _teamPlayers.Add(player);
-                Debug.Log("Takým arkadaþlarý bulundu");
-            }
-        }
-        ChangeFollowingPlayer();
-    }
-
-
-    private async void ChangeFollowingPlayer()
-    {
-        await UniTask.Delay(3000);
-        Debug.Log("ARAMA BAÞLADI");
-        var playerObject = Runner.GetPlayerObject(_teamPlayers[_currentFollowingPlayerIndex]);
-        var transforms = playerObject.GetComponentsInChildren<Transform>(true);
-
-        var  headTransform = transforms.FirstOrDefault(t => t.name == "Head");
-        if (headTransform != null)
-        {
-            _cinemachineCamera.Follow = headTransform;
-            _cinemachineCamera.LookAt = headTransform;
-        }
-        else
-        {
-            Debug.Log("Bulunamadý");
-        }
        
-    }
+        if (_playerTeamMates.Count < 1)
+        {
+            return;
+        }
 
-    private void Test()
-    {
-        var transforms = transform.GetComponentsInChildren<Transform>(true);
+       
+        await UniTask.Delay(1000);
 
+      
+        var playerObject = Runner.GetPlayerObject(_playerTeamMates[_currentFollowingPlayerIndex]);
+        if (playerObject == null)
+        {
+             return;
+        }
+
+       
+        var transforms = playerObject.GetComponentsInChildren<Transform>(true);
         var headTransform = transforms.FirstOrDefault(t => t.name == "Head");
+
         if (headTransform != null)
         {
-            Debug.Log($"Head bulundu: {headTransform.name}", headTransform.gameObject);
             _cinemachineCamera.Follow = headTransform;
             _cinemachineCamera.LookAt = headTransform;
+            Debug.Log("Kamera takip ediyor: " + headTransform.name);
         }
         else
         {
-            Debug.Log("Bulunamadý");
+            Debug.Log("Head transform bulunamadý.");
         }
     }
-  
+
     private void UpdateCursorPosition()
     {
         if (!Object.HasStateAuthority) return;
@@ -156,6 +141,8 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
         if (_cinemachineCamera == null) return;
         Vector3 dirToCombatLookAt = _cameraTargetPoint.position - new Vector3(_cinemachineCamera.transform.position.x, _cameraTargetPoint.transform.position.y, _cinemachineCamera.transform.position.z);
         _orientation.forward = dirToCombatLookAt.normalized;
+       
+        if (_characterHealth.IsPlayerDead) return;
         dirToCombatLookAt.y = 0;
         Quaternion targetRotation = Quaternion.LookRotation(dirToCombatLookAt);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 500f);

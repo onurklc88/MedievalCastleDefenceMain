@@ -4,10 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
-public class PlayerHUD : CharacterRegistry
+public class PlayerHUD : CharacterRegistry, IGameStateListener
 {
     [Networked(OnChanged = nameof(OnNetworkNickNameChanged))] public NetworkString<_16> PlayerNickName { get; set; }
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
+
     [SerializeField] private GameObject _playerUI;
     [SerializeField] private TextMeshProUGUI _characterStaminaText;
     [SerializeField] private TextMeshProUGUI _characterHealth;
@@ -17,7 +20,23 @@ public class PlayerHUD : CharacterRegistry
     [SerializeField] private GameObject _aimTarget;
     [SerializeField] private TextMeshProUGUI _stateTest;
     [SerializeField] private TextMeshProUGUI _nickNameText;
-   
+
+    private void OnEnable()
+    {
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
+    }
+
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
+    }
+
+    public void UpdateGameState(LevelManager.GamePhase currentGameState)
+    {
+      
+        CurrentGamePhase = currentGameState;
+        Debug.LogError("Current GamePhase:" + currentGameState);
+    }
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -72,6 +91,29 @@ public class PlayerHUD : CharacterRegistry
             _arrowImage[0].SetActive(false);
         }
     }
+    public async void OnRespawnKnightCommanderButtonClicked()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        _respawnPanel.SetActive(false);
+       
+        if (CurrentGamePhase == LevelManager.GamePhase.Warmup)
+        {
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
+            
+        }
+        else
+        {
+            await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.Preparation);
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
+        }
+
+       
+
+        //base.OnObjectDestroy();
+
+
+    }
 
     public void OnRespawnStormshieldButtonClicked()
     {
@@ -82,6 +124,7 @@ public class PlayerHUD : CharacterRegistry
 
         _respawnPanel.SetActive(false);
     }
+    /*
     public void OnRespawnKnightCommanderButtonClicked()
     {
         if (!Object.HasStateAuthority) return;
@@ -91,6 +134,7 @@ public class PlayerHUD : CharacterRegistry
 
         _respawnPanel.SetActive(false);
     }
+    */
     public void OnRespawnGallowButtonClicked()
     {
         if (!Object.HasStateAuthority) return;
@@ -138,4 +182,6 @@ public class PlayerHUD : CharacterRegistry
     {
         _nickNameText.enabled = condition;
     }
+
+   
 }

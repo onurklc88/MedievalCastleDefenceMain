@@ -53,7 +53,6 @@ public class RoundManager : ManagerRegistry, IGameStateListener
             _redTeamDeadCount = 0;
             _blueTeamDeadCount = 0;
             EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.Preparation);
-
         }
         else
         {
@@ -65,7 +64,7 @@ public class RoundManager : ManagerRegistry, IGameStateListener
     [Rpc(RpcSources.All, RpcTargets.All)]
     public async void CheckRoundEndByDefeatRpc(TeamManager.Teams playerTeam)
     {
-        if (!Runner.IsSharedModeMasterClient) return;
+        if (!Runner.IsSharedModeMasterClient || CurrentGamePhase == LevelManager.GamePhase.Preparation || CurrentGamePhase == LevelManager.GamePhase.Warmup) return;
         
         if (playerTeam == TeamManager.Teams.Red)
         {
@@ -75,21 +74,24 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         {
             _redTeamDeadCount += 1;
         }
+       
 
-        if (_redTeamDeadCount == _levelManager.TeamsPlayerCount)
+        if (_redTeamDeadCount == _levelManager.RedTeamPlayerCount)
         {
             _blueTeamScore += 1;
             _roundWinnerTeam = TeamManager.Teams.Blue;
             await UniTask.Delay(3000);
              EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundEnd);
         }
-        else if (_blueTeamDeadCount == _levelManager.TeamsPlayerCount)
+        else if (_blueTeamDeadCount == _levelManager.BlueTeamPlayerCount)
         {
             _redTeamScore += 1;
             _roundWinnerTeam = TeamManager.Teams.Red;
             await UniTask.Delay(3000);
             EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundEnd);
         }
+
+        Debug.Log("RedPTeamdeadCount: " + _redTeamDeadCount + " BlueTeamDeadCoutn: " + _blueTeamDeadCount);
     }
 
    
@@ -101,6 +103,7 @@ public class RoundManager : ManagerRegistry, IGameStateListener
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)
     {
+        CurrentGamePhase = currentGameState;
         switch (currentGameState)
         {
             case LevelManager.GamePhase.GameStart:

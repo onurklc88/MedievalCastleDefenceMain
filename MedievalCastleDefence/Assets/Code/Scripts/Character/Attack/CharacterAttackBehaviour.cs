@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using static BehaviourRegistry;
-public class CharacterAttackBehaviour : CharacterRegistry, IReadInput
+public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStateListener
 {
     [Networked] protected TickTimer AttackCooldown { get; set; }
     [Networked] public NetworkButtons PreviousButton { get; set; }
@@ -11,6 +11,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput
     [Networked(OnChanged = nameof(OnNetworkBlockPositionChanged))] public SwordPosition PlayerSwordPositionLocal { get; set; }
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
     [Networked] public SwordPosition PlayerSwordPosition { get; set; }
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
+
     public enum SwordPosition
     {
         None,
@@ -54,11 +56,18 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput
         changed.Behaviour.PlayerSwordPosition = changed.Behaviour.PlayerSwordPositionLocal;
     }
 
+    public void UpdateGameState(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
+    }
+
     protected void CheckAttackCollision(GameObject collidedObject)
     {
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-       if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
+        var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+        if (opponentTeam == _playerStatsController.PlayerNetworkStats.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
+        if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
        {
             var opponentType = GetCharacterType(collidedObject);
             switch (opponentType)
@@ -85,8 +94,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        //var isOpponentDead = (opponentHealth.NetworkedHealth - _weaponStats.Damage) <= 0;
-
         if (opponent.gameObject.layer == 11 && !isOpponentParrying)
         {
             return;
@@ -235,8 +242,4 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput
        (crossProduct.y < -sideThreshold) ? AttackDirection.FromRight :
        AttackDirection.None;
     }
-
-   
-
-
 }

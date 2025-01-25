@@ -54,6 +54,24 @@ public class PlayerStatsController : CharacterRegistry
        // Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount + "PlayerDieCount: " + PlayerLocalStats.PlayerDieCount);
     }
 
+    public List<PlayerRef> GetAliveTeamPlayers()
+    {
+        List<PlayerRef> team = new List<PlayerRef>();
+        foreach (var player in Runner.ActivePlayers)
+        {
+            var playerObject = Runner.GetPlayerObject(player);
+            var playerStats = playerObject.GetComponentInParent<PlayerStatsController>();
+            var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
+
+            if (playerStats != null && playerStats.PlayerNetworkStats.PlayerTeam == PlayerNetworkStats.PlayerTeam && characterHealth.NetworkedHealth > 0)
+            {
+                team.Add(player);
+            }
+        }
+
+        return team;
+    }
+
 
 
     private static void OnNetworkStatsChanged(Changed<PlayerStatsController> changed)

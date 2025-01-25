@@ -18,17 +18,17 @@ public static class EventLibrary
     public static readonly GameEvent OnPlayerSelectWarrior = new GameEvent();
     public static readonly GameEvent<LevelManager.GamePhase> OnGamePhaseChange = new GameEvent<LevelManager.GamePhase>();
     public static readonly GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams> OnPlayerSelectTeam = new GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams>();
- 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+    //UI
+
+    public static readonly GameEvent<TeamManager.Teams> OnPlayerRespawn = new GameEvent<TeamManager.Teams>();
+
+
+
+
+
+
     //Stats Events
     public static readonly GameEvent<PlayerInfo> OnPlayerStatsUpdated = new GameEvent<PlayerInfo>();
     public static readonly GameEvent<CharacterStats.CharacterType, string, string> OnPlayerKill = new GameEvent<CharacterStats.CharacterType, string, string>();

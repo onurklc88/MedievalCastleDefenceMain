@@ -5,14 +5,15 @@ using Fusion;
 using Steamworks;
 public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 {
+    public Transform[] RedTeamPlayerSpawnPositions;
+    public Transform[] BlueTeamPlayerSpawnPositions;
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private NetworkPrefabRef _stormshieldNetworkPrefab = NetworkPrefabRef.Empty;
     [SerializeField] private NetworkPrefabRef _knightCommanderdNetworkPrefab = NetworkPrefabRef.Empty;
     [SerializeField] private NetworkPrefabRef _gallowglassNetworkPrefab = NetworkPrefabRef.Empty;
     [SerializeField] private NetworkPrefabRef _theSaxonMarkNetworkPrefab = NetworkPrefabRef.Empty;
-   
+    [SerializeField] private LevelManager _levelManager;
     private NetworkObject _currentPlayerObject;
-   
     private PlayerInfo _oldPlayerInfo;
 
 
@@ -90,22 +91,22 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             Debug.Log("Runner yok");
             return;
         }
-      
+        Vector3 spawnPosition = GetRandomSpawnPosition(selectedTeam);
         if (playerRef == Runner.LocalPlayer)
         {
             switch (warriorType)
             {
                 case CharacterStats.CharacterType.FootKnight:
-                    _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
                     break;
                 case CharacterStats.CharacterType.KnightCommander:
-                    _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
                     break;
                 case CharacterStats.CharacterType.Gallowglass:
-                    _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
                     break;
                 case CharacterStats.CharacterType.Ranger:
-                    _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, new Vector3(0, 0, 0), Quaternion.identity, playerRef);
+                    _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
                     break;
 
             }
@@ -130,6 +131,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 Runner.SetPlayerObject(playerRef, _currentPlayerObject);
                 //  EventLibrary.OnRespawnRequested.AddListener(RespawnPlayer);
                 _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
+                _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
 
             }
         }
@@ -149,24 +151,6 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             
         }
   }
-  
-
-    private void RespawnPlayer(PlayerRef playerRef)
-    {
-        var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
-        if (isPlayerAlreadySpawned)
-        {
-            if (Runner.TryGetPlayerObject(playerRef, out var playerNetworkObject))
-            {
-                var playerStats = playerNetworkObject.transform.GetComponent<PlayerStatsController>().PlayerLocalStats.PlayerWarrior;
-                Runner.Despawn(playerNetworkObject);
-                //StartCoroutine(SpawnDelay(playerRef));
-               
-            }
-        }
-
-    }
-
     private void RespawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType)
     {
         var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
@@ -178,11 +162,11 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 _oldPlayerInfo = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats;
                 Runner.Despawn(playerNetworkObject);
                 StartCoroutine(SpawnDelay(playerRef, warriorType));
-
+                //SpawnDelay(playerRef, warriorType);
             }
         }
     }
-  
+  /*
     private IEnumerator SpawnDelay(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType)
     {
         yield return new WaitForSeconds(1f);
@@ -212,10 +196,122 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
               _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
         }
 }
-
- 
-   
-
+  */
   
-    
+    private IEnumerator SpawnDelay(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType)
+    {
+        yield return new WaitForSeconds(0.05f);
+
+        if (playerRef == Runner.LocalPlayer)
+        {
+            
+            Vector3 spawnPosition = GetRandomSpawnPosition(_oldPlayerInfo.PlayerTeam);
+
+            switch (selectedWarrirorType)
+            {
+                case CharacterStats.CharacterType.FootKnight:
+                    _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.KnightCommander:
+                    _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Gallowglass:
+                    _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Ranger:
+                    _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+            }
+
+            _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
+            Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+            _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
+            _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
+        }
+    }
+  /*
+    private void SpawnDelay(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType)
+    {
+       
+
+        if (playerRef == Runner.LocalPlayer)
+        {
+
+            Vector3 spawnPosition = GetRandomSpawnPosition(_oldPlayerInfo.PlayerTeam);
+
+            switch (selectedWarrirorType)
+            {
+                case CharacterStats.CharacterType.FootKnight:
+                    _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.KnightCommander:
+                    _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Gallowglass:
+                    _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Ranger:
+                    _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+            }
+
+            _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
+            Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+            _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
+        }
+    }
+  */
+    private HashSet<Vector3> _usedRedSpawnPositions = new HashSet<Vector3>();
+    private HashSet<Vector3> _usedBlueSpawnPositions = new HashSet<Vector3>();
+
+    private Vector3 GetRandomSpawnPosition(TeamManager.Teams selectedTeam)
+    {
+        Transform[] spawnPositions;
+
+       
+        if (selectedTeam == TeamManager.Teams.Red)
+        {
+            spawnPositions = RedTeamPlayerSpawnPositions;
+        }
+        else
+        {
+            spawnPositions = BlueTeamPlayerSpawnPositions;
+        }
+
+      
+        List<Vector3> availablePositions = new List<Vector3>();
+        foreach (var pos in spawnPositions)
+        {
+            if (!_usedRedSpawnPositions.Contains(pos.position) && !_usedBlueSpawnPositions.Contains(pos.position))
+            {
+                availablePositions.Add(pos.position);
+            }
+        }
+
+       
+        if (availablePositions.Count > 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, availablePositions.Count);
+            Vector3 selectedPosition = availablePositions[randomIndex];
+
+           
+            if (selectedTeam == TeamManager.Teams.Red)
+            {
+                _usedRedSpawnPositions.Add(selectedPosition);
+            }
+            else
+            {
+                _usedBlueSpawnPositions.Add(selectedPosition);
+            }
+
+            return selectedPosition;
+        }
+
+        
+        return Vector3.zero;
+    }
+
+
+
+
 }
