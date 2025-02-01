@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+
 using static BehaviourRegistry;
-public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStateListener
+public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListener
 {
     [Networked] protected TickTimer AttackCooldown { get; set; }
     [Networked] public NetworkButtons PreviousButton { get; set; }
@@ -11,7 +12,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStat
     [Networked(OnChanged = nameof(OnNetworkBlockPositionChanged))] public SwordPosition PlayerSwordPositionLocal { get; set; }
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
     [Networked] public SwordPosition PlayerSwordPosition { get; set; }
-    public LevelManager.GamePhase CurrentGamePhase { get; set; }
+    [Networked] public LevelManager.GamePhase CurrentGamePhase { get; set; }
 
     public enum SwordPosition
     {
@@ -37,12 +38,21 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStat
     protected CharacterStamina _characterStamina;
     private SwordPosition _lastSwordPosition;
     private float _movementTreshold = 0.25f;
-    
+
+  
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
     protected virtual void AttackCollision() { }
     protected virtual void SwingSword() { }
     protected virtual void BlockWeapon() { }
-    
+    private void OnEnable()
+    {
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
+    }
+
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
+    }
     private static void OnNetworkBlockChanged(Changed<CharacterAttackBehaviour> changed)
     {
         changed.Behaviour.IsPlayerBlocking = changed.Behaviour.IsPlayerBlockingLocal;
@@ -56,19 +66,15 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStat
         changed.Behaviour.PlayerSwordPosition = changed.Behaviour.PlayerSwordPositionLocal;
     }
 
-    public void UpdateGameState(LevelManager.GamePhase currentGameState)
-    {
-        CurrentGamePhase = currentGameState;
-    }
-
     protected void CheckAttackCollision(GameObject collidedObject)
     {
+       if (CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
         var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
-        if (opponentTeam == _playerStatsController.PlayerNetworkStats.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
+        if (opponentTeam == _playerStatsController.PlayerNetworkStats.PlayerTeam && CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
-       {
+        {
             var opponentType = GetCharacterType(collidedObject);
             switch (opponentType)
             {
@@ -108,7 +114,13 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStat
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
             if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
-                _playerStatsController.UpdatePlayerKillCountRpc();
+              
+                if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
+                {
+                    Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAA");
+                    _playerStatsController.UpdatePlayerKillCountRpc();
+                }
+               
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
 
             }
@@ -133,7 +145,12 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStat
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
             if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
-                _playerStatsController.UpdatePlayerKillCountRpc();
+                if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
+                {
+                    if (!Object.HasStateAuthority) return; // 
+                    //Debug.LogError("CurrentGamepHase: " +CurrentGamePhase);
+                    _playerStatsController.UpdatePlayerKillCountRpc();
+                }
                 if (!Object.HasStateAuthority) return;
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
                 EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
@@ -189,7 +206,12 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStat
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
             if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
-                _playerStatsController.UpdatePlayerKillCountRpc();
+                if(CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
+                {
+                    Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAA");
+                    _playerStatsController.UpdatePlayerKillCountRpc();
+                }
+               
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
             }
         }
@@ -241,5 +263,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IGameStat
        (crossProduct.y > sideThreshold) ? AttackDirection.FromLeft :
        (crossProduct.y < -sideThreshold) ? AttackDirection.FromRight :
        AttackDirection.None;
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
+        //Debug.LogError("CurrentGamePhaseUpdated: " + CurrentGamePhase);
     }
 }

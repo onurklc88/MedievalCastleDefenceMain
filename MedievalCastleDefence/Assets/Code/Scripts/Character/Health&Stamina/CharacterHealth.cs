@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using static BehaviourRegistry;
-public class CharacterHealth : CharacterRegistry, IDamageable, IGameStateListener
+public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
 {
     [Networked(OnChanged = nameof(OnPlayerDead))] public NetworkBool IsPlayerDead { get; set; }
     private PlayerHUD _playerHUD;
    [Networked] public float NetworkedHealth { get; set; }
-    public LevelManager.GamePhase CurrentGamePhase { get; set; }
+   [Networked]  public LevelManager.GamePhase CurrentGamePhase { get; set; }
 
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
@@ -20,12 +20,12 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IGameStateListene
 
     private void OnEnable()
     {
-        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
     }
 
     private void OnDisable()
     {
-        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
     }
 
     public override void Spawned()
@@ -81,7 +81,9 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IGameStateListene
             _playerHUD.ShowRespawnPanel();
             _activeRagdoll.RPCActivateRagdoll();
             if (!Object.HasStateAuthority) return;
-            _playerStatsController.UpdatePlayerDieCountRpc();
+            if(CurrentGamePhase == LevelManager.GamePhase.RoundStart)
+                _playerStatsController.UpdatePlayerDieCountRpc();
+
             _characterCameraController.FollowTeamPlayerCams();
             IsPlayerDead = true;
         }
@@ -116,6 +118,12 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IGameStateListene
     }
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
+    }
+    
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
     {
         CurrentGamePhase = currentGameState;
     }

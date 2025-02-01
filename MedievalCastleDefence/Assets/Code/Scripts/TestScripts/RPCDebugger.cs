@@ -16,18 +16,19 @@ public class RPCDebugger : NetworkBehaviour
 
     private void OnEnable()
     {
-        EventLibrary.DebugMessage.AddListener(ShowDebugMessageRPC);
+        EventLibrary.DebugMessage.AddListener(ShowLocalMessage);
 
     }
 
     private void OnDisable()
     {
-        EventLibrary.DebugMessage.RemoveListener(ShowDebugMessageRPC);
+        EventLibrary.DebugMessage.RemoveListener(ShowLocalMessage);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void ShowDebugMessageRPC(string text)
     {
+        if (!Object.HasStateAuthority) return;
         _localText.text = text;
         _localText.color = UnityEngine.Random.ColorHSV();
     }

@@ -141,7 +141,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
         if (_cinemachineCamera == null) return;
         Vector3 dirToCombatLookAt = _cameraTargetPoint.position - new Vector3(_cinemachineCamera.transform.position.x, _cameraTargetPoint.transform.position.y, _cinemachineCamera.transform.position.z);
         _orientation.forward = dirToCombatLookAt.normalized;
-       
+        if (_characterHealth == null) return;
         if (_characterHealth.IsPlayerDead) return;
         dirToCombatLookAt.y = 0;
         Quaternion targetRotation = Quaternion.LookRotation(dirToCombatLookAt);

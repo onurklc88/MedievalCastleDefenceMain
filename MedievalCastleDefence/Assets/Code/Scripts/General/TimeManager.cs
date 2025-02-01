@@ -9,7 +9,7 @@ public class TimeManager : ManagerRegistry
     [Networked] private TickTimer _matchTimer { get; set; }
     public LevelManager.GamePhase CurrentGameState { get; set; }
 
-    private const float WARMUP_MATCH_TIME = 10f;
+    private const float WARMUP_MATCH_TIME = 120f;
     private const float MATCH_PREPARATION_TIME = 3f;
 
     private float _currentTimeAmount;
@@ -55,10 +55,13 @@ public class TimeManager : ManagerRegistry
         switch (CurrentGameState)
         {
             case LevelManager.GamePhase.Warmup:
-                ChangeGamePhase(LevelManager.GamePhase.Preparation, MATCH_PREPARATION_TIME);
+                RemainingTime = MATCH_PREPARATION_TIME;
+                _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.Preparation);
                 break;
             case LevelManager.GamePhase.Preparation:
-                ChangeGamePhase(LevelManager.GamePhase.RoundStart, 0);
+                RemainingTime = 0;
+                //_levelManager.UpdateTeamPlayerCounts();
+                _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.RoundStart);
                 break;
         }
     }

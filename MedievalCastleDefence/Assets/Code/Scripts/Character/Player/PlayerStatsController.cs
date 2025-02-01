@@ -3,23 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using static BehaviourRegistry;
-public class PlayerStatsController : CharacterRegistry
+public class PlayerStatsController : CharacterRegistry, IRPCListener
 {
     [Networked] public PlayerInfo PlayerNetworkStats { get; set; }
     private PlayerInfo _playerLocalStats;
     public CharacterStats.CharacterType SelectedCharacter;
     [Networked(OnChanged = nameof(OnNetworkStatsChanged))] public PlayerInfo PlayerLocalStats { get; set; }
     [Networked(OnChanged = nameof(OnNetworkPlayerTeamChange))] public TeamManager.Teams PlayerTeam { get; set; }
+    [Networked(OnChanged = nameof(Test))] public LevelManager.GamePhase CurrentGamePhase { get; set; }
+   
+
     [SerializeField] private Material[] _teamMaterials;
     [SerializeField] private SkinnedMeshRenderer _playerMeshrenderer;
     private PlayerHUD _playerHUD;
-    
+
+   
+
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
+    }
+
+
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
+       
         InitScript(this);
-        
-
     }
 
     private void Start()
@@ -40,7 +51,10 @@ public class PlayerStatsController : CharacterRegistry
    
     public void UpdatePlayerKillCountRpc()
     {
-        if (!Object.HasStateAuthority) return;
+        //Debug.LogError("GamePhase ÝÞLENDÝ AQ: " + CurrentGamePhase + ", Obje ID: " + Object.Id);
+        EventLibrary.DebugMessage.Invoke("GamePhase ÝÞLENDÝ AQ: " + CurrentGamePhase + ", Obje ID: " + Object.Id);
+        if (!Object.HasStateAuthority || CurrentGamePhase == LevelManager.GamePhase.Warmup) return;
+       
         _playerLocalStats.PlayerKillCount += 1;
         PlayerLocalStats = _playerLocalStats;
         //Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount+ "PlayerDieCount: " +PlayerLocalStats.PlayerDieCount);
@@ -79,6 +93,11 @@ public class PlayerStatsController : CharacterRegistry
         changed.Behaviour.PlayerNetworkStats = changed.Behaviour.PlayerLocalStats;
     }
 
+    private static void Test(Changed<PlayerStatsController> changed)
+    {
+     
+    }
+
     private static void OnNetworkPlayerTeamChange(Changed<PlayerStatsController> changed)
     {
         if (changed.Behaviour.PlayerTeam == TeamManager.Teams.None) return;
@@ -103,6 +122,10 @@ public class PlayerStatsController : CharacterRegistry
             renderer.materials = materials;
         }
     }
-    
-
+   
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
+    }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 using Fusion;
 using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
-public class PlayerHUD : CharacterRegistry, IGameStateListener
+public class PlayerHUD : CharacterRegistry, IRPCListener
 {
     [Networked(OnChanged = nameof(OnNetworkNickNameChanged))] public NetworkString<_16> PlayerNickName { get; set; }
     public LevelManager.GamePhase CurrentGamePhase { get; set; }
@@ -23,19 +23,19 @@ public class PlayerHUD : CharacterRegistry, IGameStateListener
 
     private void OnEnable()
     {
-        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
     }
 
     private void OnDisable()
     {
-        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
     }
 
-    public void UpdateGameState(LevelManager.GamePhase currentGameState)
+   // [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
     {
-      
-        CurrentGamePhase = currentGameState;
-        Debug.LogError("Current GamePhase:" + currentGameState);
+       CurrentGamePhase = currentGameState;
+      //  Debug.LogError("Current GamePhase:" + currentGameState);
     }
     public override void Spawned()
     {
@@ -96,23 +96,19 @@ public class PlayerHUD : CharacterRegistry, IGameStateListener
         if (!Object.HasStateAuthority) return;
 
         _respawnPanel.SetActive(false);
-       
+
         if (CurrentGamePhase == LevelManager.GamePhase.Warmup)
         {
             EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
-            
+            //Debug.LogError("A");
         }
         else
         {
             await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.Preparation);
+
             EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
+            //Debug.LogError("B");
         }
-
-       
-
-        //base.OnObjectDestroy();
-
-
     }
 
     public void OnRespawnStormshieldButtonClicked()
@@ -165,7 +161,7 @@ public class PlayerHUD : CharacterRegistry, IGameStateListener
         if (!Object.HasStateAuthority) return;
         PlayerNickName = nickname;
         _nickNameText.enabled = false;
-        EventLibrary.DebugMessage.Invoke(nickname);
+       // EventLibrary.DebugMessage.Invoke(nickname);
     }
 
     public static void OnNetworkNickNameChanged(Changed<PlayerHUD> changed)

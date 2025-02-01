@@ -11,9 +11,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
    [Networked(OnChanged = nameof(OnPlayerCountChange))]  public int CurrentPlayerCount { get; set; }
    [Networked(OnChanged = nameof(OnPlayerCountChange))]  public int RedTeamPlayerCount { get; set; }
    [Networked(OnChanged = nameof(OnPlayerCountChange))]  public int BlueTeamPlayerCount { get; set; }
-
-  public GamePhase CurrentGamePhase { get; set; }
- 
+   [Networked(OnChanged = nameof(OnGamePhaseChanged))] public GamePhase CurrentGamePhase { get; set; }
    public enum GamePhase
    {
         None,
@@ -34,22 +32,13 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     [SerializeField] private Transform[] _blueTeamPlayerSpawnPositions;
     [SerializeField] private TestPlayerSpawner _testPlayerSpawner;
     private List<PlayerRef> _winnerPlayers = new List<PlayerRef>();
-
    
-    private void OnEnable()
-    {
-        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
-    }
-
-    private void OnDisable()
-    {
-        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
-    }
+  
     public override void Spawned()
     {
-      EventLibrary.OnPlayerSelectWarrior.AddListener(UpdatePlayerCountRpc);
-       CurrentGamePhase = GamePhase.Warmup;
-       EventLibrary.OnGamePhaseChange.Invoke(CurrentGamePhase);
+       EventLibrary.OnPlayerSelectWarrior.AddListener(UpdatePlayerCountRpc);
+      // EventLibrary.OnRespawnRequested.AddListener(HandleRespawnRequestRpc);
+        ChangeGamePhaseRpc(GamePhase.Warmup);
     }
 
     private void Awake()
@@ -90,18 +79,15 @@ public class LevelManager : ManagerRegistry, IGameStateListener
        
         if(CurrentPlayerCount == MaxPlayerCount)
         {
+            EnsureAllPlayersHaveTeams(); 
             await UniTask.Delay(2000);
-            CurrentGamePhase = GamePhase.Preparation;
-            EventLibrary.OnGamePhaseChange.Invoke(CurrentGamePhase);
+            ChangeGamePhaseRpc(GamePhase.Preparation);
         }
     }
-
-    
-
+   
     public async void UpdateGameState(GamePhase currentGameState)
     {
-        if (CurrentGamePhase == currentGameState) return;
-            //    CurrentGamePhase = currentGameState;
+            
             switch (currentGameState)
             {
             case GamePhase.GameStart:
@@ -110,26 +96,24 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                
                 break;
             case GamePhase.Preparation:
-                await UniTask.Delay(2000);
                 if (!Runner.IsSharedModeMasterClient) return;
                 RestorePlayerWarriorRpc();
+                await UniTask.Delay(1000);
                 DisablePlayerInputsRpc(false);
                 break;
+
             case GamePhase.RoundStart:
-               
-                if (!Runner.IsSharedModeMasterClient) return;
-                //CurrentGamePhase = GamePhase.RoundStart;
-                //EventLibrary.OnGamePhaseChange.Invoke(CurrentGamePhase);
+               if (!Runner.IsSharedModeMasterClient) return;
+                await UniTask.Delay(150);
                 ForcePlayersSpawnRpc();
-                await UniTask.Delay(10);
                 TeleportPlayersToStartPositionsRpc();
                 await UniTask.Delay(2000);
-                if (!Runner.IsSharedModeMasterClient) return;
                 DisablePlayerInputsRpc(true);
                 break;
+
             case GamePhase.RoundEnd:
                 if (!Runner.IsSharedModeMasterClient) return;
-                RestorePlayerWarriorRpc();
+               
                 break;
             case GamePhase.GameEnd:
 
@@ -137,11 +121,14 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             } 
     }
 
-    public void ChangeGamePhase(GamePhase newPhase)
+
+  
+    public void ChangeGamePhaseRpc(GamePhase newPhase)
     {
         CurrentGamePhase = newPhase;
-        EventLibrary.OnGamePhaseChange.Invoke(newPhase);
+        UpdateGameState(CurrentGamePhase);
     }
+    
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RestorePlayerWarriorRpc()
@@ -150,7 +137,26 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         foreach (var player in Runner.ActivePlayers)
         {
             var playerObject = Runner.GetPlayerObject(player);
+            
+            if (playerObject == null)
+            {
+                Debug.LogWarning($"PlayerObject for player {player} is null.");
+                continue;
+            }
+
             var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
+            if (characterHealth == null)
+            {
+                Debug.LogWarning($"CharacterHealth for player {player} is null.");
+                continue;
+            }
+
+           
+            if (playerObject.GetComponentInParent<CharacterHealth>()!= null)
+            {
+               // var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
+            
+              
             if (playerObject != null && characterHealth.NetworkedHealth > 0)
             {
                 alivePlayerList++;
@@ -161,13 +167,16 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 characterDecals.DisableBloodDecals();
                 _winnerPlayers.Add(player);
             }
+            }
         }
        
     }
   
-   [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void ForcePlayersSpawnRpc()
+   [Rpc(RpcSources.All, RpcTargets.All)]
+    public void ForcePlayersSpawnRpc()
     {
+
+      
         foreach (var player in Runner.ActivePlayers)
         {
             var playerObject = Runner.GetPlayerObject(player);
@@ -181,7 +190,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 {
                     //characterHealth.IsPlayerDead = false;
                     var playerWarriorType = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerWarrior;
-                    EventLibrary.OnRespawnRequested.Invoke(player, playerWarriorType);
+                    RespawnWithDelay(player, playerWarriorType).Forget();
                 }
                 else
                 {
@@ -189,23 +198,49 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 }
                 
             }
-            else
+            UniTask.Void(async () =>
             {
-                UpdateTeamPlayerCounts();
+                await UniTask.Delay(1000);
+                var playerObjectAfterDelay = Runner.GetPlayerObject(player);
+                if (playerObjectAfterDelay == null) return;
+
+                var existingTeam = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+                if (existingTeam == TeamManager.Teams.None) 
+                {
+                    UpdateTeamPlayerCounts();
+                    TeamManager.Teams availableTeam = DetermineAvailableTeam();
+                    EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
+                }
+            });
+
+        }
+
+      
+    }
+    private void EnsureAllPlayersHaveTeams()
+    {
+        foreach (var player in Runner.ActivePlayers)
+        {
+            var playerObject = Runner.GetPlayerObject(player);
+            var playerTeam = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+            if (playerTeam == TeamManager.Teams.None) 
+            {
                 TeamManager.Teams availableTeam = DetermineAvailableTeam();
-                EventLibrary.OnPlayerSelectTeam.Invoke(
-                    player,
-                    CharacterStats.CharacterType.KnightCommander,
-                    availableTeam
-                );
+                EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
             }
-           
         }
     }
-    
+    private async UniTaskVoid RespawnWithDelay(PlayerRef player, CharacterStats.CharacterType playerWarriorType)
+    {
+        int delayMs = Random.Range(50, 100); 
+        await UniTask.Delay(delayMs, cancellationToken: this.GetCancellationTokenOnDestroy());
+        EventLibrary.OnRespawnRequested.Invoke(player, playerWarriorType);
+    }
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void DisablePlayerInputsRpc(bool condition)
     {
+    
         foreach (var player in Runner.ActivePlayers)
         {
 
@@ -268,6 +303,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     {
 
         if (!Runner.IsSharedModeMasterClient) return;
+        Debug.LogError("KESLAN");
         var playerList = Runner.ActivePlayers.ToList();
         RedTeamPlayerCount = 0;
         BlueTeamPlayerCount = 0;
@@ -286,9 +322,21 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                         BlueTeamPlayerCount += 1;
                 }
             }
+            /*
+            else
+            {
+                TeamManager.Teams availableTeam = DetermineAvailableTeam();
+                EventLibrary.OnPlayerSelectTeam.Invoke(
+                    player,
+                    CharacterStats.CharacterType.KnightCommander,
+                    availableTeam
+                );
+            }
+            */
         }
-
-        Debug.Log("PlayerCount: " + CurrentPlayerCount+  " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
+       
+        
+        Debug.LogError("PlayerCount: " + CurrentPlayerCount+  " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
     }
     TeamManager.Teams DetermineAvailableTeam()
     {
@@ -304,10 +352,12 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         //Debug.LogWarning($"<color=yellow>Player count updated: {changed.Behaviour.CurrentPlayerCount}</color>");
 
     }
+    private static void OnGamePhaseChanged(Changed<LevelManager> changed)
+    {
 
-  
+        EventLibrary.OnGamePhaseChange.Invoke(changed.Behaviour.CurrentGamePhase);
+    }
 
-    
 
 
     #region legacy

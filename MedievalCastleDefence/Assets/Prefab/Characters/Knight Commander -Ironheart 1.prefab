@@ -7503,7 +7503,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 554.8, y: -125.70001}
+  m_AnchoredPosition: {x: 553.64, y: -134.5}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8932203897879527883
@@ -19333,8 +19333,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -100, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -318.03302, y: -150.15134}
+  m_SizeDelta: {x: 636.0661, y: 350.3028}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6292011713808663656
 CanvasRenderer:
@@ -19391,8 +19391,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -19950,6 +19950,7 @@ MonoBehaviour:
   _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
   SelectedCharacter: 2
   _PlayerTeam: 0
+  _CurrentGamePhase: 0
   _teamMaterials:
   - {fileID: 2100000, guid: 51e5bdd762167b346bd74f3232109584, type: 2}
   - {fileID: 2100000, guid: 95163532aca88fa4bbff67b9d4985617, type: 2}
@@ -20056,8 +20057,8 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _debugText: {fileID: 4810856896995340322}
-  _localText: {fileID: 7214051490864943150}
+  _debugText: {fileID: 471574209323513170}
+  _localText: {fileID: 471574209323513170}
 --- !u!114 &-3748063764809183040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20077,6 +20078,7 @@ MonoBehaviour:
   _IsPlayerDead:
     _value: 0
   _NetworkedHealth: 0
+  _CurrentGamePhase: 0
 --- !u!114 &4060013980439461772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20099,6 +20101,7 @@ MonoBehaviour:
   _IsPlayerBlocking:
     _value: 0
   _PlayerSwordPosition: 0
+  _CurrentGamePhase: 0
   _weaponStats: {fileID: 11400000, guid: ef03e385307a14e49adba4e5dd941361, type: 2}
   _blockArea: {fileID: 6108941041267823394}
   _characterType: 2

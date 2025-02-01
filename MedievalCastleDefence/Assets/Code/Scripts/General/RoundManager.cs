@@ -52,7 +52,7 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         {
             _redTeamDeadCount = 0;
             _blueTeamDeadCount = 0;
-            EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.Preparation);
+             _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.Preparation);
         }
         else
         {
@@ -80,18 +80,20 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         {
             _blueTeamScore += 1;
             _roundWinnerTeam = TeamManager.Teams.Blue;
+            
             await UniTask.Delay(3000);
-             EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundEnd);
+          
+            _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.RoundEnd);
         }
         else if (_blueTeamDeadCount == _levelManager.BlueTeamPlayerCount)
         {
             _redTeamScore += 1;
             _roundWinnerTeam = TeamManager.Teams.Red;
             await UniTask.Delay(3000);
-            EventLibrary.OnGamePhaseChange.Invoke(LevelManager.GamePhase.RoundEnd);
+            _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.RoundEnd);
         }
 
-        Debug.Log("RedPTeamdeadCount: " + _redTeamDeadCount + " BlueTeamDeadCoutn: " + _blueTeamDeadCount);
+        //Debug.Log("RedPTeamdeadCount: " + _redTeamDeadCount + " BlueTeamDeadCoutn: " + _blueTeamDeadCount);
     }
 
    

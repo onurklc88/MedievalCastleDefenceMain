@@ -5,16 +5,18 @@ using Fusion;
 using System.Linq;
 public class KnightCommanderAttack : CharacterAttackBehaviour
 {
+    
     private PlayerHUD _playerHUD;
     private KnightCommanderAnimation _knightCommanderAnimation;
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _ragdollManager;
     private PlayerVFXSytem _playerVFXSystem;
-
+  
 
     [SerializeField] private RPCDebugger _debugger;
    
     [SerializeField] private GameObject test;
+   
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -87,7 +89,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
-        StartCoroutine(PerformAttack());
+         StartCoroutine(PerformAttack());
     }
     private IEnumerator PerformAttack()
     {
@@ -105,6 +107,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
             if (target != null)
             {
+                
                 CheckAttackCollision(target.transform.gameObject);
                 yield break;
             }
@@ -131,4 +134,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
     }
 
+
+  
 }

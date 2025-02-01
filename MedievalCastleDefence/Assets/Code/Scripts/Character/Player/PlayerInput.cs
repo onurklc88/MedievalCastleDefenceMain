@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using System.Linq;
-public class PlayerInput : NetworkBehaviour, IReadInput
+public class PlayerInput : NetworkBehaviour, IReadInput, IRPCListener
 {
     public NetworkButtons PreviousButton { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
+
     [SerializeField] private UIManager _uýManager;
- 
-    public override void FixedUpdateNetwork()
+
+    private void Start()
     {
-       
-     
+        CurrentGamePhase = LevelManager.GamePhase.Warmup;
     }
- 
+    private void OnEnable()
+    {
+        EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
+    }
+
+    private void OnDisable()
+    {
+        EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
+    }
     public void ReadPlayerInputs(PlayerInputData input)
     {
         /*
@@ -34,6 +43,7 @@ public class PlayerInput : NetworkBehaviour, IReadInput
            
             //Test();
         }
+     // && CurrentGamePhase != LevelManager.GamePhase.Warmup && CurrentGamePhase != LevelManager.GamePhase.Preparation
         if (Input.GetKey(KeyCode.Tab))
         {
             _uýManager.ShowScoreboard(true);
@@ -71,4 +81,9 @@ public class PlayerInput : NetworkBehaviour, IReadInput
         }
     }
 
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
+    }
 }

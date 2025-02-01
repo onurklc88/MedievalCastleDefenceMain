@@ -4,6 +4,7 @@ using UnityEngine;
 using Fusion;
 using TMPro;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
 public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 {
@@ -40,6 +41,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     public NetworkButtons PreviousButton { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public LevelManager.GamePhase CurrentGamePhase { get; set; }
     private bool _test;
+    private LevelManager _levelManager;
 
     private void OnEnable()
     {
@@ -66,6 +68,13 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         _warriorButtons[2].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Gallowglass));
         _warriorButtons[3].onClick.AddListener(() => UpdatePlayerSelectedWarrior(CharacterStats.CharacterType.Ranger));
     }
+
+    private void Start()
+    {
+        _levelManager = GetScript<LevelManager>();
+    }
+
+   
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space) && !_test)
@@ -73,8 +82,9 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
             _test = true;
             _teamPanel.SetActive(true);
         }
+        
     }
-
+    
     [Rpc(RpcSources.All, RpcTargets.All)]
     private void ShowKillFeedRpc(CharacterStats.CharacterType warriorType, string killerPlayer, string deadPlayer)
     {
@@ -103,6 +113,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     {
         _timer.text = value;
     }
+  
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
@@ -132,10 +143,11 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         _characterPanel.SetActive(false);
     }
 
-    public void UpdateGameState(LevelManager.GamePhase currentGameState)
+    public async void UpdateGameState(LevelManager.GamePhase currentGameState)
     {
         if (_phaseProcessed) return;
         CurrentGamePhase = currentGameState;
+        
         switch (currentGameState)
         {
             case LevelManager.GamePhase.Warmup:
@@ -153,6 +165,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
                 HideSelectionPanel();
                 if (!Runner.IsSharedModeMasterClient) return;
                 EnableTimerImageRpc(false);
+                await UniTask.Delay(1000);
                 GameStateTxt = "ROUND";
                 _phaseProcessed = true;
                 break;
