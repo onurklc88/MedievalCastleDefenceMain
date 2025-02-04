@@ -52,7 +52,7 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
     public void UpdatePlayerKillCountRpc()
     {
         //Debug.LogError("GamePhase ÝÞLENDÝ AQ: " + CurrentGamePhase + ", Obje ID: " + Object.Id);
-        EventLibrary.DebugMessage.Invoke("GamePhase ÝÞLENDÝ AQ: " + CurrentGamePhase + ", Obje ID: " + Object.Id);
+        //EventLibrary.DebugMessage.Invoke("GamePhase ÝÞLENDÝ AQ: " + CurrentGamePhase + ", Obje ID: " + Object.Id);
         if (!Object.HasStateAuthority || CurrentGamePhase == LevelManager.GamePhase.Warmup) return;
        
         _playerLocalStats.PlayerKillCount += 1;

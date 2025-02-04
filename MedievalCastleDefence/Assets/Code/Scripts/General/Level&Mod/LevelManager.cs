@@ -104,8 +104,11 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
             case GamePhase.RoundStart:
                if (!Runner.IsSharedModeMasterClient) return;
-                await UniTask.Delay(150);
+               
+                EventLibrary.DebugMessage.Invoke("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
+                //Debug.LogError("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
                 ForcePlayersSpawnRpc();
+                await UniTask.Delay(150);
                 TeleportPlayersToStartPositionsRpc();
                 await UniTask.Delay(2000);
                 DisablePlayerInputsRpc(true);
@@ -171,8 +174,26 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         }
        
     }
-  
-   [Rpc(RpcSources.All, RpcTargets.All)]
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void DespawnPlayersSpawnRpc()
+    {
+
+        foreach (var player in Runner.ActivePlayers)
+        {
+            var playerObject = Runner.GetPlayerObject(player);
+
+            if (playerObject != null)
+            {
+
+                Runner.Despawn(playerObject);
+            }
+
+        }
+    }
+
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
     public void ForcePlayersSpawnRpc()
     {
 
@@ -195,6 +216,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 else
                 {
                     _winnerPlayers.Add(player);
+
                 }
                 
             }
@@ -204,14 +226,18 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 var playerObjectAfterDelay = Runner.GetPlayerObject(player);
                 if (playerObjectAfterDelay == null) return;
 
-                var existingTeam = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
-                if (existingTeam == TeamManager.Teams.None) 
+                var playerStatsAfterDelay = playerObjectAfterDelay.GetComponentInParent<PlayerStatsController>();
+                if (playerStatsAfterDelay == null) return;
+
+                var existingTeam = playerStatsAfterDelay.PlayerNetworkStats.PlayerTeam;
+                if (existingTeam == TeamManager.Teams.None)
                 {
                     UpdateTeamPlayerCounts();
                     TeamManager.Teams availableTeam = DetermineAvailableTeam();
                     EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
                 }
             });
+     
 
         }
 
@@ -260,6 +286,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void TeleportPlayersToStartPositionsRpc()
     {
+        /*
         System.Random random = new System.Random();
 
         Vector3[] shuffledRedPositions = _testPlayerSpawner.RedTeamPlayerSpawnPositions
@@ -296,14 +323,73 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             }
         }
 
-        _winnerPlayers.Clear();
-    }
 
+
+        */
+        Debug.Log("ListCount: " + Runner.ActivePlayers.ToList().Count);
+
+        int currentRedTeamCount = 0;
+        int currentBlueTeamCount = 0;
+
+        for (int i = 0; i < Runner.ActivePlayers.ToList().Count; i++)
+        {
+            if (Runner.TryGetPlayerObject(Runner.ActivePlayers.ToList()[i], out var playerNetworkObject))
+            {
+                var playerTeam = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+
+                Vector3 spawnPosition = _testPlayerSpawner.GetSpawnPosition(playerTeam);
+
+                if (spawnPosition != Vector3.zero)
+                {
+                    playerNetworkObject.transform.position = spawnPosition;
+                    if (playerTeam == TeamManager.Teams.Red)
+                        currentRedTeamCount++;
+                    else
+                        currentBlueTeamCount++;
+                }
+            }
+        }
+      
+        
+        // Debug.LogError("LevelManager UsedSpawnPositions: " + _testPlayerSpawner.UsedSpawnPositions.Count);
+
+        _winnerPlayers.Clear();
+        TestPlayerSpawner.UsedSpawnPositions.Clear();
+    }
+    /*
+    private void SetupPlayerPositions()
+    {
+        int currentRedTeamPlayerCount = 0;
+        int currentBlueTeamPlayerCount = 0;
+
+        for (int i = 0; i < ActivePlayerList.Count; i++)
+        {
+
+            if (Runner.TryGetPlayerObject(ActivePlayerList[i], out var playerNetworkObject))
+            {
+                var playerTeam = playerNetworkObject.GetComponent<PlayerStats>().PlayerInfo.PlayerTeam;
+                if (playerTeam == PlayerStats.Team.RedPanters)
+                {
+                    var spawnPoint = _redTeamSpawnPositions[currentRedTeamPlayerCount].transform.position;
+                    playerNetworkObject.transform.position = spawnPoint;
+                    currentRedTeamPlayerCount++;
+                }
+                else
+                {
+                    var spawnPoint = _blueTeamSpawnPositions[currentRedTeamPlayerCount].transform.position;
+                    playerNetworkObject.transform.position = _blueTeamSpawnPositions[currentBlueTeamPlayerCount].transform.position;
+                    currentBlueTeamPlayerCount++;
+                }
+
+            }
+        }
+    }
+    */
     public void UpdateTeamPlayerCounts()
     {
 
         if (!Runner.IsSharedModeMasterClient) return;
-        Debug.LogError("KESLAN");
+       
         var playerList = Runner.ActivePlayers.ToList();
         RedTeamPlayerCount = 0;
         BlueTeamPlayerCount = 0;

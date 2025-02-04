@@ -16,13 +16,13 @@ public class RPCDebugger : NetworkBehaviour
 
     private void OnEnable()
     {
-        EventLibrary.DebugMessage.AddListener(ShowLocalMessage);
+        EventLibrary.DebugMessage.AddListener(ShowDebugMessageRPC);
 
     }
 
     private void OnDisable()
     {
-        EventLibrary.DebugMessage.RemoveListener(ShowLocalMessage);
+        EventLibrary.DebugMessage.RemoveListener(ShowDebugMessageRPC);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]

@@ -591,15 +591,15 @@ MonoBehaviour:
   RedTeamPlayerSpawnPositions:
   - {fileID: 1999494525}
   - {fileID: 41474539}
-  - {fileID: 374108077}
   - {fileID: 875579639}
+  - {fileID: 374108077}
   - {fileID: 1838942599}
   - {fileID: 910449804}
   BlueTeamPlayerSpawnPositions:
   - {fileID: 879049286}
   - {fileID: 1878454375}
-  - {fileID: 1115514337}
   - {fileID: 745177788}
+  - {fileID: 1115514337}
   - {fileID: 1807093699}
   - {fileID: 1685666787}
   _playerPrefab: {fileID: 5797861915547711400, guid: 7dbace0eaf080e948b56636a40a1f822, type: 3}
@@ -925,7 +925,7 @@ MonoBehaviour:
   _CurrentGamePhase: 0
   MaxPlayerCount: 0
   TeamsPlayerCount: 0
-  GameMode: 3
+  GameMode: 2
   TotalLevelRound: 15
   _redTeamPlayerSpawnPositions:
   - {fileID: 1999494525}
