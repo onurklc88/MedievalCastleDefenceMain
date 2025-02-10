@@ -55,7 +55,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             Debug.Log("Runner yok");
             return;
         }
-        Vector3 spawnPosition = GetSpawnPosition(selectedTeam);
+        Vector3 spawnPosition = GetRandomSpawnPosition(selectedTeam);
         if (playerRef == Runner.LocalPlayer)
         {
             switch (warriorType)
@@ -121,8 +121,8 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     public void RespawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType)
     {
         //await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.RoundStart);
-
-        var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
+        if (playerRef != Runner.LocalPlayer) return;
+            var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
             Debug.Log("isPlayerAlreadySpawned: " + isPlayerAlreadySpawned);
             if (isPlayerAlreadySpawned)
             {
@@ -153,7 +153,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         
         if (playerRef == Runner.LocalPlayer)
         {
-            Vector3 spawnPosition = GetSpawnPosition(_oldPlayerInfo.PlayerTeam);
+            Vector3 spawnPosition = GetRandomSpawnPosition(_oldPlayerInfo.PlayerTeam);
             switch (selectedWarrirorType)
             {
                 case CharacterStats.CharacterType.FootKnight:
@@ -185,32 +185,15 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 }
   
  
-    public Vector3 GetSpawnPosition(TeamManager.Teams selectedTeam)
+    public Vector3 GetRandomSpawnPosition(TeamManager.Teams selectedTeam)
     {
-        if (selectedTeam == TeamManager.Teams.Red)
-        {
-            foreach (var spawnPosition in RedTeamPlayerSpawnPositions)
-            {
-                if (!UsedSpawnPositions.Contains(spawnPosition.position))
-                {
-                    UsedSpawnPositions.Add(spawnPosition.position);
-                    return spawnPosition.position;
-                }
-            }
-        }
-        else if (selectedTeam == TeamManager.Teams.Blue)
-        {
-            foreach (var spawnPosition in BlueTeamPlayerSpawnPositions)
-            {
-                if (!UsedSpawnPositions.Contains(spawnPosition.position))
-                {
-                    UsedSpawnPositions.Add(spawnPosition.position);
-                    return spawnPosition.position;
-                }
-            }
-        }
-        Debug.Log("Spawner UsedSpawnPositions: " + UsedSpawnPositions.Count);
-        return Vector3.zero; 
+        Transform[] spawnPositions = selectedTeam == TeamManager.Teams.Red
+       ? RedTeamPlayerSpawnPositions
+       : BlueTeamPlayerSpawnPositions;
+
+        if (spawnPositions.Length == 0) return Vector3.zero;
+
+        return spawnPositions[Random.Range(0, spawnPositions.Length)].position;
     }
 
 

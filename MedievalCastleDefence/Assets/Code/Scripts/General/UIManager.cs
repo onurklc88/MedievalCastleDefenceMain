@@ -33,6 +33,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     [SerializeField] private GameObject[] _teamImages;
     [SerializeField] private TextMeshProUGUI _roundIndex;
     [SerializeField] private TextMeshProUGUI _roundText;
+    [SerializeField] private TextMeshProUGUI _winnerTeamText;
     private bool _phaseProcessed = false;
     [Networked(OnChanged = nameof(OnGameStateTextChange))] public NetworkString<_16> GameStateTxt { get; set; }
     
@@ -48,6 +49,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         EventLibrary.OnPlayerKill.AddListener(ShowKillFeedRpc);
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
         EventLibrary.OnPlayerRespawn.AddListener(UpdatePlayerTeamButton);
+        EventLibrary.OnLevelFinish.AddListener(ShowWinnerTeamRpc);
        
     }
 
@@ -56,6 +58,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         EventLibrary.OnPlayerKill.RemoveListener(ShowKillFeedRpc);
         EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
         EventLibrary.OnPlayerRespawn.RemoveListener(UpdatePlayerTeamButton);
+        EventLibrary.OnLevelFinish.RemoveListener(ShowWinnerTeamRpc);
     }
 
     private void Awake()
@@ -102,6 +105,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     public void ShowScoreboard(bool condition)
     {
+       
         if (condition != _previousCondition)
         {
             _previousCondition = condition;
@@ -145,8 +149,10 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     public async void UpdateGameState(LevelManager.GamePhase currentGameState)
     {
-        if (_phaseProcessed) return;
         CurrentGamePhase = currentGameState;
+       
+        if (_phaseProcessed) return;
+      
         
         switch (currentGameState)
         {
@@ -171,6 +177,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
                 break;
             case LevelManager.GamePhase.RoundEnd:
                 break;
+        
         }
     }
 
@@ -207,6 +214,27 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         }
 
     }
+
+    
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public async void ShowWinnerTeamRpc(TeamManager.Teams winnerTeam)
+    {
+       
+        if(winnerTeam == TeamManager.Teams.Red)
+        {
+            _winnerTeamText.color = Color.red;
+        }
+        else
+        {
+            _winnerTeamText.color = Color.blue;
+        }
+
+
+        _winnerTeamText.text = winnerTeam.ToString() + " team wins ";
+        await UniTask.Delay(2000);
+        _winnerTeamText.text = " ";
+    }
+    
     private void HideSelectionPanel()
     {
         _teamPanel.SetActive(false);
@@ -221,5 +249,13 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     {
         changed.Behaviour._gameStateText.text = changed.Behaviour.GameStateTxt.ToString();
        
+    }
+
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void ShowEndingLeaderboardRpc()
+    {
+        _scoreboard.SetActive(true);
+
     }
 }

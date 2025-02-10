@@ -31,7 +31,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     [SerializeField] private Transform[] _redTeamPlayerSpawnPositions;
     [SerializeField] private Transform[] _blueTeamPlayerSpawnPositions;
     [SerializeField] private TestPlayerSpawner _testPlayerSpawner;
-    private List<PlayerRef> _winnerPlayers = new List<PlayerRef>();
+    
    
   
     public override void Spawned()
@@ -103,12 +103,13 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 break;
 
             case GamePhase.RoundStart:
-               if (!Runner.IsSharedModeMasterClient) return;
+                await UniTask.Delay(300);
+                _uiManager.ShowScoreboard(true);
+                if (!Runner.IsSharedModeMasterClient) return;
                
                 EventLibrary.DebugMessage.Invoke("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
-                //Debug.LogError("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
                 ForcePlayersSpawnRpc();
-                await UniTask.Delay(150);
+                await UniTask.Delay(300);
                 TeleportPlayersToStartPositionsRpc();
                 await UniTask.Delay(2000);
                 DisablePlayerInputsRpc(true);
@@ -119,7 +120,13 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                
                 break;
             case GamePhase.GameEnd:
-
+                //if (!Runner.IsSharedModeMasterClient) return;
+                await UniTask.Delay(200);
+                _uiManager.ShowEndingLeaderboardRpc();
+              
+                await UniTask.Delay(4000);
+                if (!Runner.IsSharedModeMasterClient) return;
+                DespawnPlayersSpawnRpc();
                 break;
             } 
     }
@@ -168,7 +175,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 characterHealth.ResetPlayerHealth();
                 characterStamina.ResetPlayerStamina();
                 characterDecals.DisableBloodDecals();
-                _winnerPlayers.Add(player);
+                
             }
             }
         }
@@ -178,7 +185,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void DespawnPlayersSpawnRpc()
     {
-
+        //if (!Runner.IsSharedModeMasterClient) return;
         foreach (var player in Runner.ActivePlayers)
         {
             var playerObject = Runner.GetPlayerObject(player);
@@ -213,12 +220,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                     var playerWarriorType = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerWarrior;
                     RespawnWithDelay(player, playerWarriorType).Forget();
                 }
-                else
-                {
-                    _winnerPlayers.Add(player);
-
-                }
-                
+               
             }
             UniTask.Void(async () =>
             {
@@ -258,8 +260,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     }
     private async UniTaskVoid RespawnWithDelay(PlayerRef player, CharacterStats.CharacterType playerWarriorType)
     {
-        int delayMs = Random.Range(50, 100); 
-        await UniTask.Delay(delayMs, cancellationToken: this.GetCancellationTokenOnDestroy());
+        await UniTask.Delay(50, cancellationToken: this.GetCancellationTokenOnDestroy());
         EventLibrary.OnRespawnRequested.Invoke(player, playerWarriorType);
     }
 
@@ -286,46 +287,6 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void TeleportPlayersToStartPositionsRpc()
     {
-        /*
-        System.Random random = new System.Random();
-
-        Vector3[] shuffledRedPositions = _testPlayerSpawner.RedTeamPlayerSpawnPositions
-            .Select(t => t.position)
-            .OrderBy(x => random.Next())
-            .ToArray();
-
-        Vector3[] shuffledBluePositions = _testPlayerSpawner.BlueTeamPlayerSpawnPositions
-            .Select(t => t.position)
-            .OrderBy(x => random.Next())
-            .ToArray();
-
-        List<Vector3> availableRedPositions = new List<Vector3>(shuffledRedPositions);
-        List<Vector3> availableBluePositions = new List<Vector3>(shuffledBluePositions);
-
-        foreach (var playerNetworkObject in _winnerPlayers)
-        {
-            var playerObject = Runner.GetPlayerObject(playerNetworkObject);
-            if (playerObject == null) continue;
-
-            var playerStats = playerObject.GetComponentInParent<PlayerStatsController>();
-            if (playerStats == null) continue;
-
-            var playerNetworkStats = playerStats.PlayerNetworkStats;
-            if (playerNetworkStats.PlayerTeam == TeamManager.Teams.Red && availableRedPositions.Count > 0)
-            {
-                playerObject.transform.position = availableRedPositions[0];
-                availableRedPositions.RemoveAt(0);
-            }
-            else if (playerNetworkStats.PlayerTeam == TeamManager.Teams.Blue && availableBluePositions.Count > 0)
-            {
-                playerObject.transform.position = availableBluePositions[0];
-                availableBluePositions.RemoveAt(0);
-            }
-        }
-
-
-
-        */
         Debug.Log("ListCount: " + Runner.ActivePlayers.ToList().Count);
 
         int currentRedTeamCount = 0;
@@ -335,25 +296,30 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         {
             if (Runner.TryGetPlayerObject(Runner.ActivePlayers.ToList()[i], out var playerNetworkObject))
             {
+                Debug.Log("CurrentPlayerIndexCount: " + currentRedTeamCount);
                 var playerTeam = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
-
-                Vector3 spawnPosition = _testPlayerSpawner.GetSpawnPosition(playerTeam);
-
+                Vector3 spawnPosition = Vector3.zero;
+                if (playerTeam == TeamManager.Teams.Red)
+                {
+                  spawnPosition = _testPlayerSpawner.RedTeamPlayerSpawnPositions[currentRedTeamCount].transform.position;
+                    currentRedTeamCount++;
+                }
+                else
+                {
+                    spawnPosition = _testPlayerSpawner.BlueTeamPlayerSpawnPositions[currentBlueTeamCount].transform.position;
+                    currentBlueTeamCount++;
+                }
+                Debug.Log("isSpawnPosition vector3.zero? : " + spawnPosition);
                 if (spawnPosition != Vector3.zero)
                 {
                     playerNetworkObject.transform.position = spawnPosition;
-                    if (playerTeam == TeamManager.Teams.Red)
-                        currentRedTeamCount++;
-                    else
-                        currentBlueTeamCount++;
+                    
                 }
             }
         }
       
         
-        // Debug.LogError("LevelManager UsedSpawnPositions: " + _testPlayerSpawner.UsedSpawnPositions.Count);
-
-        _winnerPlayers.Clear();
+        
         TestPlayerSpawner.UsedSpawnPositions.Clear();
     }
     /*
@@ -408,17 +374,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                         BlueTeamPlayerCount += 1;
                 }
             }
-            /*
-            else
-            {
-                TeamManager.Teams availableTeam = DetermineAvailableTeam();
-                EventLibrary.OnPlayerSelectTeam.Invoke(
-                    player,
-                    CharacterStats.CharacterType.KnightCommander,
-                    availableTeam
-                );
-            }
-            */
+            
         }
        
         

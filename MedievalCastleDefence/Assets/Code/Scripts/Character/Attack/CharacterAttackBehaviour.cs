@@ -117,8 +117,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
               
                 if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
                 {
-                    Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAA");
-                    _playerStatsController.UpdatePlayerKillCountRpc();
+                   _playerStatsController.UpdatePlayerKillCountRpc();
                 }
                
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());

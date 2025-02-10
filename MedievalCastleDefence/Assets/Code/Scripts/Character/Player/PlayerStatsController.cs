@@ -51,21 +51,17 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
    
     public void UpdatePlayerKillCountRpc()
     {
-        //Debug.LogError("GamePhase ÝÞLENDÝ AQ: " + CurrentGamePhase + ", Obje ID: " + Object.Id);
-        //EventLibrary.DebugMessage.Invoke("GamePhase ÝÞLENDÝ AQ: " + CurrentGamePhase + ", Obje ID: " + Object.Id);
         if (!Object.HasStateAuthority || CurrentGamePhase == LevelManager.GamePhase.Warmup) return;
        
         _playerLocalStats.PlayerKillCount += 1;
         PlayerLocalStats = _playerLocalStats;
-        //Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount+ "PlayerDieCount: " +PlayerLocalStats.PlayerDieCount);
     }
     
     public void UpdatePlayerDieCountRpc()
     {
-        if (!Object.HasStateAuthority) return;
+        if (!Object.HasStateAuthority || CurrentGamePhase == LevelManager.GamePhase.Warmup) return;
         _playerLocalStats.PlayerDieCount += 1;
         PlayerLocalStats = _playerLocalStats;
-       // Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerKillCount: " + PlayerLocalStats.PlayerKillCount + "PlayerDieCount: " + PlayerLocalStats.PlayerDieCount);
     }
 
     public List<PlayerRef> GetAliveTeamPlayers()

@@ -37,13 +37,8 @@ public class PlayerInput : NetworkBehaviour, IReadInput, IRPCListener
 
     private void Update()
     {
-        if (_uıManager == null) return;
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-           
-            //Test();
-        }
-     // && CurrentGamePhase != LevelManager.GamePhase.Warmup && CurrentGamePhase != LevelManager.GamePhase.Preparation
+        if (_uıManager == null || CurrentGamePhase == LevelManager.GamePhase.GameEnd) return;
+       
         if (Input.GetKey(KeyCode.Tab))
         {
             _uıManager.ShowScoreboard(true);

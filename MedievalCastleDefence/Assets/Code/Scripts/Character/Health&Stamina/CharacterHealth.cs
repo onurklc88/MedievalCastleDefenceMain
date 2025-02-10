@@ -81,9 +81,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
             _playerHUD.ShowRespawnPanel();
             _activeRagdoll.RPCActivateRagdoll();
             if (!Object.HasStateAuthority) return;
-            if(CurrentGamePhase == LevelManager.GamePhase.RoundStart)
-                _playerStatsController.UpdatePlayerDieCountRpc();
-
+            _playerStatsController.UpdatePlayerDieCountRpc();
             _characterCameraController.FollowTeamPlayerCams();
             IsPlayerDead = true;
         }

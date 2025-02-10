@@ -56,7 +56,8 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         }
         else
         {
-            Debug.Log("EndMatch");
+            _uiManager.UpdateTeamScoreRpc(_roundWinnerTeam, _roundWinnerTeam == TeamManager.Teams.Red ? _redTeamScore : _blueTeamScore);
+            _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.GameEnd);
         }
        
     }
@@ -80,7 +81,7 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         {
             _blueTeamScore += 1;
             _roundWinnerTeam = TeamManager.Teams.Blue;
-            
+            EventLibrary.OnLevelFinish.Invoke(_roundWinnerTeam);
             await UniTask.Delay(3000);
           
             _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.RoundEnd);
@@ -89,6 +90,7 @@ public class RoundManager : ManagerRegistry, IGameStateListener
         {
             _redTeamScore += 1;
             _roundWinnerTeam = TeamManager.Teams.Red;
+            EventLibrary.OnLevelFinish.Invoke(_roundWinnerTeam);
             await UniTask.Delay(3000);
             _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.RoundEnd);
         }
