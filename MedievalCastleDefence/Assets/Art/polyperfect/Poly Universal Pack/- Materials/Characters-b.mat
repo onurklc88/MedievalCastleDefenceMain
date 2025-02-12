@@ -268,9 +268,9 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
-    - _RampSmoothing: 0.001
+    - _RampSmoothing: 0.134
     - _RampSmoothingOtherLights: 0.001
-    - _RampThreshold: 0.457
+    - _RampThreshold: 0.01
     - _RampThresholdOtherLights: 0.01
     - _ReceiveShadows: 1
     - _ReceiveShadowsOff: 0
