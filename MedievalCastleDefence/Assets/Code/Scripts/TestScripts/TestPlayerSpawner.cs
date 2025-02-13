@@ -113,7 +113,9 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
        
         if (isPlayerAlreadySpawned)
         {
+
             Runner.Despawn(isPlayerAlreadySpawned);
+            _levelManager.UpdateTeamPlayerCounts();
             
         }
   }
@@ -202,37 +204,5 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
       CurrentGamePhase = currentGameState;
     }
 
-    /*
-   private void SpawnDelayC(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType)
-   {
-
-       if (playerRef == Runner.LocalPlayer)
-       {
-
-           Vector3 spawnPosition = GetRandomSpawnPosition(_oldPlayerInfo.PlayerTeam);
-
-           switch (selectedWarrirorType)
-           {
-               case CharacterStats.CharacterType.FootKnight:
-                   _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
-                   break;
-               case CharacterStats.CharacterType.KnightCommander:
-                   _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
-                   break;
-               case CharacterStats.CharacterType.Gallowglass:
-                   _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
-                   break;
-               case CharacterStats.CharacterType.Ranger:
-                   _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
-                   break;
-           }
-
-           _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
-           Runner.SetPlayerObject(playerRef, _currentPlayerObject);
-           _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
-          // _currentPlayerObject.transform.GetComponentInParent<CharacterController>().enabled = false;
-          // _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
-       }
-   }
- */
+  
 }

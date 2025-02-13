@@ -108,6 +108,10 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 if (!Runner.IsSharedModeMasterClient) return;
                
                 EventLibrary.DebugMessage.Invoke("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
+                if(RedTeamPlayerCount == 0 || BlueTeamPlayerCount == 0)
+                {
+                    Debug.LogWarning("END GAME IMMEDIATELY");
+                }
                 ForcePlayersSpawnRpc();
                 await UniTask.Delay(300);
                 TeleportPlayersToStartPositionsRpc();
@@ -317,40 +321,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 }
             }
         }
-      
-        
-        
-        TestPlayerSpawner.UsedSpawnPositions.Clear();
     }
-    /*
-    private void SetupPlayerPositions()
-    {
-        int currentRedTeamPlayerCount = 0;
-        int currentBlueTeamPlayerCount = 0;
-
-        for (int i = 0; i < ActivePlayerList.Count; i++)
-        {
-
-            if (Runner.TryGetPlayerObject(ActivePlayerList[i], out var playerNetworkObject))
-            {
-                var playerTeam = playerNetworkObject.GetComponent<PlayerStats>().PlayerInfo.PlayerTeam;
-                if (playerTeam == PlayerStats.Team.RedPanters)
-                {
-                    var spawnPoint = _redTeamSpawnPositions[currentRedTeamPlayerCount].transform.position;
-                    playerNetworkObject.transform.position = spawnPoint;
-                    currentRedTeamPlayerCount++;
-                }
-                else
-                {
-                    var spawnPoint = _blueTeamSpawnPositions[currentRedTeamPlayerCount].transform.position;
-                    playerNetworkObject.transform.position = _blueTeamSpawnPositions[currentBlueTeamPlayerCount].transform.position;
-                    currentBlueTeamPlayerCount++;
-                }
-
-            }
-        }
-    }
-    */
     public void UpdateTeamPlayerCounts()
     {
 

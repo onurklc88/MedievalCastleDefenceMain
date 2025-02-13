@@ -100,54 +100,68 @@ public class PlayerHUD : CharacterRegistry, IRPCListener
         if (CurrentGamePhase == LevelManager.GamePhase.Warmup)
         {
             EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
-            //Debug.LogError("A");
         }
         else
         {
             await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.Preparation);
 
             EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
-            //Debug.LogError("B");
         }
     }
 
-    public void OnRespawnStormshieldButtonClicked()
+    public async void OnRespawnStormshieldButtonClicked()
     {
         if (!Object.HasStateAuthority) return;
-        base.OnObjectDestroy();
-        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
-        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.FootKnight);
 
         _respawnPanel.SetActive(false);
-    }
-    /*
-    public void OnRespawnKnightCommanderButtonClicked()
-    {
-        if (!Object.HasStateAuthority) return;
-        base.OnObjectDestroy();
-        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
-        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.KnightCommander);
 
-        _respawnPanel.SetActive(false);
-    }
-    */
-    public void OnRespawnGallowButtonClicked()
-    {
-        if (!Object.HasStateAuthority) return;
-        base.OnObjectDestroy();
-        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
-        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
-        _respawnPanel.SetActive(false);
-    }
-    public void OnRespawnRangerButtonClicked()
-    {
-        if (!Object.HasStateAuthority) return;
-        base.OnObjectDestroy();
-        //EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer);
-        EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Ranger);
-        _respawnPanel.SetActive(false);
+        if (CurrentGamePhase == LevelManager.GamePhase.Warmup)
+        {
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.FootKnight);
+        }
+        else
+        {
+            await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.Preparation);
+
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.FootKnight);
+        }
     }
 
+    public async void OnRespawnGallowButtonClicked()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        _respawnPanel.SetActive(false);
+
+        if (CurrentGamePhase == LevelManager.GamePhase.Warmup)
+        {
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
+           
+        }
+        else
+        {
+            await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.Preparation);
+
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
+        }
+    }
+    public async void OnRespawnRangerButtonClicked()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        _respawnPanel.SetActive(false);
+
+        if (CurrentGamePhase == LevelManager.GamePhase.Warmup)
+        {
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
+        }
+        else
+        {
+            await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.Preparation);
+
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
+        }
+    }
 
     public void UpdateAimTargetState(bool condition)
     {
