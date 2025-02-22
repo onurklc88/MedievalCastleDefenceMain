@@ -47,7 +47,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     }
    
    
-    public void SpawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType, TeamManager.Teams selectedTeam)
+    public async void SpawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType, TeamManager.Teams selectedTeam)
     {
        
         if (Runner == null)
@@ -98,14 +98,17 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                
                 _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
                 _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
+                Debug.Log("PlayerTeam: " +_currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam);
+                await UniTask.Delay(500);
                 _levelManager.UpdateTeamPlayerCounts();
-
             }
         }
         else
         {
             //Debug.Log("Local player yok");
         }
+
+       
     }
  
   public void PlayerLeft(PlayerRef player)

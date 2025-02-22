@@ -395,7 +395,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     public void UpdateTeamPlayerCounts()
     {
 
-        if (!Runner.IsSharedModeMasterClient) return;
+       // if (!Runner.IsSharedModeMasterClient) return;
        
         var playerList = Runner.ActivePlayers.ToList();
         RedTeamPlayerCount = 0;
@@ -408,7 +408,8 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 var playerStats = playerNetworkObject.GetComponentInParent<PlayerStatsController>();
                 if (playerStats != null)
                 {
-                    var playerTeam = playerStats.PlayerNetworkStats.PlayerTeam;
+                    CurrentPlayerCount += 1;
+                    var playerTeam = playerStats.PlayerTeam;
                     if (playerTeam == TeamManager.Teams.Red)
                         RedTeamPlayerCount += 1;
                     else if (playerTeam == TeamManager.Teams.Blue)
