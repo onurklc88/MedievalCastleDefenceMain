@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using System;
+using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
 public class TimeManager : ManagerRegistry
 {
     [Networked] private TickTimer _matchTimer { get; set; }
     public LevelManager.GamePhase CurrentGameState { get; set; }
 
-    private const float WARMUP_MATCH_TIME = 60f;
-    private const float MATCH_PREPARATION_TIME = 3f;
+    private const float WARMUP_MATCH_TIME = 10f;
+    private const float MATCH_PREPARATION_TIME = 4f;
 
     private float _currentTimeAmount;
     private UIManager _uiManager;
@@ -48,15 +49,27 @@ public class TimeManager : ManagerRegistry
         }
     }
 
-    private void HandlePhaseTransition()
+    private async void HandlePhaseTransition()
     {
         RemainingTime = 0;
 
         switch (CurrentGameState)
         {
             case LevelManager.GamePhase.Warmup:
-                RemainingTime = MATCH_PREPARATION_TIME;
+               
+                /*
+                _levelManager.BalanceTeamsRpc();
+                await UniTask.Delay(1000);
                 _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.Preparation);
+                */
+
+                _levelManager.ForcePlayersSpawnRpc();
+                await UniTask.Delay(500);
+                //_levelManager.BalanceTeamsRpc();
+                await UniTask.Delay(500);
+                
+                _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.Preparation);
+                RemainingTime = MATCH_PREPARATION_TIME;
                 break;
             case LevelManager.GamePhase.Preparation:
                 RemainingTime = 0;

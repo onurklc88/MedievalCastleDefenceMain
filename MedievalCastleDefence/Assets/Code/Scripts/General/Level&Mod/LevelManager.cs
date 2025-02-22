@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using System.Linq;
 using Fusion;
 using Cysharp.Threading.Tasks;
+using System;
 using static BehaviourRegistry;
 
 public class LevelManager : ManagerRegistry, IGameStateListener
@@ -36,7 +36,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
   
     public override void Spawned()
     {
-       EventLibrary.OnPlayerSelectWarrior.AddListener(UpdatePlayerCountRpc);
+       //EventLibrary.OnPlayerSelectTeam.AddListener(UpdatePlayerCountRpc);
       // EventLibrary.OnRespawnRequested.AddListener(HandleRespawnRequestRpc);
         ChangeGamePhaseRpc(GamePhase.Warmup);
     }
@@ -79,7 +79,9 @@ public class LevelManager : ManagerRegistry, IGameStateListener
        
         if(CurrentPlayerCount == MaxPlayerCount)
         {
-            EnsureAllPlayersHaveTeams(); 
+            EnsureAllPlayersHaveTeamsRpc();
+            await UniTask.Delay(1000);
+            BalanceTeamsRpc();
             await UniTask.Delay(2000);
             ChangeGamePhaseRpc(GamePhase.Preparation);
         }
@@ -142,8 +144,61 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         CurrentGamePhase = newPhase;
         UpdateGameState(CurrentGamePhase);
     }
-    
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public async void BalanceTeamsRpc()
+    {
+        if (!Runner.IsSharedModeMasterClient) return;
+
+      
+
+        for (int i = 0; i < 10; i++) 
+        {
+            int teamDifference = Math.Abs(RedTeamPlayerCount - BlueTeamPlayerCount);
+            if (teamDifference < 2) break;
+
+            if (RedTeamPlayerCount > BlueTeamPlayerCount)
+            {
+                MovePlayerToTeam(TeamManager.Teams.Red, TeamManager.Teams.Blue);
+            }
+            else if (BlueTeamPlayerCount > RedTeamPlayerCount)
+            {
+                MovePlayerToTeam(TeamManager.Teams.Blue, TeamManager.Teams.Red);
+            }
+        }
+
+        await UniTask.Delay(500);
+        //UpdateTeamPlayerCounts();
+
+    }
+    private void MovePlayerToTeam(TeamManager.Teams fromTeam, TeamManager.Teams toTeam)
+    {
+        var playerList = Runner.ActivePlayers.ToList();
+        foreach (var player in playerList)
+        {
+            var playerNetworkObject = Runner.GetPlayerObject(player);
+            if (playerNetworkObject != null)
+            {
+                var playerStats = playerNetworkObject.GetComponentInParent<PlayerStatsController>();
+                if (playerStats != null)
+                {
+                    var playerTeam = playerStats.PlayerNetworkStats.PlayerTeam;
+
+                    if (playerTeam == fromTeam)
+                    {
+                        
+                       
+                        PlayerInfo updatedInfo = playerStats.PlayerNetworkStats;
+                        updatedInfo.PlayerTeam = toTeam;
+                        playerStats.SetPlayerInfo(updatedInfo);
+                        break;  
+                    }
+                }
+            }
+        }
+
+       
+    }
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RestorePlayerWarriorRpc()
     {
@@ -154,14 +209,14 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             
             if (playerObject == null)
             {
-                Debug.LogWarning($"PlayerObject for player {player} is null.");
+                //Debug.LogWarning($"PlayerObject for player {player} is null.");
                 continue;
             }
 
             var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
             if (characterHealth == null)
             {
-                Debug.LogWarning($"CharacterHealth for player {player} is null.");
+                //Debug.LogWarning($"CharacterHealth for player {player} is null.");
                 continue;
             }
 
@@ -202,13 +257,14 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
         }
     }
-
+    private bool _hasForcedSpawn;
 
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void ForcePlayersSpawnRpc()
     {
+        if (_hasForcedSpawn) return;
+        _hasForcedSpawn = true;
 
-      
         foreach (var player in Runner.ActivePlayers)
         {
             var playerObject = Runner.GetPlayerObject(player);
@@ -230,7 +286,14 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             {
                 await UniTask.Delay(1000);
                 var playerObjectAfterDelay = Runner.GetPlayerObject(player);
-                if (playerObjectAfterDelay == null) return;
+                if (playerObjectAfterDelay == null)
+                {
+                    UpdateTeamPlayerCounts();
+                    TeamManager.Teams availableTeam = DetermineAvailableTeam();
+                    EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
+                  
+                    return;
+                }
 
                 var playerStatsAfterDelay = playerObjectAfterDelay.GetComponentInParent<PlayerStatsController>();
                 if (playerStatsAfterDelay == null) return;
@@ -249,17 +312,24 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
       
     }
-    private void EnsureAllPlayersHaveTeams()
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void EnsureAllPlayersHaveTeamsRpc()
     {
+        //if (!Runner.IsSharedModeMasterClient) return;
         foreach (var player in Runner.ActivePlayers)
         {
             var playerObject = Runner.GetPlayerObject(player);
-            var playerTeam = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
-            if (playerTeam == TeamManager.Teams.None) 
+            if(playerObject.GetComponentInParent<PlayerStatsController>() != null)
             {
-                TeamManager.Teams availableTeam = DetermineAvailableTeam();
-                EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
+                var playerTeam = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+                if (playerTeam == TeamManager.Teams.None)
+                {
+                    TeamManager.Teams availableTeam = DetermineAvailableTeam();
+                    EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
+                }
             }
+            
+           
         }
     }
     private async UniTaskVoid RespawnWithDelay(PlayerRef player, CharacterStats.CharacterType playerWarriorType)
@@ -291,7 +361,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void TeleportPlayersToStartPositionsRpc()
     {
-        Debug.Log("ListCount: " + Runner.ActivePlayers.ToList().Count);
+        
 
         int currentRedTeamCount = 0;
         int currentBlueTeamCount = 0;

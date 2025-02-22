@@ -95,15 +95,16 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 Runner.SetPlayerObject(playerRef, _currentPlayerObject);
                
                 _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
-                Debug.Log("_levelManagerCurrentGamePhase: " + _levelManager.CurrentGamePhase);
+               
                 _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
                 _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
+                _levelManager.UpdateTeamPlayerCounts();
 
             }
         }
         else
         {
-            Debug.Log("Local player yok");
+            //Debug.Log("Local player yok");
         }
     }
  
