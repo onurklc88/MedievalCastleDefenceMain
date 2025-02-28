@@ -23,7 +23,7 @@ public static class EventLibrary
     //UI
     public static readonly GameEvent<TeamManager.Teams> OnLevelFinish = new GameEvent<TeamManager.Teams>();
     public static readonly GameEvent<TeamManager.Teams> OnPlayerRespawn = new GameEvent<TeamManager.Teams>();
-
+    public static readonly GameEvent OnPlayerTeamSwitchRequested = new GameEvent();
 
 
 

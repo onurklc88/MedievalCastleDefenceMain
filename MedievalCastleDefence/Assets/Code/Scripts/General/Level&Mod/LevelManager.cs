@@ -1,9 +1,9 @@
-
 using UnityEngine;
 using System.Linq;
 using Fusion;
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using static BehaviourRegistry;
 
 public class LevelManager : ManagerRegistry, IGameStateListener
@@ -28,17 +28,19 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     public GameManager.GameModes GameMode;
     public int TotalLevelRound;
     private UIManager _uiManager;
+    private List<PlayerRef> _spawnedPlayers = new List<PlayerRef>();
     [SerializeField] private Transform[] _redTeamPlayerSpawnPositions;
     [SerializeField] private Transform[] _blueTeamPlayerSpawnPositions;
     [SerializeField] private TestPlayerSpawner _testPlayerSpawner;
-    
-   
-  
+    private List<PlayerRef> _activePlayers;
+    [Networked, Capacity(10)] // Kapasiteyi oyuncu sayýsýna göre ayarla
+    public NetworkLinkedList<PlayerRef> SpawnedPlayers { get; }
+
     public override void Spawned()
     {
        //EventLibrary.OnPlayerSelectTeam.AddListener(UpdatePlayerCountRpc);
       // EventLibrary.OnRespawnRequested.AddListener(HandleRespawnRequestRpc);
-        ChangeGamePhaseRpc(GamePhase.Warmup);
+        ChangeGamePhase(GamePhase.Warmup);
     }
 
     private void Awake()
@@ -71,20 +73,35 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
-    private async void UpdatePlayerCountRpc()
+    public void UpdatePlayerCountRpc(TeamManager.Teams playerTeam, bool isPlayerJoin)
     {
         if (!Runner.IsSharedModeMasterClient) return;
-        CurrentPlayerCount += 1;
-        UpdateTeamPlayerCounts();
-       
-        if(CurrentPlayerCount == MaxPlayerCount)
+
+        CurrentPlayerCount += isPlayerJoin ? 1 : -1;
+
+        if (playerTeam == TeamManager.Teams.None)
+        {
+            Debug.LogError("PlayerTeam Return None");
+            return;
+        }
+
+        if (playerTeam == TeamManager.Teams.Red)
+            RedTeamPlayerCount += isPlayerJoin ? 1 : -1;
+        else if (playerTeam == TeamManager.Teams.Blue)
+            BlueTeamPlayerCount += isPlayerJoin ? 1 : -1;
+
+
+        /*
+        if (CurrentPlayerCount == MaxPlayerCount)
         {
             EnsureAllPlayersHaveTeamsRpc();
             await UniTask.Delay(1000);
             BalanceTeamsRpc();
             await UniTask.Delay(2000);
-            ChangeGamePhaseRpc(GamePhase.Preparation);
+            ChangeGamePhase(GamePhase.Preparation);
         }
+        */
+        Debug.LogError("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
     }
    
     public async void UpdateGameState(GamePhase currentGameState)
@@ -100,29 +117,21 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             case GamePhase.Preparation:
                 if (!Runner.IsSharedModeMasterClient) return;
                 RestorePlayerWarriorRpc();
-                await UniTask.Delay(1000);
+                await UniTask.Delay(500);
                 DisablePlayerInputsRpc(false);
+                await UniTask.Delay(3000);
+                ChangeGamePhase(GamePhase.RoundStart);
                 break;
 
             case GamePhase.RoundStart:
-                await UniTask.Delay(300);
-                _uiManager.ShowScoreboard(true);
+                //await UniTask.Delay(300);
+                //_uiManager.ShowScoreboard(true);
                 if (!Runner.IsSharedModeMasterClient) return;
-               
-                EventLibrary.DebugMessage.Invoke("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
-                if(RedTeamPlayerCount == 0 || BlueTeamPlayerCount == 0)
-                {
-                    Debug.LogWarning("END GAME IMMEDIATELY");
-                }
-                ForcePlayersSpawnRpc();
-                await UniTask.Delay(300);
-                TeleportPlayersToStartPositionsRpc();
-                await UniTask.Delay(2000);
-                DisablePlayerInputsRpc(true);
+                //EventLibrary.DebugMessage.Invoke("PlayerCount: " + CurrentPlayerCount + " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
+                await ForcePlayersSpawnAsync();
                 break;
 
             case GamePhase.RoundEnd:
-                if (!Runner.IsSharedModeMasterClient) return;
                
                 break;
             case GamePhase.GameEnd:
@@ -139,42 +148,42 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
 
   
-    public void ChangeGamePhaseRpc(GamePhase newPhase)
+    public void ChangeGamePhase(GamePhase newPhase)
     {
         CurrentGamePhase = newPhase;
         UpdateGameState(CurrentGamePhase);
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public async void BalanceTeamsRpc()
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void BalanceTeamsRpc()
     {
-        if (!Runner.IsSharedModeMasterClient) return;
-
-      
-
+        Debug.Log("B");
         for (int i = 0; i < 10; i++) 
         {
             int teamDifference = Math.Abs(RedTeamPlayerCount - BlueTeamPlayerCount);
+            //Debug.Log("RedCount: " + RedTeamPlayerCount + " BlueCount: " + BlueTeamPlayerCount+" teamDif: " +teamDifference);
             if (teamDifference < 2) break;
-
+            CurrentPlayerCount -= 1;
             if (RedTeamPlayerCount > BlueTeamPlayerCount)
             {
-                MovePlayerToTeam(TeamManager.Teams.Red, TeamManager.Teams.Blue);
+                RedTeamPlayerCount -= 1;
+                MovePlayerToTeamRpc(TeamManager.Teams.Red, TeamManager.Teams.Blue);
+                UpdatePlayerCountRpc(TeamManager.Teams.Blue, true);
             }
             else if (BlueTeamPlayerCount > RedTeamPlayerCount)
             {
-                MovePlayerToTeam(TeamManager.Teams.Blue, TeamManager.Teams.Red);
+                BlueTeamPlayerCount -= 1;
+                MovePlayerToTeamRpc(TeamManager.Teams.Blue, TeamManager.Teams.Red);
+                UpdatePlayerCountRpc(TeamManager.Teams.Red, true);
             }
         }
-
-        await UniTask.Delay(500);
-        //UpdateTeamPlayerCounts();
-
     }
-    private void MovePlayerToTeam(TeamManager.Teams fromTeam, TeamManager.Teams toTeam)
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    private void MovePlayerToTeamRpc(TeamManager.Teams fromTeam, TeamManager.Teams toTeam)
     {
-        var playerList = Runner.ActivePlayers.ToList();
-        foreach (var player in playerList)
+      
+        foreach (var player in Runner.ActivePlayers)
         {
             var playerNetworkObject = Runner.GetPlayerObject(player);
             if (playerNetworkObject != null)
@@ -182,16 +191,14 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 var playerStats = playerNetworkObject.GetComponentInParent<PlayerStatsController>();
                 if (playerStats != null)
                 {
-                    var playerTeam = playerStats.PlayerNetworkStats.PlayerTeam;
-
+                    var playerTeam = playerStats.PlayerTeam;
+                    //Debug.Log("PlayerTeam: " + playerStats.PlayerTeam+ " PlayerID: " +playerNetworkObject.GetComponentInParent<NetworkObject>().Id);
                     if (playerTeam == fromTeam)
                     {
-                        
-                       
                         PlayerInfo updatedInfo = playerStats.PlayerNetworkStats;
                         updatedInfo.PlayerTeam = toTeam;
                         playerStats.SetPlayerInfo(updatedInfo);
-                        break;  
+                        break;
                     }
                 }
             }
@@ -199,6 +206,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
        
     }
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RestorePlayerWarriorRpc()
     {
@@ -209,33 +217,29 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             
             if (playerObject == null)
             {
-                //Debug.LogWarning($"PlayerObject for player {player} is null.");
+               
                 continue;
             }
 
             var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
             if (characterHealth == null)
             {
-                //Debug.LogWarning($"CharacterHealth for player {player} is null.");
-                continue;
+                 continue;
             }
 
            
             if (playerObject.GetComponentInParent<CharacterHealth>()!= null)
             {
-               // var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
-            
-              
-            if (playerObject != null && characterHealth.NetworkedHealth > 0)
-            {
-                alivePlayerList++;
-                var characterStamina = playerObject.GetComponentInParent<CharacterStamina>();
-                var characterDecals = playerObject.GetComponentInParent<CharacterDecals>();
-                characterHealth.ResetPlayerHealth();
-                characterStamina.ResetPlayerStamina();
-                characterDecals.DisableBloodDecals();
+                if (playerObject != null && characterHealth.NetworkedHealth > 0)
+                {
+                    alivePlayerList++;
+                    var characterStamina = playerObject.GetComponentInParent<CharacterStamina>();
+                    var characterDecals = playerObject.GetComponentInParent<CharacterDecals>();
+                    characterHealth.ResetPlayerHealth();
+                    characterStamina.ResetPlayerStamina();
+                    characterDecals.DisableBloodDecals();
                 
-            }
+                }
             }
         }
        
@@ -257,60 +261,35 @@ public class LevelManager : ManagerRegistry, IGameStateListener
 
         }
     }
-    private bool _hasForcedSpawn;
 
+  
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void ForcePlayersSpawnRpc()
     {
-        if (_hasForcedSpawn) return;
-        _hasForcedSpawn = true;
-
-        foreach (var player in Runner.ActivePlayers)
-        {
+    
+        Debug.Log("A");
+        _activePlayers = Runner.ActivePlayers.ToList();
+       foreach (var player in Runner.ActivePlayers)
+       {
+            
             var playerObject = Runner.GetPlayerObject(player);
-
             if (playerObject != null)
             {
-               
                 var characterHealth = playerObject.GetComponentInParent<CharacterHealth>();
-               
                 if (characterHealth.NetworkedHealth <= 0)
                 {
-                    //characterHealth.IsPlayerDead = false;
                     var playerWarriorType = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerWarrior;
                     RespawnWithDelay(player, playerWarriorType).Forget();
                 }
-               
             }
-            UniTask.Void(async () =>
+            else
             {
-                await UniTask.Delay(1000);
-                var playerObjectAfterDelay = Runner.GetPlayerObject(player);
-                if (playerObjectAfterDelay == null)
-                {
-                    UpdateTeamPlayerCounts();
-                    TeamManager.Teams availableTeam = DetermineAvailableTeam();
-                    EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
-                  
-                    return;
-                }
+               TeamManager.Teams availableTeam = DetermineAvailableTeamRpc();
+               EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
+               continue;
 
-                var playerStatsAfterDelay = playerObjectAfterDelay.GetComponentInParent<PlayerStatsController>();
-                if (playerStatsAfterDelay == null) return;
-
-                var existingTeam = playerStatsAfterDelay.PlayerNetworkStats.PlayerTeam;
-                if (existingTeam == TeamManager.Teams.None)
-                {
-                    UpdateTeamPlayerCounts();
-                    TeamManager.Teams availableTeam = DetermineAvailableTeam();
-                    EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
-                }
-            });
-     
-
-        }
-
-      
+            }
+       }
     }
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void EnsureAllPlayersHaveTeamsRpc()
@@ -324,7 +303,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 var playerTeam = playerObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
                 if (playerTeam == TeamManager.Teams.None)
                 {
-                    TeamManager.Teams availableTeam = DetermineAvailableTeam();
+                    TeamManager.Teams availableTeam = DetermineAvailableTeamRpc();
                     EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
                 }
             }
@@ -332,13 +311,14 @@ public class LevelManager : ManagerRegistry, IGameStateListener
            
         }
     }
+   
     private async UniTaskVoid RespawnWithDelay(PlayerRef player, CharacterStats.CharacterType playerWarriorType)
     {
         await UniTask.Delay(50, cancellationToken: this.GetCancellationTokenOnDestroy());
         EventLibrary.OnRespawnRequested.Invoke(player, playerWarriorType);
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    [Rpc(RpcSources.All, RpcTargets.All)]
     private void DisablePlayerInputsRpc(bool condition)
     {
     
@@ -348,7 +328,9 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             var playerObject = Runner.GetPlayerObject(player);
             if(playerObject != null)
             {
-                playerObject.GetComponentInParent<CharacterController>().enabled = condition;
+                //Debug.LogError("PlayerID " + playerObject.GetComponentInParent<NetworkObject>().Id);
+
+               playerObject.GetComponentInParent<CharacterController>().enabled = condition;
             }
             else
             {
@@ -356,34 +338,45 @@ public class LevelManager : ManagerRegistry, IGameStateListener
             }
         }
     }
+   
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void NotifySpawnCompletedRpc(PlayerRef player)
+    {
+        // if (_spawnedPlayers.Contains(player)) return;
+
+        SpawnedPlayers.Add(player);
+        //Debug.Log("Player Spawned: " + player.PlayerId);
+    }
+  
 
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    [Rpc(RpcSources.All, RpcTargets.All)]
     private void TeleportPlayersToStartPositionsRpc()
     {
-        
+        Debug.Log("C");
 
         int currentRedTeamCount = 0;
         int currentBlueTeamCount = 0;
-
+        
         for (int i = 0; i < Runner.ActivePlayers.ToList().Count; i++)
         {
             if (Runner.TryGetPlayerObject(Runner.ActivePlayers.ToList()[i], out var playerNetworkObject))
             {
-                Debug.Log("CurrentPlayerIndexCount: " + currentRedTeamCount);
-                var playerTeam = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+                var playerTeam = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerTeam;
+                playerNetworkObject.GetComponentInParent<CharacterController>().enabled = false;
                 Vector3 spawnPosition = Vector3.zero;
                 if (playerTeam == TeamManager.Teams.Red)
                 {
                   spawnPosition = _testPlayerSpawner.RedTeamPlayerSpawnPositions[currentRedTeamCount].transform.position;
-                    currentRedTeamCount++;
+                  currentRedTeamCount++;
                 }
                 else
                 {
                     spawnPosition = _testPlayerSpawner.BlueTeamPlayerSpawnPositions[currentBlueTeamCount].transform.position;
                     currentBlueTeamCount++;
                 }
-                Debug.Log("isSpawnPosition vector3.zero? : " + spawnPosition);
+                //Debug.Log("isSpawnPosition vector3.zero? : " + spawnPosition);
                 if (spawnPosition != Vector3.zero)
                 {
                     playerNetworkObject.transform.position = spawnPosition;
@@ -391,8 +384,38 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 }
             }
         }
+        /*
+
+        foreach (var player in Runner.ActivePlayers)
+        {
+
+            var playerObject = Runner.GetPlayerObject(player);
+            if (playerObject != null)
+            {
+                var playerTeam = playerObject.GetComponentInParent<PlayerStatsController>().PlayerTeam;
+                Debug.LogError("PlayerID " + playerObject.GetComponentInParent<NetworkObject>().Id + " PlayerTeam: " + playerTeam);
+                playerObject.GetComponentInParent<CharacterController>().enabled = false;
+                Vector3 spawnPosition = Vector3.zero;
+                if (playerTeam == TeamManager.Teams.Red)
+                {
+                    
+                    spawnPosition = _testPlayerSpawner.RedTeamPlayerSpawnPositions[currentRedTeamCount].transform.position;
+                    currentRedTeamCount++;
+                }
+                else
+                {
+                    spawnPosition = _testPlayerSpawner.BlueTeamPlayerSpawnPositions[currentBlueTeamCount].transform.position;
+                    currentBlueTeamCount++;
+                }
+            }
+           
+        }
+        */
+
+
     }
-    public void UpdateTeamPlayerCounts()
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateTeamPlayerCountsRpc()
     {
 
        // if (!Runner.IsSharedModeMasterClient) return;
@@ -408,7 +431,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 var playerStats = playerNetworkObject.GetComponentInParent<PlayerStatsController>();
                 if (playerStats != null)
                 {
-                    CurrentPlayerCount += 1;
+                   
                     var playerTeam = playerStats.PlayerTeam;
                     if (playerTeam == TeamManager.Teams.Red)
                         RedTeamPlayerCount += 1;
@@ -422,10 +445,14 @@ public class LevelManager : ManagerRegistry, IGameStateListener
         
         Debug.LogError("PlayerCount: " + CurrentPlayerCount+  " RedTeamPlayerCount  " + RedTeamPlayerCount + "BlueTeamPlayerCount: " + BlueTeamPlayerCount);
     }
-    TeamManager.Teams DetermineAvailableTeam()
+
+    
+    TeamManager.Teams DetermineAvailableTeamRpc()
     {
         if (RedTeamPlayerCount >= MaxPlayerCount / 2) return TeamManager.Teams.Blue;
         if (BlueTeamPlayerCount >= MaxPlayerCount / 2) return TeamManager.Teams.Red;
+        var avaibleTeam = RedTeamPlayerCount <= BlueTeamPlayerCount ? TeamManager.Teams.Red : TeamManager.Teams.Blue;
+       // Debug.LogError("RedTeamPlayerCount: " + RedTeamPlayerCount + " BlueTeamCount: " + BlueTeamPlayerCount +" avaibleTeam: " + avaibleTeam);
         return RedTeamPlayerCount <= BlueTeamPlayerCount ? TeamManager.Teams.Red : TeamManager.Teams.Blue;
     }
 
@@ -443,51 +470,67 @@ public class LevelManager : ManagerRegistry, IGameStateListener
     }
 
 
+    #region UniTaskAsync
+    public async UniTask ForcePlayersSpawnAsync()
+    {
+        ForcePlayersSpawnRpc();
+        await UniTask.WaitUntil(() => SpawnedPlayers.Count() == _activePlayers.Count());
+        await UniTask.Delay(500);
+        await BalanceTeamsAsync();
+        await DisablePlayerInputsAsync(false);
+        await TeleportPlayersToStartPositionsAsync();
+        //await DisablePlayerInputsAsync(false);
+        await UniTask.Delay(10000);
+        DisablePlayerInputsRpc(true);
+    }
+
+    public async UniTask BalanceTeamsAsync()
+    {
+        BalanceTeamsRpc();
+        await UniTask.Yield();
+    }
+
+    public async UniTask TeleportPlayersToStartPositionsAsync()
+    {
+        TeleportPlayersToStartPositionsRpc();
+        await UniTask.Yield();
+    }
+
+    public async UniTask DisablePlayerInputsAsync(bool disable)
+    {
+        DisablePlayerInputsRpc(disable);
+        await UniTask.Yield();
+    }
+
+    #endregion
 
     #region legacy
     /*
-   [Rpc(RpcSources.All, RpcTargets.All)]
-   private void CheckRoundEndByDefeatRpc(TeamManager.Teams playerTeam)
-   {
-       if (!Runner.IsSharedModeMasterClient) return;
-       if (playerTeam == TeamManager.Teams.Red)
-       {
-           _blueTeamDeadCount += 1;
+               UniTask.Void(async () =>
+               {
+                   await UniTask.Delay(100);
+                   var playerObjectAfterDelay = Runner.GetPlayerObject(player);
+                   if (playerObjectAfterDelay == null)
+                   {
+                       //UpdateTeamPlayerCountsRpc();
+                       TeamManager.Teams availableTeam = DetermineAvailableTeam();
+                       EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
 
-       }
-       else
-       {
-           _redTeamDeadCount += 1;
-       }
+                       return;
+                   }
 
+                   var playerStatsAfterDelay = playerObjectAfterDelay.GetComponentInParent<PlayerStatsController>();
+                   if (playerStatsAfterDelay == null) return;
 
+                   var existingTeam = playerStatsAfterDelay.PlayerNetworkStats.PlayerTeam;
+                   if (existingTeam == TeamManager.Teams.None)
+                   {
+                       //UpdateTeamPlayerCountsRpc();
+                       TeamManager.Teams availableTeam = DetermineAvailableTeam();
 
-
-       if (_redTeamDeadCount == TeamsPlayerCount)
-       {
-           _blueTeamScore += 1;
-           _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Blue, _blueTeamScore);
-       }
-       if (_blueTeamDeadCount == TeamsPlayerCount)
-       {
-           _redTeamScore += 1;
-           _uiManager.UpdateTeamScoreRpc(TeamManager.Teams.Red, _redTeamScore);
-       }
-       _blueTeamScore = 0;
-       _redTeamScore = 0;
-   }
-
-
-   private static void OnPlayerCountChange(Changed<LevelManager> changed)
-   {
-      Debug.LogWarning($"<color=yellow>Player count updated: {changed.Behaviour.CurrentPlayerCount}</color>");
-
-   }
-
-   private static void OnRoundCounterChange(Changed<LevelManager> changed)
-   {
-       changed.Behaviour._uiManager.UpdateRoundCounterText(changed.Behaviour.RoundIndex.ToString());
-   }
-   */
+                       EventLibrary.OnPlayerSelectTeam.Invoke(player, CharacterStats.CharacterType.KnightCommander, availableTeam);
+                   }
+               });
+               */
     #endregion
 }

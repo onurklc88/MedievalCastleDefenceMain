@@ -6,10 +6,11 @@ using UnityEngine;
 using Fusion;
 using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
-public class PlayerHUD : CharacterRegistry, IRPCListener
+public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
 {
     [Networked(OnChanged = nameof(OnNetworkNickNameChanged))] public NetworkString<_16> PlayerNickName { get; set; }
     public LevelManager.GamePhase CurrentGamePhase { get; set; }
+    public NetworkButtons PreviousButton { get; set; }
 
     [SerializeField] private GameObject _playerUI;
     [SerializeField] private TextMeshProUGUI _characterStaminaText;
@@ -31,11 +32,11 @@ public class PlayerHUD : CharacterRegistry, IRPCListener
         EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
     }
 
-   // [Rpc(RpcSources.All, RpcTargets.All)]
+   
     public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
     {
        CurrentGamePhase = currentGameState;
-      //  Debug.LogError("Current GamePhase:" + currentGameState);
+     
     }
     public override void Spawned()
     {
@@ -43,7 +44,7 @@ public class PlayerHUD : CharacterRegistry, IRPCListener
         var type = transform.GetComponent<PlayerStatsController>().SelectedCharacter;
         InitScript(this);
         _playerUI.SetActive(true);
-        //_characterStamina = GetScript<CharacterStamina>(type);
+        
     }
     private void Start()
     {
@@ -59,7 +60,10 @@ public class PlayerHUD : CharacterRegistry, IRPCListener
         if (!Object.HasStateAuthority) return;
         if(_characterStamina != null)
             _characterStaminaText.text = "Character Stamina: " +_characterStamina.CurrentStamina.ToString();
-
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
+        {
+            ReadPlayerInputs(input);
+        }
         //_stateTest.text = Object.HasStateAuthority.ToString();
     }
 
@@ -193,5 +197,16 @@ public class PlayerHUD : CharacterRegistry, IRPCListener
         _nickNameText.enabled = condition;
     }
 
-   
+    public void ReadPlayerInputs(PlayerInputData input)
+    {
+        var pressedButton = input.NetworkButtons.GetPressed(PreviousButton);
+
+        if (pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.SwitchTeamKey))
+        {
+            EventLibrary.OnPlayerTeamSwitchRequested.Invoke();
+        }
+
+        PreviousButton = input.NetworkButtons;
+    }
 }
+

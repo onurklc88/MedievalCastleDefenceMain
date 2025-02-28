@@ -31,7 +31,7 @@ public class Scoreboard : NetworkBehaviour
             var player = playerList[i];
           var  playerNetworkObject = Runner.GetPlayerObject(player);
             GameObject entry = null;
-            if(playerNetworkObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam == TeamManager.Teams.Red)
+            if(playerNetworkObject.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam == TeamManager.Teams.Red)
             {
                 entry = GameObject.Instantiate(_playerStatsEntry, _redTeamContent);
             }

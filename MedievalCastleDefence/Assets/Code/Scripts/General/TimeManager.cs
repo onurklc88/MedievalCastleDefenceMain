@@ -10,7 +10,7 @@ public class TimeManager : ManagerRegistry
     [Networked] private TickTimer _matchTimer { get; set; }
     public LevelManager.GamePhase CurrentGameState { get; set; }
 
-    private const float WARMUP_MATCH_TIME = 10f;
+    private const float WARMUP_MATCH_TIME = 30f;
     private const float MATCH_PREPARATION_TIME = 4f;
 
     private float _currentTimeAmount;
@@ -19,7 +19,7 @@ public class TimeManager : ManagerRegistry
     private float _matchDuration;
 
     private LevelManager _levelManager;
-
+    private bool _hasForcedStart;
 
     private void Awake()
     {
@@ -49,32 +49,22 @@ public class TimeManager : ManagerRegistry
         }
     }
 
-    private async void HandlePhaseTransition()
+    private void HandlePhaseTransition()
     {
+        if (_hasForcedStart) return;
         RemainingTime = 0;
 
         switch (CurrentGameState)
         {
             case LevelManager.GamePhase.Warmup:
-               
-                /*
-                _levelManager.BalanceTeamsRpc();
-                await UniTask.Delay(1000);
-                _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.Preparation);
-                */
-
-                _levelManager.ForcePlayersSpawnRpc();
-                await UniTask.Delay(500);
-                //_levelManager.BalanceTeamsRpc();
-                await UniTask.Delay(500);
-                
-                _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.Preparation);
                 RemainingTime = MATCH_PREPARATION_TIME;
+               _levelManager.ChangeGamePhase(LevelManager.GamePhase.Preparation);
+                
                 break;
             case LevelManager.GamePhase.Preparation:
+                _hasForcedStart = true;
                 RemainingTime = 0;
-                //_levelManager.UpdateTeamPlayerCounts();
-                _levelManager.ChangeGamePhaseRpc(LevelManager.GamePhase.RoundStart);
+               
                 break;
         }
     }

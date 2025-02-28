@@ -50,6 +50,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
         EventLibrary.OnPlayerRespawn.AddListener(UpdatePlayerTeamButton);
         EventLibrary.OnLevelFinish.AddListener(ShowWinnerTeamRpc);
+        EventLibrary.OnPlayerTeamSwitchRequested.AddListener(ShowTeamSelectionPanel);
        
     }
 
@@ -59,6 +60,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
         EventLibrary.OnPlayerRespawn.RemoveListener(UpdatePlayerTeamButton);
         EventLibrary.OnLevelFinish.RemoveListener(ShowWinnerTeamRpc);
+        EventLibrary.OnPlayerTeamSwitchRequested.RemoveListener(ShowTeamSelectionPanel);
     }
 
     private void Awake()
@@ -233,6 +235,14 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
         _winnerTeamText.text = winnerTeam.ToString() + " team wins ";
         await UniTask.Delay(2000);
         _winnerTeamText.text = " ";
+    }
+
+    private void ShowTeamSelectionPanel()
+    {
+        if (CurrentGamePhase != LevelManager.GamePhase.Warmup) return;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        _teamPanel.SetActive(true);
     }
     
     private void HideSelectionPanel()

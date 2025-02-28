@@ -97,7 +97,7 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
     private static void OnNetworkPlayerTeamChange(Changed<PlayerStatsController> changed)
     {
         if (changed.Behaviour.PlayerTeam == TeamManager.Teams.None) return;
-
+       // Debug.Log("Oyuncunun rengi deðiþtir: " +changed.Behaviour.PlayerTeam+ " PlayerID: " +changed.Behaviour.transform.GetComponentInParent<NetworkObject>().Id);
         var renderer = changed.Behaviour._playerMeshrenderer;
         if (renderer != null)
         {

@@ -47,7 +47,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     }
    
    
-    public async void SpawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType, TeamManager.Teams selectedTeam)
+    public void SpawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType, TeamManager.Teams selectedTeam)
     {
        
         if (Runner == null)
@@ -55,10 +55,27 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             Debug.Log("Runner yok");
             return;
         }
+        //Debug.Log("SpawnPlayer called for player: " + playerRef.PlayerId);
         Vector3 spawnPosition = GetRandomSpawnPosition(selectedTeam);
         if (playerRef == Runner.LocalPlayer)
         {
-            switch (warriorType)
+            var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
+            Debug.Log("isPlayerAlreadySpawned: " + isPlayerAlreadySpawned);
+            if (isPlayerAlreadySpawned)
+            {
+                if (Runner.TryGetPlayerObject(playerRef, out var playerNetworkObject))
+                {
+                    _oldPlayerInfo = playerNetworkObject.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats;
+                    Runner.Despawn(playerNetworkObject);
+                    SwitchTeamDelay(playerRef, warriorType, selectedTeam);
+                    return;
+                }
+            }
+
+
+
+
+                switch (warriorType)
             {
                 case CharacterStats.CharacterType.FootKnight:
                     _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
@@ -81,7 +98,6 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 
                 if (SteamManager.Initialized)
                 {
-
                     string playerName = SteamFriends.GetPersonaName();
                     stats.PlayerNickName = playerName;
                 }
@@ -98,9 +114,18 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                
                 _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
                 _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
-                Debug.Log("PlayerTeam: " +_currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam);
-                await UniTask.Delay(500);
-                _levelManager.UpdateTeamPlayerCounts();
+
+                if (_currentPlayerObject != null)
+                {
+                    //Debug.Log("Player spawned successfully: " + playerRef.PlayerId);
+                    _levelManager.NotifySpawnCompletedRpc(playerRef); // Bu satýr çalýþýyor mu?
+                }
+                else
+                {
+                    Debug.LogError("Failed to spawn player: " + playerRef.PlayerId);
+                }
+
+                _levelManager.UpdatePlayerCountRpc(stats.PlayerTeam, true);
             }
         }
         else
@@ -111,19 +136,17 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
        
     }
  
-  public void PlayerLeft(PlayerRef player)
-  {
+   public void PlayerLeft(PlayerRef player)
+   {
         var isPlayerAlreadySpawned = Runner.GetPlayerObject(player);
        
         if (isPlayerAlreadySpawned)
         {
-
+            _levelManager.UpdatePlayerCountRpc(isPlayerAlreadySpawned.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam, false); 
             Runner.Despawn(isPlayerAlreadySpawned);
-            _levelManager.UpdateTeamPlayerCounts();
-            
         }
-  }
-    //[Rpc(RpcSources.All, RpcTargets.All)]
+   }
+  
     public void RespawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType)
     {
         //await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.RoundStart);
@@ -188,7 +211,53 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 _currentPlayerObject.transform.GetComponentInParent<CharacterController>().enabled = false;
             }
         }
-}
+    }
+
+
+    private async void SwitchTeamDelay(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType, TeamManager.Teams selectedTeam)
+    {
+        if (CurrentGamePhase != LevelManager.GamePhase.Warmup)
+        {
+            await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.RoundStart);
+        }
+        else
+        {
+            await UniTask.Delay(1000);
+        }
+
+        if (playerRef == Runner.LocalPlayer)
+        {
+            Vector3 spawnPosition = GetRandomSpawnPosition(selectedTeam);
+            switch (selectedWarrirorType)
+            {
+                case CharacterStats.CharacterType.FootKnight:
+                    _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.KnightCommander:
+                    _currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Gallowglass:
+                    _currentPlayerObject = Runner.Spawn(_gallowglassNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+                case CharacterStats.CharacterType.Ranger:
+                    _currentPlayerObject = Runner.Spawn(_theSaxonMarkNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
+                    break;
+
+            }
+
+
+            _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
+            _oldPlayerInfo.PlayerTeam = selectedTeam;
+            Runner.SetPlayerObject(playerRef, _currentPlayerObject);
+            _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
+
+            _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
+            if (CurrentGamePhase != LevelManager.GamePhase.Warmup)
+            {
+                _currentPlayerObject.transform.GetComponentInParent<CharacterController>().enabled = false;
+            }
+        }
+    }
   
  
     public Vector3 GetRandomSpawnPosition(TeamManager.Teams selectedTeam)
