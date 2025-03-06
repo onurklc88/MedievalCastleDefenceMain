@@ -60,7 +60,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         {
             _characterMovement.CurrentMoveSpeed = _characterStats.MoveSpeed;
 
-            if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Skill) && AttackCooldown.ExpiredOrNotRunning(Runner))
+            if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
             {
                 //ParryAttack();
             }

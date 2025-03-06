@@ -44,7 +44,6 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             case CharacterStats.CharacterType.Ranger:
                 _animController = GetScript<RangerAnimation>();
                 break;
-
         }
     }
     public override void FixedUpdateNetwork()

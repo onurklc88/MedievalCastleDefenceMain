@@ -5,8 +5,8 @@ public static class EventLibrary
 {
     //ServerEvents
     public static readonly GameEvent<PlayerRef> OnPlayerJoiningServer = new GameEvent<PlayerRef>();
-  
-
+   
+    public static readonly GameEvent<TeamManager.Teams, bool> test = new GameEvent<TeamManager.Teams, bool>();
     
     
     
@@ -18,6 +18,7 @@ public static class EventLibrary
     public static readonly GameEvent OnPlayerSelectWarrior = new GameEvent();
     public static readonly GameEvent<LevelManager.GamePhase> OnGamePhaseChange = new GameEvent<LevelManager.GamePhase>();
     public static readonly GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams> OnPlayerSelectTeam = new GameEvent<PlayerRef, CharacterStats.CharacterType, TeamManager.Teams>();
+    
 
 
     //UI
@@ -26,8 +27,8 @@ public static class EventLibrary
     public static readonly GameEvent OnPlayerTeamSwitchRequested = new GameEvent();
 
 
-
-
+    //PostFX
+    public static readonly GameEvent<bool> OnPlayerDash = new GameEvent<bool>();
 
     //Stats Events
     public static readonly GameEvent<PlayerInfo> OnPlayerStatsUpdated = new GameEvent<PlayerInfo>();

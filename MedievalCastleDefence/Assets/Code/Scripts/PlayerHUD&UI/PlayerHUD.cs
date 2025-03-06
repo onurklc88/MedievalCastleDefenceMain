@@ -15,6 +15,7 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
     [SerializeField] private GameObject _playerUI;
     [SerializeField] private TextMeshProUGUI _characterStaminaText;
     [SerializeField] private TextMeshProUGUI _characterHealth;
+    [SerializeField] private TextMeshProUGUI _chargeTxt;
     private CharacterStamina _characterStamina;
     [SerializeField] private GameObject _respawnPanel;
     [SerializeField] private GameObject[] _arrowImage;
@@ -207,6 +208,11 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
         }
 
         PreviousButton = input.NetworkButtons;
+    }
+
+    public void UpdateSlideChargeCount(int count)
+    {
+        _chargeTxt.text = count.ToString();
     }
 }
 

@@ -124,4 +124,10 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
     {
         CurrentGamePhase = currentGameState;
     }
+
+    void OnApplicationQuit()
+    {
+        Debug.Log("PlayerTeam: " + PlayerTeam);
+        EventLibrary.test.Invoke(PlayerTeam, false);
+    }
 }

@@ -82,7 +82,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
    
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !_test)
+        if (Input.GetKeyDown(KeyCode.Space) && !_test && CurrentGamePhase == LevelManager.GamePhase.Warmup)
         {
             _test = true;
             _teamPanel.SetActive(true);

@@ -8,6 +8,8 @@ public struct PlayerInputData : INetworkInput
     public float VerticalInput;
     public float MouseX;
     public float MouseY;
-    public bool IsPlayerRunning;
-    public bool IsPlayerCrouching;
+    public bool ForwardDoubleTab;
+    public bool LeftDoubleTab;
+    public bool RightDoubleTab;
+    public bool BacwardsDoubleTab;
 }

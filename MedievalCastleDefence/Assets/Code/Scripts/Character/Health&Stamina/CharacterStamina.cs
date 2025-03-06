@@ -12,6 +12,7 @@ public class CharacterStamina : CharacterRegistry
     //[SerializeField] private CharacterStats _characterStats;
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
+
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;

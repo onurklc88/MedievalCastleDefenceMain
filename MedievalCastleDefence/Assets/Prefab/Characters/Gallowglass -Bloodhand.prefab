@@ -5049,7 +5049,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObjectInterest: 1
   DefaultInterestGroups: []
-  DestroyWhenStateAuthorityLeaves: 0
+  DestroyWhenStateAuthorityLeaves: 1
   AllowStateAuthorityOverride: 1
   AoiPositionSource: {fileID: 0}
   Flags: 264449
@@ -5120,6 +5120,7 @@ MonoBehaviour:
   _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
   SelectedCharacter: 3
   _PlayerTeam: 0
+  _CurrentGamePhase: 0
   _teamMaterials:
   - {fileID: 2100000, guid: 51e5bdd762167b346bd74f3232109584, type: 2}
   - {fileID: 2100000, guid: 95163532aca88fa4bbff67b9d4985617, type: 2}
@@ -5228,7 +5229,10 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  _IsPlayerDead:
+    _value: 0
   _NetworkedHealth: 0
+  _CurrentGamePhase: 0
 --- !u!114 &6511355011640638625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5318,6 +5322,7 @@ MonoBehaviour:
   _IsPlayerBlocking:
     _value: 0
   _PlayerSwordPosition: 0
+  _CurrentGamePhase: 0
   _weaponStats: {fileID: 11400000, guid: 2aef57364f295dd49a59957e7603f537, type: 2}
   _blockArea: {fileID: 203592095671692557}
   _characterType: 0

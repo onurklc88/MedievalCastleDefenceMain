@@ -5,7 +5,9 @@ using Fusion;
 using Cysharp.Threading.Tasks;
 using Steamworks;
 using System.Linq;
-public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft, IGameStateListener
+using Fusion.Sockets;
+
+public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft, IGameStateListener, INetworkRunnerCallbacks
 {
     public NetworkRunner NetworkRunner;
     public LevelManager.GamePhase CurrentGamePhase { get; set; }
@@ -55,12 +57,12 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             Debug.Log("Runner yok");
             return;
         }
-        //Debug.Log("SpawnPlayer called for player: " + playerRef.PlayerId);
+        
         Vector3 spawnPosition = GetRandomSpawnPosition(selectedTeam);
         if (playerRef == Runner.LocalPlayer)
         {
             var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
-            Debug.Log("isPlayerAlreadySpawned: " + isPlayerAlreadySpawned);
+            
             if (isPlayerAlreadySpawned)
             {
                 if (Runner.TryGetPlayerObject(playerRef, out var playerNetworkObject))
@@ -73,9 +75,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
             }
 
 
-
-
-                switch (warriorType)
+            switch (warriorType)
             {
                 case CharacterStats.CharacterType.FootKnight:
                     _currentPlayerObject = Runner.Spawn(_stormshieldNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
@@ -117,8 +117,8 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
 
                 if (_currentPlayerObject != null)
                 {
-                    //Debug.Log("Player spawned successfully: " + playerRef.PlayerId);
-                    _levelManager.NotifySpawnCompletedRpc(playerRef); // Bu satýr çalýþýyor mu?
+                  
+                    _levelManager.NotifySpawnCompletedRpc(playerRef);
                 }
                 else
                 {
@@ -138,15 +138,15 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
  
    public void PlayerLeft(PlayerRef player)
    {
-        var isPlayerAlreadySpawned = Runner.GetPlayerObject(player);
-       
-        if (isPlayerAlreadySpawned)
+
+        if (Runner.IsSharedModeMasterClient)
         {
-            _levelManager.UpdatePlayerCountRpc(isPlayerAlreadySpawned.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam, false); 
-            Runner.Despawn(isPlayerAlreadySpawned);
+            _levelManager.CheckPlayerCountRpc();
         }
-   }
-  
+        
+    }
+
+   
     public void RespawnPlayer(PlayerRef playerRef, CharacterStats.CharacterType warriorType)
     {
         //await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.RoundStart);
@@ -177,7 +177,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         }
         else
         {
-            await UniTask.Delay(1000);
+            await UniTask.Delay(3000);
         }
         
         if (playerRef == Runner.LocalPlayer)
@@ -277,5 +277,83 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
       CurrentGamePhase = currentGameState;
     }
 
-  
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+    {
+        
+    }
+
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
+    {
+        
+    }
+
+    public void OnInput(NetworkRunner runner, NetworkInput input)
+    {
+      
+    }
+
+    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
+    {
+       
+    }
+
+    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
+    {
+       
+    }
+
+    public void OnConnectedToServer(NetworkRunner runner)
+    {
+       
+    }
+
+    public void OnDisconnectedFromServer(NetworkRunner runner)
+    {
+        
+    }
+
+    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
+    {
+      
+    }
+
+    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
+    {
+       
+    }
+
+    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message)
+    {
+       
+    }
+
+    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
+    {
+
+    }
+
+    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data)
+    {
+      
+    }
+
+    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
+    {
+       
+    }
+
+    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, System.ArraySegment<byte> data)
+    {
+       
+    }
+
+    public void OnSceneLoadDone(NetworkRunner runner)
+    {
+       
+    }
+
+    public void OnSceneLoadStart(NetworkRunner runner)
+    {
+        
+    }
 }
