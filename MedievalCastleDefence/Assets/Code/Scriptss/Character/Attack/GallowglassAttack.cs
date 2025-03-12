@@ -1,0 +1,293 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Fusion;
+using System.Linq;
+
+public class GallowglassAttack : CharacterAttackBehaviour
+{
+    private PlayerHUD _playerHUD;
+    private GallowglassAnimation _gallowGlassAnimation;
+    private CharacterMovement _characterMovement;
+    private Vector3 _halfExtens = new Vector3(1.7f, 0.9f, 0.5f);
+    private ActiveRagdoll _activeRagdoll;
+    private PlayerVFXSytem _playerVFX;
+    [Networked] private TickTimer _kickCooldown { get; set; }
+    public override void Spawned()
+    {
+        if (!Object.HasStateAuthority) return;
+        _characterController = GetComponent<CharacterController>();
+        _characterType = CharacterStats.CharacterType.Gallowglass;
+        InitScript(this);
+    }
+    private void Start()
+    {
+        _playerHUD = GetScript<PlayerHUD>();
+        _characterStamina = GetScript<CharacterStamina>();
+        _characterMovement = GetScript<CharacterMovement>();
+        _gallowGlassAnimation = GetScript<GallowglassAnimation>();
+        _activeRagdoll = GetScript<ActiveRagdoll>();
+        _playerVFX = GetScript<PlayerVFXSytem>();
+    }
+    public override void FixedUpdateNetwork()
+    {
+
+        if (!Object.HasStateAuthority) return;
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
+        {
+            ReadPlayerInputs(input);
+        }
+    }
+    
+    public override void ReadPlayerInputs(PlayerInputData input)
+    {
+        if (!Object.HasStateAuthority) return;
+        if (_characterMovement != null && _characterMovement.IsPlayerStunned)
+        {
+            //IsPlayerBlocking = false;
+            //_gallowGlassAnimation.IsPlayerParry = IsPlayerBlocking;
+            return;
+        }
+
+        var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
+        if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+     
+        if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
+        if (_gallowGlassAnimation != null) BlockWeapon();
+        
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner))
+        {
+
+            if (_characterStamina.CurrentStamina > 30)
+            {
+                SwingSword();
+            }
+        }
+        else if(attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Jump) && _kickCooldown.ExpiredOrNotRunning(Runner) && input.HorizontalInput == 0 && input.VerticalInput >= 0)
+        {
+            _characterMovement.IsInputDisabled = true;
+            KickAction();
+        }
+
+         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && _kickCooldown.ExpiredOrNotRunning(Runner))
+         {
+            IsPlayerBlockingLocal = true;
+            //_activeRagdoll.RPCActivateRagdoll();
+        }
+    }
+    protected override void SwingSword()
+    {
+       if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
+        _playerVFX.EnableWeaponParticles();
+         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
+        _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
+        _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
+        float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;
+        StartCoroutine(PerformAttack(swingTime));
+      
+        
+    }
+    private IEnumerator PerformAttack(float time)
+    {
+        base._blockArea.enabled = false;
+        yield return new WaitForSeconds(0.6f);
+        float elapsedTime = 0f;
+        while (elapsedTime < 0.5f)
+        {
+
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            int layerMask = ~LayerMask.GetMask("Ragdoll");
+            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
+
+            var target = _hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
+                         ?? _hitColliders.FirstOrDefault();
+
+            if (target != null)
+            {
+                CheckAttackCollision(target.transform.gameObject);
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        yield return new WaitForSeconds(0.2f);
+        base._blockArea.enabled = true;
+    }
+
+    private void KickAction()
+    {
+        _kickCooldown = TickTimer.CreateFromSeconds(Runner, 2f);
+        _gallowGlassAnimation.UpdateJumpAnimationState(true);
+        StartCoroutine(PerformKickAction());
+    }
+
+    private IEnumerator PerformKickAction()
+    {
+        yield return new WaitForSeconds(0.65f);
+      
+        Vector3 kickPostion = transform.position + transform.up + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+       
+        Collider[] _hitColliders = Physics.OverlapSphere(kickPostion, 0.55f);
+        for(int i = 0; i < _hitColliders.Length; i++)
+        {
+            if (_hitColliders[i].gameObject.layer != 10)
+                KickOpponent(_hitColliders[i].gameObject);
+        }
+        yield return new WaitForSeconds(1f);
+        _characterMovement.IsInputDisabled = false;
+    }
+    protected override void BlockWeapon()
+    {
+       _gallowGlassAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
+    }
+   
+    private void KickOpponent(GameObject opponent) 
+    {
+        var opponentType = base.GetCharacterType(opponent);
+        if (opponentType == CharacterStats.CharacterType.None) return;
+        var attackDirection = base.CalculateAttackDirection(opponent.transform);
+        var opponentMovement = opponent.transform.GetComponentInParent<CharacterMovement>();
+        if (opponentMovement == null) return;
+        _characterStamina.DecreasePlayerStamina(10f);
+        opponentMovement.HandleKnockBackRPC(attackDirection);
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward + -transform.right * 0.3f, 0.7f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward + transform.right * 0.3f, 0.7f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
+    }
+   
+    
+    #region OLD COMBAT
+    /*
+      
+        private IEnumerator PerformAttack(float time)
+    {
+        base._blockArea.enabled = false;
+        yield return new WaitForSeconds(0.6f);
+        HashSet<NetworkId> hitPlayers = new HashSet<NetworkId>();
+      
+        float elapsedTime = 0f;
+        while (elapsedTime < 0.2f)
+        {
+            Vector3 swingDirection = transform.position + transform.forward + Vector3.up + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.1f : -0.1f);
+            int layerMask = ~LayerMask.GetMask("Ragdoll");
+            Collider[] _hitColliders = Physics.OverlapBox(swingDirection, _halfExtens, Quaternion.Euler(0, transform.eulerAngles.y, 0), layerMask);
+
+            for (int i = 0; i < _hitColliders.Length; i++)
+            {
+                GameObject collidedObject = _hitColliders[i].transform.gameObject;
+                NetworkObject networkObject = collidedObject.GetComponentInParent<NetworkObject>();
+                if(networkObject != null && !hitPlayers.Contains(networkObject.Id))
+                {
+                    hitPlayers.Add(networkObject.Id);
+                   // Debug.Log("Collided Object: " + _hitColliders[i].transform.gameObject.name + "PlayerID: " + _hitColliders[i].transform.GetComponentInParent<NetworkObject>().Id);
+                    CheckAttackCollisionTest(_hitColliders[i].transform.gameObject);
+                }
+               
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        base._blockArea.enabled = true;
+    }
+    
+    protected override void DamageToFootknight(GameObject opponent, float damageValue)
+   {
+       Debug.Log("damage to footnight");
+       var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+       var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+       var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+
+       if (opponent.gameObject.layer == 11 && !isOpponentParrying)
+       {
+           return;
+       }
+
+       if (opponent.gameObject.layer == 11 && isOpponentParrying)
+       {
+           opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+       }
+       else
+       {
+           opponentHealth.DealDamageRPC(damageValue);
+       }
+   }
+
+   protected override void DamageToKnightCommander(GameObject opponent, float damageValue)
+   {
+       var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+       var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+       var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+       var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
+
+       if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+       {
+           if (opponentSwordPosition == PlayerSwordPositionLocal)
+           {
+               opponentHealth.DealDamageRPC(_weaponStats.Damage);
+           }
+           else
+           {
+               opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+           }
+
+       }
+       else
+       {
+           opponentHealth.DealDamageRPC(_weaponStats.Damage);
+       }
+   }
+
+   protected override void DamageToGallowGlass(GameObject opponent)
+   {
+       var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+       var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
+       var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+       var opponentSwordPosition = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().PlayerSwordPosition;
+
+       if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+       {
+           Debug.Log("OpponentSwingPOs: " + opponentSwordPosition + " My sword position: " +PlayerSwordPositionLocal);
+           if (opponentSwordPosition == PlayerSwordPositionLocal)
+           {
+
+                opponentHealth.DealDamageRPC(_weaponStats.Damage);
+           }
+           else
+           {
+               Debug.Log("Blocked");
+               opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+           }
+
+       }
+       else
+       {
+           opponentHealth.DealDamageRPC(_weaponStats.Damage);
+       }
+
+
+   }
+         Gizmos.color = Color.yellow;
+        Vector3 gizmoPosition = transform.position + transform.forward * 0.82f + Vector3.up + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+        Gizmos.matrix = Matrix4x4.TRS(gizmoPosition, Quaternion.Euler(0, transform.eulerAngles.y, 0), Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(1.7f, 0.9f, 0.5f));
+        Gizmos.matrix = Matrix4x4.identity;
+
+        Gizmos.matrix = Matrix4x4.identity; // Varsayýlan matris
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward * 1.1f + transform.right * 0.3f, 0.55f);
+   */
+
+    #endregion
+}
