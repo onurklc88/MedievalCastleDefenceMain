@@ -62,9 +62,6 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 3
-    m_ConditionEvent: PlayerVerticalDirection
-    m_EventTreshold: 0
   - m_ConditionMode: 4
     m_ConditionEvent: PlayerHorizontalDirection
     m_EventTreshold: 0
@@ -74,7 +71,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.09976664
+  m_TransitionDuration: 0.24766803
   m_TransitionOffset: 0
   m_ExitTime: 0.5833333
   m_HasExitTime: 0
@@ -291,7 +288,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: KnightCommander-StunBackwards
-  m_Speed: 1.5
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 4547870403463612500}
@@ -635,7 +632,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: KnightCommander-StunRight
-  m_Speed: 1.5
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 2977569983667839453}
@@ -972,7 +969,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: KnightCommander-StunLeft
-  m_Speed: 1.5
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 4656637037059461528}
@@ -1088,7 +1085,7 @@ AnimatorStateMachine:
     m_Position: {x: 20, y: 340, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5150467731975424300}
-    m_Position: {x: 1440, y: 150, z: 0}
+    m_Position: {x: 1530, y: 150, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4047142929052914812}
     m_Position: {x: 540, y: 430, z: 0}
@@ -1374,7 +1371,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: KnightCommander-StunUpperBody
-  m_Speed: 1.2
+  m_Speed: 0.8
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -7814443936529797042}
@@ -1506,7 +1503,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: KnightCommander-StunForward
-  m_Speed: 1.5
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -8437596417629260114}

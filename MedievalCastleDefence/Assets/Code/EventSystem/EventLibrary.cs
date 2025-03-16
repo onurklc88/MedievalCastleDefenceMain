@@ -29,6 +29,8 @@ public static class EventLibrary
 
     //PostFX
     public static readonly GameEvent<bool> OnPlayerDash = new GameEvent<bool>();
+    public static readonly GameEvent OnPlayerTakeDamage = new GameEvent();
+  
 
     //Stats Events
     public static readonly GameEvent<PlayerInfo> OnPlayerStatsUpdated = new GameEvent<PlayerInfo>();
