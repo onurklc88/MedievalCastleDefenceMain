@@ -109,12 +109,14 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         Debug.LogError("BASECLASS_________________GameObjectName: " + opponent.transform.gameObject.name + " GameObjectLayer: " + opponent.transform.gameObject.layer);
         if (opponent.gameObject.layer == 11 && !isOpponentParrying)
         {
+            opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
             return;
         }
 
         if (opponent.gameObject.layer == 11 && isOpponentParrying)
         {
             opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
         }
         else
         {
@@ -138,13 +140,10 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        //var isOpponentDead = (opponentHealth.NetworkedHealth - _weaponStats.Damage) <= 0;
-        //Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
-
-
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+           opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
         }
         else
         {
@@ -162,6 +161,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                 EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
             }
         }
+
+       // opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc(false);
     }
 
     protected void DamageToGallowGlass(GameObject opponent)

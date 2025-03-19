@@ -28,8 +28,34 @@ namespace CartoonFX
 		// Change this value to easily tune the camera shake strength for all effects
 		const float GLOBAL_CAMERA_SHAKE_MULTIPLIER = 1.0f;
 
+
+
+        private void FixedUpdate()
+        {
+			if (Input.GetKeyDown(KeyCode.O))
+			{
+				
+			}
+		}
+
+		public void PlayLightAnimation()
+        {
+			foreach (var animLight in animatedLights)
+			{
+				if (animLight.light != null)
+				{
+					animLight.light.enabled = true;
+				}
+			}
+
+			
+			ResetState(); 
+			time = 0f; 
+			Animate(0f); 
+		}
+
 #if UNITY_EDITOR
-		[InitializeOnLoadMethod]
+        [InitializeOnLoadMethod]
 		static void InitGlobalOptions()
 		{
 			AnimatedLight.editorPreview = EditorPrefs.GetBool("CFXR Light EditorPreview", true);
@@ -81,6 +107,9 @@ namespace CartoonFX
 			public AnimationCurve colorCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
 			public bool perlinColor;
 			public float perlinColorSpeed = 1f;
+
+			
+
 
 			public void animate(float time)
 			{
@@ -511,7 +540,7 @@ namespace CartoonFX
 				if (animLight.light != null)
 				{
 #if !DISABLE_LIGHTS
-					animLight.light.enabled = !GlobalDisableLights;
+					animLight.light.enabled = false;
 #else
 					animLight.light.enabled = false;
 #endif
@@ -829,7 +858,7 @@ namespace CartoonFX
 			{
 				return;
 			}
-
+			
 			foreach (var t in this.targets)
 			{
 				var cfxr_effect = t as CFXR_Effect;
@@ -842,6 +871,8 @@ namespace CartoonFX
 					cfxr_effect.RegisterEditorUpdate();
 				}
 			}
+			
+			
 		}
 
 		void OnDisable()

@@ -16,7 +16,7 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
     [SerializeField] private Material[] _teamMaterials;
     [SerializeField] private SkinnedMeshRenderer _playerMeshrenderer;
     private PlayerHUD _playerHUD;
-
+    private TeamManager.Teams _playerTeam;
    
 
     private void OnDisable()
@@ -45,6 +45,7 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
         _playerLocalStats = playerInfo;
         PlayerLocalStats = _playerLocalStats;
         PlayerTeam = playerInfo.PlayerTeam;
+        _playerTeam = PlayerTeam;
         //Debug.Log("PlayerTeam: " + PlayerTeam);
         //Debug.Log("Nickname: " + PlayerLocalStats.PlayerNickName + " PlayerWarrior: " + PlayerLocalStats.PlayerWarrior);
     }
@@ -127,7 +128,6 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
 
     void OnApplicationQuit()
     {
-        Debug.Log("PlayerTeam: " + PlayerTeam);
-        EventLibrary.test.Invoke(PlayerTeam, false);
+       EventLibrary.test.Invoke(_playerTeam, false);
     }
 }

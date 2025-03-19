@@ -2,15 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using CartoonFX;
 using static BehaviourRegistry;
+using Cysharp.Threading.Tasks;
 public class PlayerVFXSytem : CharacterRegistry
 {
     [SerializeField] private GameObject _weaponParticles;
     [SerializeField] private ParticleSystem[] _bloodVFX;
     [SerializeField] private GameObject[] _swordLocalTrails;
     [SerializeField] private ParticleSystem _swordTrail;
+    [SerializeField] private ParticleSystem _parryVFX;
+    [SerializeField] private CFXR_Effect _cfxrEffect;
+    private PlayerStatsController _playerStatsController;
     [Networked(OnChanged = nameof(OnSwordTrailStateChange))] public NetworkBool IsTrailActive { get; set; }
     [Networked(OnChanged = nameof(NetworkBloodVFXOnChange))] public NetworkBool IsBloodVFXReady { get; set; }
+  
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -19,6 +25,10 @@ public class PlayerVFXSytem : CharacterRegistry
         _swordLocalTrails[1].SetActive(true);
     }
 
+    private void Start()
+    {
+        _playerStatsController = GetScript<PlayerStatsController>();
+    }
 
     public void EnableWeaponParticles()
     {
@@ -75,4 +85,18 @@ public class PlayerVFXSytem : CharacterRegistry
       
     }
 
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public async void UpdateParryVFXRpc()
+    {
+
+        await UniTask.Delay(300);
+        _parryVFX.Play();
+        if(_playerStatsController.PlayerNetworkStats.PlayerWarrior == CharacterStats.CharacterType.KnightCommander)
+        {
+            _cfxrEffect.PlayLightAnimation();
+           // _cfxrEffect.ResetState();
+          //  _cfxrEffect.Animate(0f);
+        } 
+       
+    }
 }
