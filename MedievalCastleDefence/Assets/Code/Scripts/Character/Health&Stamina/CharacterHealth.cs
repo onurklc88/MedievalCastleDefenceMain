@@ -32,12 +32,12 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
-        NetworkedHealth = _characterStats.TotalHealth;
+        NetworkedHealth = 30;
         
     }
     private void Start()
     {
-       // if (!Object.HasStateAuthority) return;
+       if (!Object.HasStateAuthority) return;
         _playerHUD = GetScript<PlayerHUD>();
         if(_playerHUD != null)
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
@@ -94,6 +94,18 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
             _characterDecals.EnableRandomBloodDecal();
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
         }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void ApplyHealingRpc(float healingValue)
+    {
+        //Debug.Log("HealingValue: " + healingValue + " TotalHealth: " + _characterStats.TotalHealth);
+        if(NetworkedHealth < _characterStats.TotalHealth)
+        {
+            NetworkedHealth = Mathf.Min(NetworkedHealth + healingValue, _characterStats.TotalHealth);
+            _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
+        }
+       
     }
 
     public void DestroyObject() { }

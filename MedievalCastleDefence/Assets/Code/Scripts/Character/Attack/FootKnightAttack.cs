@@ -81,7 +81,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         }
 
 
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
             IsPlayerBlockingLocal = true;
             //_activeRagdoll.RPCActivateRagdoll();

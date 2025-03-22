@@ -13,9 +13,13 @@ public class PlayerVFXSytem : CharacterRegistry
     [SerializeField] private ParticleSystem _swordTrail;
     [SerializeField] private ParticleSystem _parryVFX;
     [SerializeField] private CFXR_Effect _cfxrEffect;
+    [SerializeField] private ParticleSystem _ultimateSkill;
     private PlayerStatsController _playerStatsController;
+    [SerializeField] private ParticleSystem _healingVFX;
+    //[SerializeField] private ParticleSystem _healVFX;
     [Networked(OnChanged = nameof(OnSwordTrailStateChange))] public NetworkBool IsTrailActive { get; set; }
     [Networked(OnChanged = nameof(NetworkBloodVFXOnChange))] public NetworkBool IsBloodVFXReady { get; set; }
+    [Networked(OnChanged = nameof(NetworkUltimateVFXOnChange))] public NetworkBool IsPlayerUseUltimate { get; set; }
   
     public override void Spawned()
     {
@@ -44,11 +48,26 @@ public class PlayerVFXSytem : CharacterRegistry
         StartCoroutine(DisableBloodVFX());
     }
 
+    public async void PlayUltimateVFX()
+    {
+        IsPlayerUseUltimate = true;
+        await UniTask.Delay(500);
+        IsPlayerUseUltimate = false;
+
+    }
+
     private static void NetworkBloodVFXOnChange(Changed<PlayerVFXSytem> changed)
     {
         if (!changed.Behaviour.IsBloodVFXReady) return;
         changed.Behaviour._bloodVFX[0].Play();
         changed.Behaviour._bloodVFX[1].Play();
+
+    }
+
+    private static void NetworkUltimateVFXOnChange(Changed<PlayerVFXSytem> changed)
+    {
+        if (!changed.Behaviour.IsPlayerUseUltimate) return;
+       changed.Behaviour._ultimateSkill.Play();
 
     }
 
@@ -98,5 +117,12 @@ public class PlayerVFXSytem : CharacterRegistry
           //  _cfxrEffect.Animate(0f);
         } 
        
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public async void PlayHealingRpc()
+    {
+        await UniTask.Delay(300);
+        _healingVFX.Play();
     }
 }

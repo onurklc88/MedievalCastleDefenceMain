@@ -13,6 +13,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public NetworkBool IsPlayerSwing { get; set; }
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
+    [Networked(OnChanged = nameof(NetworkedAbilityAnimationStateChange))] public NetworkBool IsPlayerUseAbility { get; set; }
    
     public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private string[] _triggerAnimations;
@@ -109,7 +110,15 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour.PlayDamageAnimation();
        }
     }
-
+    
+    private static void NetworkedAbilityAnimationStateChange(Changed<FootknightAnimation> changed)
+    {
+        if (changed.Behaviour.IsPlayerUseAbility == true)
+        {
+            changed.Behaviour._animationController.Play("Footknight-Skill", 0);
+            changed.Behaviour._animationController.Play("Footknight-Skill", 1);
+        }
+    }
     private static void NetworkedStunnedAnimationStateChange(Changed<FootknightAnimation> changed)
     {
      
@@ -160,6 +169,12 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
         StartCoroutine(WaitStunnedAnimation());
     }
 
+    public void UpdateAbilityAnimationState()
+    {
+        IsPlayerUseAbility = true;
+        StartCoroutine(WaitAbilityAnimation());
+    }
+
     private void PlaySwingAnimation()
     {
       _animationController.SetTrigger(_attackStates[0]);
@@ -205,5 +220,9 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
         IsPlayerStunned = false;
     }
 
-    
+    private IEnumerator WaitAbilityAnimation()
+    {
+        yield return new WaitForSeconds(1f);
+        IsPlayerUseAbility = false;
+    }
 }
