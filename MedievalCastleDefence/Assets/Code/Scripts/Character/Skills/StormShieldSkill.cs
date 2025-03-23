@@ -4,6 +4,7 @@ using UnityEngine;
 using Fusion;
 using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
+using System.Threading;
 
 public class StormShieldSkill : CharacterRegistry, IReadInput
 {
@@ -14,8 +15,9 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
     private int _skillChargeCount;
     private FootknightAnimation _footnightAnimation;
     public NetworkButtons PreviousButton { get; set; }
+    private bool canUseAbility = true;
+    private CancellationTokenSource cts;
 
-   
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -37,14 +39,22 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
     {
         
         var pressedButton = input.NetworkButtons.GetPressed(PreviousButton);
-        if (pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && _characterMovement.IsPlayerGrounded())
+        if (pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && _characterMovement.IsPlayerGrounded() && canUseAbility)
         {
+            canUseAbility = false;
             UseAbility();
+            StartCooldown().Forget();
         }
 
         PreviousButton = input.NetworkButtons;
     }
-
+    private async UniTaskVoid StartCooldown()
+    {
+        cts?.Cancel();
+        cts = new CancellationTokenSource();
+        await UniTask.Delay(90000, cancellationToken: cts.Token); 
+        canUseAbility = true;
+    }
     private void Start()
     {
 
@@ -102,7 +112,10 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
         _characterMovement.IsInputDisabled = false;
 
     }
-
+    private void OnDestroy()
+    {
+        cts?.Cancel();
+    }
 
     private void OnDrawGizmos()
     {
