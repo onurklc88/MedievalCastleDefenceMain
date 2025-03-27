@@ -17,7 +17,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
    
     public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private string[] _triggerAnimations;
-    private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection;
+    [Networked] private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection { get; set; }
     [SerializeField] private string[] _attackStates;
     private CharacterMovement _characterMovement;
     
@@ -39,7 +39,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
-        if (_characterMovement.IsPlayerStunned) return;
+        if (_characterMovement.IsInputDisabled) return;
 
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)
         {
@@ -125,6 +125,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
         if (changed.Behaviour.IsPlayerStunned == false) return;
 
         changed.Behaviour._animationController.Play("Stun_StormshieldUpperBody", 1);
+        Debug.Log("GelenDirection: " +changed.Behaviour._opponentAttackDirection);
         switch (changed.Behaviour._opponentAttackDirection)
         {
             case CharacterAttackBehaviour.AttackDirection.Forward:

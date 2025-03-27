@@ -97378,6 +97378,7 @@ GameObject:
   - component: {fileID: 4807367121575163045}
   - component: {fileID: 9067719219929323319}
   - component: {fileID: 6122739738496821673}
+  - component: {fileID: 3631194079973069614}
   m_Layer: 0
   m_Name: Foot Knight - Storm Shield
   m_TagString: Untagged
@@ -97442,6 +97443,7 @@ MonoBehaviour:
   - {fileID: 4807367121575163045}
   - {fileID: 9067719219929323319}
   - {fileID: 6122739738496821673}
+  - {fileID: 3631194079973069614}
   SimulationBehaviours: []
 --- !u!114 &9165233144116820496
 MonoBehaviour:
@@ -97781,18 +97783,14 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 0}
-  _weaponParticles: {fileID: 5339787028987363541}
   _bloodVFX:
   - {fileID: 2348984743828192741}
   - {fileID: 1858189517153539512}
-  _swordLocalTrails:
-  - {fileID: 6367685418819265622}
-  - {fileID: 5339787028987363541}
-  _swordTrail: {fileID: 6881897846529293266}
   _parryVFX: {fileID: 1251056313724565496}
-  _cfxrEffect: {fileID: 0}
-  _ultimateSkill: {fileID: 2827026472104730551}
+  _ultimateSkillVFX: {fileID: 0}
   _healingVFX: {fileID: 8063189968572743591}
+  _swordTrail: {fileID: 6881897846529293266}
+  _cfxrEffect: {fileID: 0}
   _IsTrailActive:
     _value: 0
   _IsBloodVFXReady:
@@ -97839,6 +97837,36 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 0}
+--- !u!114 &3631194079973069614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5797861915547711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 103947388173cad46a0ad49aba75b191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WordOffset: 0
+  WordCount: 0
+  _interpolationDataSource: 0
+  _characterStats: {fileID: 0}
+  _bloodVFX:
+  - {fileID: 2348984743828192741}
+  - {fileID: 1858189517153539512}
+  _parryVFX: {fileID: 1251056313724565496}
+  _ultimateSkillVFX: {fileID: 2827026472104730551}
+  _healingVFX: {fileID: 8063189968572743591}
+  _swordTrail: {fileID: 6881897846529293266}
+  _cfxrEffect: {fileID: 0}
+  _IsTrailActive:
+    _value: 0
+  _IsBloodVFXReady:
+    _value: 0
+  _IsPlayerUseUltimate:
+    _value: 0
 --- !u!1 &5887370007885655493
 GameObject:
   m_ObjectHideFlags: 0

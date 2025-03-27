@@ -48,7 +48,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        if (_characterMovement != null && _characterMovement.IsPlayerStunned) 
+        if (_characterMovement != null && _characterMovement.IsInputDisabled) 
         {
             IsPlayerBlockingLocal = false;
             _knightCommanderAnimation.IsPlayerParry = IsPlayerBlocking;

@@ -45,7 +45,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
-        if (_characterMovement.IsPlayerStunned) return;
+        if (_characterMovement.IsInputDisabled) return;
 
         OnPlayerWalk = input.VerticalInput != 0 || input.HorizontalInput != 0;
 
@@ -63,7 +63,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     }
     private static void NetworkHorizontalWalkAnimationStateChanged(Changed<KnightCommanderAnimation> changed)
     {
-        Debug.Log(changed.Behaviour.PlayerHorizontalDirection);
+       
         changed.Behaviour._animationController.SetFloat(changed.Behaviour._characterDirections[1], changed.Behaviour.PlayerHorizontalDirection);
         
         

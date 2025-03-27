@@ -57,6 +57,8 @@ public class CharacterStamina : CharacterRegistry
         {
             IncreaseCharacterStamina();
         }
+
+       
     }
     public void DecreasePlayerStamina(float value)
     {

@@ -24797,6 +24797,7 @@ GameObject:
   - component: {fileID: 7105569918970128711}
   - component: {fileID: 863906834181606657}
   - component: {fileID: 1953109817110740519}
+  - component: {fileID: 3671449665814114473}
   m_Layer: 0
   m_Name: Knight Commander -Ironheart 1
   m_TagString: Untagged
@@ -24900,6 +24901,7 @@ MonoBehaviour:
   - {fileID: 7105569918970128711}
   - {fileID: 863906834181606657}
   - {fileID: 1953109817110740519}
+  - {fileID: 3671449665814114473}
   SimulationBehaviours: []
 --- !u!114 &999193052347185007
 MonoBehaviour:
@@ -25188,7 +25190,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4bc6bae48920ccd48833421d38c3d502, type: 3}
   m_Name: 
@@ -25197,18 +25199,14 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 0}
-  _weaponParticles: {fileID: 6502508177656816789}
   _bloodVFX:
   - {fileID: 7908189202971737311}
   - {fileID: 1358424784302915656}
-  _swordLocalTrails:
-  - {fileID: 6502508177656816789}
-  - {fileID: 102074883353656067}
-  _swordTrail: {fileID: 2711042706151218303}
   _parryVFX: {fileID: 8782741695013667168}
-  _cfxrEffect: {fileID: 8782741695013667165}
-  _ultimateSkill: {fileID: 0}
+  _ultimateSkillVFX: {fileID: 0}
   _healingVFX: {fileID: 6353492415741494100}
+  _swordTrail: {fileID: 2711042706151218303}
+  _cfxrEffect: {fileID: 8782741695013667165}
   _IsTrailActive:
     _value: 0
   _IsBloodVFXReady:
@@ -25270,6 +25268,39 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 0}
+--- !u!114 &3671449665814114473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5797861915547711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d135fb1e585821740a8d0974a3c8b5c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WordOffset: 0
+  WordCount: 0
+  _interpolationDataSource: 0
+  _characterStats: {fileID: 0}
+  _bloodVFX:
+  - {fileID: 7908189202971737311}
+  - {fileID: 1358424784302915656}
+  _parryVFX: {fileID: 8782741695013667168}
+  _ultimateSkillVFX: {fileID: 0}
+  _healingVFX: {fileID: 6353492415741494100}
+  _swordTrail: {fileID: 2711042706151218303}
+  _cfxrEffect: {fileID: 8782741695013667165}
+  _IsTrailActive:
+    _value: 0
+  _IsBloodVFXReady:
+    _value: 0
+  _IsPlayerUseUltimate:
+    _value: 0
+  _swordLocalTrails:
+  - {fileID: 6502508177656816789}
+  - {fileID: 102074883353656067}
 --- !u!1 &5830883500373072389
 GameObject:
   m_ObjectHideFlags: 0

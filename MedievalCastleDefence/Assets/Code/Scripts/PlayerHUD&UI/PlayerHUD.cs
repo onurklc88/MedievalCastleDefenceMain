@@ -62,8 +62,6 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
         //_nickNameText.maxVisibleCharacters = 3;
         _playerStatsController = transform.GetComponentInParent<PlayerStatsController>();
         _characterStamina = GetScript<CharacterStamina>();
-        Debug.Log("HEalth: " + base._characterStats.TotalHealth);
-      
         _healthBarFiller.fillAmount = base._characterStats.TotalHealth;
     }
 

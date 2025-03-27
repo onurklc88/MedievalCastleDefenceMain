@@ -20,6 +20,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     [SerializeField] private RectTransform targetUIElement;
     private int _currentFollowingPlayerIndex = 0;
     private CharacterHealth _characterHealth;
+    private CharacterMovement _characterMovement;
     public NetworkButtons PreviousButton { get; set; }
 
     public override void Spawned()
@@ -44,6 +45,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     {
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
+        _characterMovement = GetScript<CharacterMovement>();
     }
 
  
@@ -51,6 +53,8 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     {
         if (HasStateAuthority)
         {
+            if (_characterHealth == null) return;
+            if (_characterHealth.IsPlayerDead) return;
             HandleCameraRotation();
             UpdateCursorPosition();
             if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
@@ -141,8 +145,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
         if (_cinemachineCamera == null) return;
         Vector3 dirToCombatLookAt = _cameraTargetPoint.position - new Vector3(_cinemachineCamera.transform.position.x, _cameraTargetPoint.transform.position.y, _cinemachineCamera.transform.position.z);
         _orientation.forward = dirToCombatLookAt.normalized;
-        if (_characterHealth == null) return;
-        if (_characterHealth.IsPlayerDead) return;
+      
         dirToCombatLookAt.y = 0;
         Quaternion targetRotation = Quaternion.LookRotation(dirToCombatLookAt);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 500f);

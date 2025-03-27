@@ -11,7 +11,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
     private PlayerStatsController _playerStatsController;
     private CharacterMovement _characterMovement;
     private CharacterHealth _characterHealth;
-    private PlayerVFXSytem _playerVFX;
+    private StormshieldVFXController _playerVFX;
     private int _skillChargeCount;
     private FootknightAnimation _footnightAnimation;
     public NetworkButtons PreviousButton { get; set; }
@@ -64,7 +64,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterMovement = GetScript<CharacterMovement>();
         _characterHealth = GetScript<CharacterHealth>();
-        _playerVFX = GetScript<PlayerVFXSytem>();
+        _playerVFX = GetScript<StormshieldVFXController>();
         _footnightAnimation = GetScript<FootknightAnimation>();
 
     }

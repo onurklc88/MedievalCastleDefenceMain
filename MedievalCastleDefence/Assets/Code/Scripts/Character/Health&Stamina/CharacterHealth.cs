@@ -5,7 +5,7 @@ using Fusion;
 using static BehaviourRegistry;
 public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
 {
-    [Networked(OnChanged = nameof(OnPlayerDead))] public NetworkBool IsPlayerDead { get; set; }
+    public NetworkBool IsPlayerDead { get; set; }
     private PlayerHUD _playerHUD;
    [Networked] public float NetworkedHealth { get; set; }
    [Networked]  public LevelManager.GamePhase CurrentGamePhase { get; set; }
@@ -32,8 +32,16 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
-        NetworkedHealth = 30;
+        NetworkedHealth = _characterStats.TotalHealth;
         
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            _characterAnim.UpdateDamageAnimationState();
+        }
     }
     private void Start()
     {
@@ -73,7 +81,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void DealDamageRPC(float givenDamage, string opponentName, CharacterStats.CharacterType opponentWarrior)
     {
-       // Debug.Log("Given Damage: " + givenDamage + " DamageDealer: " + opponentName + " OpponentWarrior: " + opponentWarrior);
+       
         NetworkedHealth -= givenDamage;
         _characterAnim.UpdateDamageAnimationState();
         _playerVFX.PlayBloodVFX();
@@ -109,13 +117,6 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     }
 
     public void DestroyObject() { }
-
-    private void KillPlayer()
-    {
-        if (!Object.HasStateAuthority) return;
-
-
-    }
 
     public void ResetPlayerHealth()
     {

@@ -43,7 +43,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        if (_characterMovement != null && _characterMovement.IsPlayerStunned)
+        if (_characterMovement != null && _characterMovement.IsInputDisabled)
         {
             IsPlayerBlockingLocal = false;
             _animation.IsPlayerParry = IsPlayerBlockingLocal;
@@ -94,7 +94,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     {
         if (!Object.HasStateAuthority) return;
         if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
-        _playerVFX.EnableWeaponParticles();
+        //_playerVFX.EnableWeaponParticles();
         _animation.UpdateSwingAnimationState(true);
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);

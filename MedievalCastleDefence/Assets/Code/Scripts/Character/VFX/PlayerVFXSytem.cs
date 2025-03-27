@@ -7,43 +7,26 @@ using static BehaviourRegistry;
 using Cysharp.Threading.Tasks;
 public class PlayerVFXSytem : CharacterRegistry
 {
-    [SerializeField] private GameObject _weaponParticles;
-    [SerializeField] private ParticleSystem[] _bloodVFX;
-    [SerializeField] private GameObject[] _swordLocalTrails;
+    [SerializeField] protected ParticleSystem[] _bloodVFX;
+    [SerializeField] protected ParticleSystem _parryVFX;
+    [SerializeField] protected ParticleSystem _ultimateSkillVFX;
+    [SerializeField] protected ParticleSystem _healingVFX;
     [SerializeField] private ParticleSystem _swordTrail;
-    [SerializeField] private ParticleSystem _parryVFX;
     [SerializeField] private CFXR_Effect _cfxrEffect;
-    [SerializeField] private ParticleSystem _ultimateSkill;
-    private PlayerStatsController _playerStatsController;
-    [SerializeField] private ParticleSystem _healingVFX;
-    //[SerializeField] private ParticleSystem _healVFX;
+   
+    protected PlayerStatsController _playerStatsController;
+ 
+   
     [Networked(OnChanged = nameof(OnSwordTrailStateChange))] public NetworkBool IsTrailActive { get; set; }
     [Networked(OnChanged = nameof(NetworkBloodVFXOnChange))] public NetworkBool IsBloodVFXReady { get; set; }
     [Networked(OnChanged = nameof(NetworkUltimateVFXOnChange))] public NetworkBool IsPlayerUseUltimate { get; set; }
-  
-    public override void Spawned()
-    {
-        if (!Object.HasStateAuthority) return;
-        InitScript(this);
-        _swordLocalTrails[0].SetActive(true);
-        _swordLocalTrails[1].SetActive(true);
-    }
 
     private void Start()
     {
         _playerStatsController = GetScript<PlayerStatsController>();
     }
-
-    public void EnableWeaponParticles()
-    {
-        if (!Object.HasStateAuthority) return;
-        _weaponParticles.SetActive(true);
-        StartCoroutine(DisableWeaponParticles());
-    }
-
     public void PlayBloodVFX()
     {
-       
         IsBloodVFXReady = true;
         StartCoroutine(DisableBloodVFX());
     }
@@ -51,7 +34,7 @@ public class PlayerVFXSytem : CharacterRegistry
     public async void PlayUltimateVFX()
     {
         IsPlayerUseUltimate = true;
-        await UniTask.Delay(500);
+        await UniTask.Delay(300);
         IsPlayerUseUltimate = false;
 
     }
@@ -67,7 +50,7 @@ public class PlayerVFXSytem : CharacterRegistry
     private static void NetworkUltimateVFXOnChange(Changed<PlayerVFXSytem> changed)
     {
         if (!changed.Behaviour.IsPlayerUseUltimate) return;
-       changed.Behaviour._ultimateSkill.Play();
+       changed.Behaviour._ultimateSkillVFX.Play();
 
     }
 
@@ -77,13 +60,7 @@ public class PlayerVFXSytem : CharacterRegistry
         IsBloodVFXReady = false;
     }
 
-    private IEnumerator DisableWeaponParticles()
-    {
-        yield return new WaitForSeconds(0.9f);
-        _weaponParticles.SetActive(false);
-    }
-
-
+    
     public void ActivateSwordTrail(bool enable)
     {
         if (!Object.HasStateAuthority) return;
@@ -113,8 +90,6 @@ public class PlayerVFXSytem : CharacterRegistry
         if(_playerStatsController.PlayerNetworkStats.PlayerWarrior == CharacterStats.CharacterType.KnightCommander)
         {
             _cfxrEffect.PlayLightAnimation();
-           // _cfxrEffect.ResetState();
-          //  _cfxrEffect.Animate(0f);
         } 
        
     }

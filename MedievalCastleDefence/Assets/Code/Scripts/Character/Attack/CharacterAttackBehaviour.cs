@@ -72,8 +72,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
        if (CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
-        if (opponentTeam == _playerStatsController.PlayerNetworkStats.PlayerTeam && CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
+        var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam;
+        if (opponentTeam == _playerStatsController.PlayerTeam && CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
             Debug.LogError("IDamageableBulundu");

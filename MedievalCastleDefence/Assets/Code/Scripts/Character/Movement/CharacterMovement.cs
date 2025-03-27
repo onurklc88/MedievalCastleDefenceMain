@@ -10,7 +10,6 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     public float CurrentMoveSpeed { get; set; }
     [Networked] public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private CharacterController _characterController;
-    public bool IsPlayerStunned { get; set; }
     public LevelManager.GamePhase CurrentGamePhase { get; set; }
     private Vector3 _currentMovement;
     private float _gravity = -7.96f;
@@ -52,7 +51,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     {
         if (!Object.HasStateAuthority || _characterController.enabled == false) return;
        
-        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsPlayerStunned && !IsInputDisabled)
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !IsInputDisabled)
         {
             ReadPlayerInputs(input);
             _currentMovement = GetInputDirection(input);
@@ -73,7 +72,6 @@ public class CharacterMovement : CharacterRegistry, IReadInput
 
         if(pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill))
         {
-            Debug.Log("Test");
             HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection.Forward);
         }
 
@@ -152,6 +150,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
+        Debug.Log("ZAZA");
         StartCoroutine(KnockbackPlayer(attackDirection));
         _animController.UpdateStunAnimationState(attackDirection);
     }
@@ -175,18 +174,18 @@ public class CharacterMovement : CharacterRegistry, IReadInput
                 break;
         }
 
-        IsPlayerStunned = true;
-        _playerHUD.IsStunnedBarActive = IsPlayerStunned;
+        IsInputDisabled = true;
+        _playerHUD.IsStunnedBarActive = IsInputDisabled;
         float elapsedTime = 0f;
-        while(elapsedTime < 2f)
+        while(elapsedTime < 3f)
         {
-            _characterController.Move(movePos * Time.deltaTime * 1f);
+            _characterController.Move(movePos * Time.deltaTime * 0.5f);
             _playerHUD.UpdateStunBarFiller(elapsedTime);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
         _playerHUD.IsStunnedBarActive = false;
-        IsPlayerStunned = false;
+        IsInputDisabled = false;
         yield return new WaitForSeconds(2f);
        
        

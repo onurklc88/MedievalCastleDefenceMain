@@ -20,10 +20,11 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
-    
+    public Animator BloodHandAnimator { get; private set; }
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
+        BloodHandAnimator = _animationController;
         InitScript(this);
         
     }
@@ -42,7 +43,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
-        if (_characterMovement.IsPlayerStunned) return;
+        if (_characterMovement.IsInputDisabled) return;
 
         if (input.VerticalInput != 0 || input.HorizontalInput != 0)
         {
