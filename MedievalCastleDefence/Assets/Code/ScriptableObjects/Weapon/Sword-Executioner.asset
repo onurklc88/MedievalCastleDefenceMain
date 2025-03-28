@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TimeBetweenSwings: 1
   Damage: 40
-  StaminaWaste: 35
+  StaminaWaste: 20
   WeaponStaminaReductionOnParry: 35
   SkillCooldown: 0

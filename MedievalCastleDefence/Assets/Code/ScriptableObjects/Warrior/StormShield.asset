@@ -17,5 +17,5 @@ MonoBehaviour:
   SprintSpeed: 5
   TotalHealth: 150
   Stamina: 120
-  KnockbackStaminaLimit: 25
-  KnockBackDuration: 1.5
+  KnockbackStaminaLimit: 30
+  KnockBackDuration: 3

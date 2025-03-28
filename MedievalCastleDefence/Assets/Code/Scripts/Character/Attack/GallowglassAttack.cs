@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using System.Linq;
+using Cysharp.Threading.Tasks;
+using System;
 
 public class GallowglassAttack : CharacterAttackBehaviour
 {
@@ -11,7 +13,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private CharacterMovement _characterMovement;
      private BloodhandSkill _bloodhandSkill;
     private BloodhandVFXController _bloodhandVFX;
-    
+    private TickTimer _blockReleaseCooldown;
+    private bool _canAttack = true;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -40,8 +43,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
             ReadPlayerInputs(input);
         }
     }
-    private TickTimer _blockReleaseCooldown;
-    public override void ReadPlayerInputs(PlayerInputData input)
+    
+    public override async void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
         if (_characterMovement != null && _characterMovement.IsInputDisabled)
@@ -52,11 +55,11 @@ public class GallowglassAttack : CharacterAttackBehaviour
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
 
-        // Önceki block durumunu sakla
+       
         bool wasBlocking = IsPlayerBlockingLocal;
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
 
-        // Eðer block býrakýldýysa timer'ý baþlat
+      
         if (wasBlocking && !IsPlayerBlockingLocal)
         {
             _blockReleaseCooldown = TickTimer.CreateFromSeconds(Runner, 0.5f);
@@ -65,16 +68,15 @@ public class GallowglassAttack : CharacterAttackBehaviour
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
         if (_gallowGlassAnimation != null) BlockWeapon();
 
-        // Saldýrý koþuluna timer kontrolü ekle
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) &&
-            AttackCooldown.ExpiredOrNotRunning(Runner) &&
-            _bloodhandSkill.CanUseAbility &&
-            !IsPlayerBlocking &&
-            (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)))
+        
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && _bloodhandSkill.CanUseAbility && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)))
         {
             if (_characterStamina.CurrentStamina > 30)
             {
+                _canAttack = false;
                 SwingSword();
+                await UniTask.Delay(TimeSpan.FromSeconds(GetAnimationTime()), cancellationToken: this.GetCancellationTokenOnDestroy());
+                _canAttack = true;
             }
         }
         else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && _bloodhandSkill.CanUseAbility)
@@ -112,23 +114,27 @@ public class GallowglassAttack : CharacterAttackBehaviour
     protected override void SwingSword()
     {
        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
-        //_playerVFX.EnableWeaponParticles();
-         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
+        _canAttack = false;
+        
+        Debug.Log("AVAVA");
+
+        AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
+        //AttackCooldown = TickTimer.CreateFromSeconds(Runner, GetAnimationTime());
         _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;
        
         StartCoroutine(PerformAttack(swingTime));
-      
-        
+
+       
     }
     private IEnumerator PerformAttack(float time)
     {
         base._blockArea.enabled = false;
         yield return new WaitForSeconds(0.6f);
         float elapsedTime = 0f;
-        
-        AttackCooldown = TickTimer.CreateFromSeconds(Runner, GetAnimationTime());
+        //AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1.5f);
+
         while (elapsedTime < 0.5f)
         {
 

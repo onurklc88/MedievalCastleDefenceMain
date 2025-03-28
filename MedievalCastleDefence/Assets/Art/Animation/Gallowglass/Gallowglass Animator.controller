@@ -355,9 +355,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.6590909
+  m_TransitionDuration: 0.07325935
+  m_TransitionOffset: 0.098367155
+  m_ExitTime: 0.9497207
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -560,9 +560,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.6590909
+  m_TransitionDuration: 0.0344975
+  m_TransitionOffset: 0.12930153
+  m_ExitTime: 0.9529579
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -812,9 +812,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.6808511
+  m_TransitionDuration: 0.08702266
+  m_TransitionOffset: 0.08977912
+  m_ExitTime: 0.9291759
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -855,7 +855,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Gallowglass-RightSwing
-  m_Speed: 1.4
+  m_Speed: 1.6
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -1869753165451126031}
@@ -989,9 +989,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.6808511
+  m_TransitionDuration: 0.065568924
+  m_TransitionOffset: 0.110658675
+  m_ExitTime: 0.91629493
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -1200,9 +1200,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.21890727
-  m_TransitionOffset: 0
-  m_ExitTime: 0.65909094
+  m_TransitionDuration: 0.05954367
+  m_TransitionOffset: 0.12624063
+  m_ExitTime: 0.94600135
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -1453,7 +1453,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Gallowglass-Damage
-  m_Speed: 1
+  m_Speed: 1.4
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -997941418810061220}
@@ -2114,9 +2114,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.6590909
+  m_TransitionDuration: 0.06806111
+  m_TransitionOffset: 0.0839719
+  m_ExitTime: 0.90718937
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -2219,16 +2219,16 @@ AnimatorStateMachine:
     m_Position: {x: 0, y: 390, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2213688725761816227}
-    m_Position: {x: 270, y: 620, z: 0}
+    m_Position: {x: 1320, y: 540, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1385046765919801764}
-    m_Position: {x: 580, y: 690, z: 0}
+    m_Position: {x: 870, y: 600, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3419803428119553126}
-    m_Position: {x: 470, y: 380, z: 0}
+    m_Position: {x: 530, y: 520, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4209092347938612999}
-    m_Position: {x: -40, y: 620, z: 0}
+    m_Position: {x: 220, y: 150, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 323792318934134618}
     m_Position: {x: 1670, y: 850, z: 0}
@@ -2517,9 +2517,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.6590909
+  m_TransitionDuration: 0.07325935
+  m_TransitionOffset: 0.08157272
+  m_ExitTime: 0.9001009
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -3134,9 +3134,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.1284891
-  m_TransitionOffset: 0
-  m_ExitTime: 0.65909094
+  m_TransitionDuration: 0.038819194
+  m_TransitionOffset: 0.11738612
+  m_ExitTime: 0.9258776
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0

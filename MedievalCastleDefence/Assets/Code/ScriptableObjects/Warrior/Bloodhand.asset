@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f1de1650e67ad24da7a2c06cfeea40e, type: 3}
-  m_Name: Bloodhand
+  m_Name: BloodHand
   m_EditorClassIdentifier: 
   WarriorType: 3
-  MoveSpeed: 4
+  MoveSpeed: 3.8
   SprintSpeed: 4.5
-  TotalHealth: 300
-  Stamina: 5000
-  KnockbackStaminaLimit: 20
-  KnockBackDuration: 1.5
+  TotalHealth: 120
+  Stamina: 90
+  KnockbackStaminaLimit: 25
+  KnockBackDuration: 3

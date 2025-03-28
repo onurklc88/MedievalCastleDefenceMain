@@ -29587,7 +29587,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
   SelectedCharacter: 3
   _PlayerTeam: 0
   _CurrentGamePhase: 0
@@ -29625,7 +29625,7 @@ CharacterController:
   m_Radius: 0.3
   m_SlopeLimit: 45
   m_StepOffset: 0.15
-  m_SkinWidth: 0.5
+  m_SkinWidth: 0.3
   m_MinMoveDistance: 0.001
   m_Center: {x: 0.02, y: 1.18, z: 0}
 --- !u!114 &8107039158861367189
@@ -29643,7 +29643,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
   _characterController: {fileID: 894651988034674950}
 --- !u!114 &4523527147080989133
 MonoBehaviour:
@@ -29660,7 +29660,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 0}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
   _orientation: {fileID: 1989670152904522105}
   _cameraTargetPoint: {fileID: 2824621579131473667}
   _cameraLookAtTarget: {fileID: 4365907165265836184}
@@ -29698,7 +29698,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
   _NetworkedHealth: 0
   _CurrentGamePhase: 0
 --- !u!114 &6511355011640638625
@@ -29716,7 +29716,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
 --- !u!114 &2012100402955408734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29732,7 +29732,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
   _PlayerNickName:
     _length: 0
     _data:
@@ -29792,7 +29792,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 26f4dab646f7d0243aca0899474dcc98, type: 2}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
   _IsPlayerBlockingLocal:
     _value: 0
   _PlayerSwordPositionLocal: 0
@@ -29800,7 +29800,7 @@ MonoBehaviour:
     _value: 0
   _PlayerSwordPosition: 0
   _CurrentGamePhase: 0
-  _weaponStats: {fileID: 11400000, guid: 2aef57364f295dd49a59957e7603f537, type: 2}
+  _weaponStats: {fileID: 11400000, guid: 0270de501b1d201469df7a4e02df5888, type: 2}
   _blockArea: {fileID: 203592095671692557}
   _characterType: 0
 --- !u!114 &5026511850599634643
@@ -29818,7 +29818,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 0}
+  _characterStats: {fileID: 11400000, guid: 2abdcaaddeb21884bb83005cc78d8493, type: 2}
   _animationController: {fileID: 534399287956474617}
   _characterDirections:
   - PlayerVerticalDirection

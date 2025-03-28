@@ -73,23 +73,19 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
         var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam;
-        if (opponentTeam == _playerStatsController.PlayerTeam && CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
+        if (opponentTeam == _playerStatsController.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
-            Debug.LogError("IDamageableBulundu");
-            var opponentType = GetCharacterType(collidedObject);
+           var opponentType = GetCharacterType(collidedObject);
             switch (opponentType)
             {
                 case CharacterStats.CharacterType.FootKnight:
-                    Debug.LogError("Footnight Tespit edildi");
                     DamageToFootknight(collidedObject);
                     break;
                 case CharacterStats.CharacterType.Gallowglass:
-                    Debug.LogError("GallowGlass Tespit edildi");
                     DamageToGallowGlass(collidedObject);
                     break;
                 case CharacterStats.CharacterType.KnightCommander:
-                    Debug.LogError("KC Tespit edildi");
                     DamageToKnightCommander(collidedObject);
                     break;
                 case CharacterStats.CharacterType.Ranger:
@@ -97,7 +93,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                     opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
                     break;
             }
-       }
+        }
     }
 
     protected void DamageToFootknight(GameObject opponent)
@@ -106,12 +102,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
 
-        Debug.LogError("BASECLASS_________________GameObjectName: " + opponent.transform.gameObject.name + " GameObjectLayer: " + opponent.transform.gameObject.layer);
-        if (opponent.gameObject.layer == 11 && !isOpponentParrying)
-        {
+       if (opponent.gameObject.layer == 11 && !isOpponentParrying)
+       {
             opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
             return;
-        }
+       }
 
         if (opponent.gameObject.layer == 11 && isOpponentParrying)
         {
@@ -167,36 +162,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
     protected void DamageToGallowGlass(GameObject opponent)
     {
-        /*
-        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
-        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
-        var opponentBehaviour = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>();
-        var isOpponentBlocking = opponentBehaviour != null && opponentBehaviour.IsPlayerBlocking;
-        var opponentSwordPosition = opponentBehaviour.PlayerSwordPosition;
-
-        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
-        {
-            Vector3 attackDirection = (opponent.transform.position - transform.position).normalized;
-            float sideCheck = Vector3.Dot(opponent.transform.right, attackDirection);
-            float distance = Vector3.Distance(transform.position, opponent.transform.position);
-
-            // Mesafe yakýn ve blok uyumluysa parry
-            if (distance < 0.5f &&
-               (opponentSwordPosition == SwordPosition.Right && sideCheck > 0f ||
-                opponentSwordPosition == SwordPosition.Left && sideCheck < 0f))
-            {
-                opponentStamina?.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-            }
-            else
-            {
-                opponentHealth?.DealDamageRPC(_weaponStats.Damage);
-            }
-        }
-        else
-        {
-            opponentHealth?.DealDamageRPC(_weaponStats.Damage);
-        }
-        */
+       
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
@@ -215,7 +181,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
             {
                 if(CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
                 {
-                    Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAA");
                     _playerStatsController.UpdatePlayerKillCountRpc();
                 }
                
