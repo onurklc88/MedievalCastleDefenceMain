@@ -33,6 +33,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     [SerializeField] protected BoxCollider _blockArea;
     protected CharacterController _characterController;
     protected PlayerStatsController _playerStatsController;
+    protected CharacterHealth _characterHealth;
     protected IDamageable _collidedObject;
     public CharacterStats.CharacterType _characterType;
     protected CharacterStamina _characterStamina;
@@ -101,16 +102,17 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-
+/*
        if (opponent.gameObject.layer == 11 && !isOpponentParrying)
        {
             opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
             return;
        }
-
+*/
         if (opponent.gameObject.layer == 11 && isOpponentParrying)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
+            opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
             opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
         }
         else
@@ -135,9 +137,12 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var isOpponentDash = opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsPlayerDash;
+        if (isOpponentDash) return;
+
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-           opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+           opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
            opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
         }
         else
@@ -172,7 +177,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            opponentStamina.DecreaseStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
+            opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {

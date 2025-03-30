@@ -34,6 +34,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _ragdollManager = GetScript<ActiveRagdoll>();
         _playerVFXSystem = GetScript<PlayerVFXSytem>();
         _playerStatsController = GetScript<PlayerStatsController>();
+        _characterHealth = GetScript<CharacterHealth>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -56,15 +57,15 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
-        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
         if (_knightCommanderAnimation != null) BlockWeapon();
 
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner))
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_characterHealth.IsPlayerGotHit)
         {
 
-            if (_characterStamina.CurrentStamina > 30)
+            if (_characterStamina.CurrentAttackStamina > 30)
             {
                 SwingSword();
             }
@@ -72,7 +73,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
-            IsPlayerBlockingLocal = true;
+            //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }
       
@@ -88,7 +89,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
       
         _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
-        _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
+        _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
          StartCoroutine(PerformAttack());
     }
     private IEnumerator PerformAttack()

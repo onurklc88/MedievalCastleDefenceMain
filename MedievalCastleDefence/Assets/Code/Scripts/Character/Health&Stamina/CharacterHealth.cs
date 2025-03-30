@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using static BehaviourRegistry;
+using Cysharp.Threading.Tasks;
 public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
 {
     public NetworkBool IsPlayerDead { get; set; }
+    public bool IsPlayerGotHit { get; private set; }
     private PlayerHUD _playerHUD;
    [Networked] public float NetworkedHealth { get; set; }
    [Networked]  public LevelManager.GamePhase CurrentGamePhase { get; set; }
@@ -38,10 +40,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            _characterAnim.UpdateDamageAnimationState();
-        }
+       
     }
     private void Start()
     {
@@ -83,9 +82,11 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     {
        
         NetworkedHealth -= givenDamage;
+        IsPlayerGotHit = true;
         _characterAnim.UpdateDamageAnimationState();
         _playerVFX.PlayBloodVFX();
         EventLibrary.OnPlayerTakeDamage.Invoke();
+        ResetHitStatus().Forget();
         if (NetworkedHealth <= 0)
         {
             _playerHUD.UpdatePlayerHealthUI(-1);
@@ -115,7 +116,11 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
         }
        
     }
-
+    private async UniTaskVoid ResetHitStatus()
+    {
+        await UniTask.Delay(1000);
+        IsPlayerGotHit = false;
+    }
     public void DestroyObject() { }
 
     public void ResetPlayerHealth()

@@ -7,6 +7,7 @@ using static BehaviourRegistry;
 
 public class KnightCommanderSkill : CharacterRegistry, IReadInput
 {
+    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsPlayerDash { get; set; }
     public int SlideCharges { get; set; }
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
@@ -16,7 +17,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
     public NetworkButtons PreviousButton { get; set; }
     private float _duration = 0.2f;
     private float _distance = 0.35f;
-    private bool _isSliding = false;
+  
     private Vector3 _slideDirection;
     private const int MAX_SLIDE_CHARGE_COUNT = 3;
     private bool _isRefilling = false;
@@ -52,14 +53,19 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
             }
         
     }
+    
+    private static void OnNetworkDashStateChange(Changed<KnightCommanderSkill> changed)
+    {
 
+    }
 
     private void ActivateUtilitySkill()
     {
-        if(_slideChargeCount > 0)
+        if(_slideChargeCount > 0 && _characterStamina.CurrentAttackStamina > 10)
         {
             _slideChargeCount -= 1;
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
+            _characterStamina.DecreaseCharacterAttackStamina(10f);
             SlideCharacter(_slideDirection).Forget();
 
             if (_slideChargeCount < 3 && !_isRefilling)
@@ -111,12 +117,12 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
 
     private async UniTaskVoid SlideCharacter(Vector3 direction)
     {
-        if (_isSliding) return;
+        if (IsPlayerDash) return;
         
         if (_slideChargeCount < 0) return;
-        _isSliding = true;
-        _characterVFX.ActivateSwordTrail(_isSliding);
-        EventLibrary.OnPlayerDash.Invoke(_isSliding);
+        IsPlayerDash = true;
+        _characterVFX.ActivateSwordTrail(IsPlayerDash);
+        EventLibrary.OnPlayerDash.Invoke(IsPlayerDash);
         Vector3 startPos = transform.position;
         Vector3 targetPos = startPos + direction * _distance;
 
@@ -131,11 +137,11 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
         }
 
         transform.position = targetPos;
-        _isSliding = false;
+        IsPlayerDash = false;
        
-        EventLibrary.OnPlayerDash.Invoke(_isSliding);
+        EventLibrary.OnPlayerDash.Invoke(IsPlayerDash);
         await UniTask.Delay(1000);
-        _characterVFX.ActivateSwordTrail(_isSliding);
+        _characterVFX.ActivateSwordTrail(IsPlayerDash);
 
     }
 

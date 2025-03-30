@@ -17,7 +17,8 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
     public NetworkButtons PreviousButton { get; set; }
 
     [SerializeField] private GameObject _playerUI;
-    [SerializeField] private TextMeshProUGUI _characterStaminaText;
+    [SerializeField] private TextMeshProUGUI _characterAttackStaminaText;
+    [SerializeField] private TextMeshProUGUI _characterDefenceStaminaText;
     [SerializeField] private TextMeshProUGUI _characterHealth;
     [SerializeField] private TextMeshProUGUI _chargeTxt;
     [SerializeField] private GameObject _respawnPanel;
@@ -70,7 +71,13 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
     {
         if (!Object.HasStateAuthority) return;
         if(_characterStamina != null)
-            _characterStaminaText.text = "Character Stamina: " +_characterStamina.CurrentStamina.ToString();
+        {
+            _characterAttackStaminaText.text = "Character Attack Stamina: " + _characterStamina.CurrentAttackStamina.ToString();
+            _characterDefenceStaminaText.text = "Character Defence Stamina " + _characterStamina.CurrentDefenceStamina.ToString();
+
+
+        }
+           
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
         {
             ReadPlayerInputs(input);

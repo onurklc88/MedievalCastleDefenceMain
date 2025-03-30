@@ -5,23 +5,29 @@ using System.Threading;
 using UnityEngine;
 using Fusion;
 
+
 using static BehaviourRegistry;
 public class CharacterStamina : CharacterRegistry
 {
-    public float CurrentStamina { get; set; }
-    public bool CanStaminaRegenerating { get; set; }
-    private float _totalStamina;
+    public float CurrentAttackStamina { get; set; }
+    public float CurrentDefenceStamina { get; private set; }
+    public bool CanAttackStaminaRegenerating { get; private set; }
+    public bool CanDefenceStaminaRegenerating { get; private set; }
+    private float _totalAttackStamina;
+    private float _totalDefenceStamina;
     private const int PLAYER_MAX_JUMP_COUNT = 3;
     private int _playerJumpStamina;
-    //[SerializeField] private CharacterStats _characterStats;
+   
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
     private bool _isRegenerating = false;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
-        _totalStamina = _characterStats.Stamina;
-        CurrentStamina = _totalStamina;
+        _totalAttackStamina = _characterStats.AttackStamina;
+        _totalDefenceStamina = _characterStats.DefenceStamina;
+        CurrentAttackStamina = _totalAttackStamina;
+        CurrentDefenceStamina = _totalDefenceStamina;
         InitScript(this);
         _characterMovement = GetScript<CharacterMovement>();
         _playerJumpStamina = PLAYER_MAX_JUMP_COUNT;
@@ -29,7 +35,7 @@ public class CharacterStamina : CharacterRegistry
 
     public void ResetPlayerStamina()
     {
-        CurrentStamina = _totalStamina;
+        CurrentAttackStamina = _totalAttackStamina;
     }
 
     private void Start()
@@ -53,43 +59,67 @@ public class CharacterStamina : CharacterRegistry
     {
         if (!Object.HasStateAuthority) return;
         
-        if (CanStaminaRegenerating)
+        if (CanAttackStaminaRegenerating)
         {
-            IncreaseCharacterStamina();
+            IncreaseCharacterAttackStamina();
         }
 
-       
-    }
-    public void DecreasePlayerStamina(float value)
-    {
-        if (!Object.HasStateAuthority) return;
-        if(CurrentStamina >= 0)
+        if (CanDefenceStaminaRegenerating)
         {
-            CurrentStamina -= value;
-            StartCoroutine(UpdateCharacterRegen());
+            IncreaseCharacterDefenceStamina();
         }
-    }
-    private void IncreaseCharacterStamina()
+     }
+    public void DecreaseCharacterAttackStamina(float value)
     {
         if (!Object.HasStateAuthority) return;
-        if(CurrentStamina < _totalStamina)
+        if(CurrentAttackStamina >= 0)
         {
-            CurrentStamina += Time.deltaTime * 20f;
+            CurrentAttackStamina -= value;
+            StartCoroutine(RegenerateAttackStamina());
+        }
+
+        
+    }
+    private void IncreaseCharacterAttackStamina()
+    {
+        if (!Object.HasStateAuthority) return;
+        if(CurrentAttackStamina < _totalAttackStamina)
+        {
+            CurrentAttackStamina += Time.deltaTime * 20f;
         }
         else
         {
-            CanStaminaRegenerating = false;
+            CanAttackStaminaRegenerating = false;
         }
         
     }
-    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void DecreaseStaminaRPC(float value)
+
+    private void IncreaseCharacterDefenceStamina()
     {
-        DecreasePlayerStamina(value);
-        if(_characterStats.WarriorType == CharacterStats.CharacterType.FootKnight)
+        if (!Object.HasStateAuthority) return;
+        if (CurrentDefenceStamina < _totalDefenceStamina)
+        {
+            CurrentDefenceStamina += Time.deltaTime * 20f;
+        }
+        else
+        {
+            CanAttackStaminaRegenerating = false;
+        }
+
+    }
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void DecreaseDefenceStaminaRPC(float value)
+    {
+        //DecreaseCharacterAttackStamina(value);
+        if (CurrentDefenceStamina >= 0)
+        {
+            CurrentDefenceStamina -= value;
+            StartCoroutine(RegenerateDefenceStamina());
+        }
+        if (_characterStats.WarriorType == CharacterStats.CharacterType.FootKnight)
             _characterAnim.UpdateDamageAnimationState();
       
-        if (CurrentStamina < _characterStats.KnockbackStaminaLimit)
+        if (CurrentDefenceStamina < _characterStats.KnockbackStaminaLimit)
         {
             _characterAnim.UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection.Forward);
             _characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer(CharacterAttackBehaviour.AttackDirection.Forward));
@@ -99,15 +129,26 @@ public class CharacterStamina : CharacterRegistry
             StartCoroutine(DelayBlockAnimation());
         }
     }
-    private IEnumerator UpdateCharacterRegen()
+    private IEnumerator RegenerateAttackStamina()
     {
-        if (CanStaminaRegenerating)
+        if (CanAttackStaminaRegenerating)
         {
-            CanStaminaRegenerating = false;
+            CanAttackStaminaRegenerating = false;
         }
         yield return new WaitForSeconds(2f);
-        CanStaminaRegenerating = true;
+        CanAttackStaminaRegenerating = true;
         
+    }
+
+    private IEnumerator RegenerateDefenceStamina()
+    {
+        if (CanDefenceStaminaRegenerating)
+        {
+            CanDefenceStaminaRegenerating = false;
+        }
+        yield return new WaitForSeconds(3.5f);
+        CanDefenceStaminaRegenerating = true;
+
     }
     public bool CanPlayerJump()
     {

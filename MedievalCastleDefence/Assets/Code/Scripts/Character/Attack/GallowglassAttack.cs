@@ -32,6 +32,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         //_activeRagdoll = GetScript<ActiveRagdoll>();
         //_playerVFX = GetScript<PlayerVFXSytem>();
         _bloodhandSkill = GetScript<BloodhandSkill>();
+        _characterHealth = GetScript<CharacterHealth>();
         
     }
     public override void FixedUpdateNetwork()
@@ -69,9 +70,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
         if (_gallowGlassAnimation != null) BlockWeapon();
 
         
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && _bloodhandSkill.CanUseAbility && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)))
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && _bloodhandSkill.CanUseAbility && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)) && !_characterHealth.IsPlayerGotHit)
         {
-            if (_characterStamina.CurrentStamina > 30)
+            if (_characterStamina.CurrentAttackStamina > 30)
             {
                 _canAttack = false;
                 SwingSword();
@@ -79,7 +80,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
                 _canAttack = true;
             }
         }
-        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload) && _bloodhandSkill.CanUseAbility)
+        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && _bloodhandSkill.CanUseAbility)
         {
             IsPlayerBlockingLocal = true;
         }
@@ -120,7 +121,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         //AttackCooldown = TickTimer.CreateFromSeconds(Runner, GetAnimationTime());
-        _characterStamina.DecreasePlayerStamina(_weaponStats.StaminaWaste);
+        _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;
        
@@ -199,7 +200,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         var attackDirection = base.CalculateAttackDirection(opponent.transform);
         var opponentMovement = opponent.transform.GetComponentInParent<CharacterMovement>();
         if (opponentMovement == null) return;
-        _characterStamina.DecreasePlayerStamina(10f);
+        _characterStamina.DecreaseCharacterAttackStamina(10f);
         opponentMovement.HandleKnockBackRPC(attackDirection);
     }
 
