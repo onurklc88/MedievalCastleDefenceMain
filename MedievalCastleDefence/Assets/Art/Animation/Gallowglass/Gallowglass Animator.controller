@@ -188,7 +188,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: anim_attack_light_04
+  m_Name: Test1
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -2675,7 +2675,7 @@ AnimatorStateTransition:
 --- !u!1102 &6938442712030564176
 AnimatorState:
   serializedVersion: 6
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
