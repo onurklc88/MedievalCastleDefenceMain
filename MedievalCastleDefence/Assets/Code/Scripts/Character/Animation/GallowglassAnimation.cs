@@ -202,7 +202,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     public void UpdateAttackAnimState(int swingIndex)
     {
         SwingIndex = swingIndex;
-        StartCoroutine(WaitAttack(1f));
+        StartCoroutine(WaitAttack(0.1f));
     }
     private IEnumerator WaitDamageAnimation()
     {

@@ -14,7 +14,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
      private BloodhandSkill _bloodhandSkill;
     private BloodhandVFXController _bloodhandVFX;
     private TickTimer _blockReleaseCooldown;
-    private bool _canAttack = true;
+   
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -45,7 +45,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
     }
     
-    public override async void ReadPlayerInputs(PlayerInputData input)
+    public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
         if (_characterMovement != null && _characterMovement.IsInputDisabled)
@@ -74,10 +74,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
         {
             if (_characterStamina.CurrentAttackStamina > 30)
             {
-                _canAttack = false;
+               
                 SwingSword();
-                await UniTask.Delay(TimeSpan.FromSeconds(GetAnimationTime()), cancellationToken: this.GetCancellationTokenOnDestroy());
-                _canAttack = true;
+              
             }
         }
         else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && _bloodhandSkill.CanUseAbility)
@@ -85,7 +84,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
             IsPlayerBlockingLocal = true;
         }
 
-
+        PreviousButton = input.NetworkButtons;
     }
 
     private float GetAnimationTime()
@@ -115,11 +114,11 @@ public class GallowglassAttack : CharacterAttackBehaviour
     protected override void SwingSword()
     {
        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
-        _canAttack = false;
+       
         
         Debug.Log("AVAVA");
 
-        AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
+        AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
         //AttackCooldown = TickTimer.CreateFromSeconds(Runner, GetAnimationTime());
         _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));

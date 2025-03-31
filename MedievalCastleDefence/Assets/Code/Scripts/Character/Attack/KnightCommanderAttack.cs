@@ -76,7 +76,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }
-      
+        PreviousButton = input.NetworkButtons;
     }
     protected override void SwingSword()
     {
@@ -86,7 +86,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         {
             Debug.Log("is null? :");
         }
-      
+        Debug.Log("test1-2");
         _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
