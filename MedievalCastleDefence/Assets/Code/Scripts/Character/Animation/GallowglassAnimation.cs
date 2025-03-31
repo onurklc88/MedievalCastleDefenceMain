@@ -111,9 +111,16 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     }
     private static void NetworkAttackAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
-         changed.Behaviour._animationController.SetInteger("SwingIndex", changed.Behaviour.SwingIndex);
-        float animduration = changed.Behaviour._animationController.GetCurrentAnimatorStateInfo(0).length;
-      
+       
+        if (changed.Behaviour.SwingIndex == 1)
+        {
+            changed.Behaviour._animationController.CrossFade("Gallowglass-RightSwing", 0.1f);
+        }
+        else if (changed.Behaviour.SwingIndex == 2)
+        {
+            changed.Behaviour._animationController.CrossFade("Gallowglass-LeftSwing", 0.2f);
+        }
+
     }
 
     private static void NetworkedDamageAnimationStateChange(Changed<GallowglassAnimation> changed)
