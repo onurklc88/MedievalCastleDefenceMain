@@ -62,11 +62,19 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
             await UniTask.Delay(600);
             _playerVFX.PlayUltimateVFX();
         }
+       
         PreviousButton = input.NetworkButtons;
+    }
+
+    private void CastEarthshatterSkill()
+    {
+        
     }
     private async UniTaskVoid StartBloodhandCooldown()
     {
         await UniTask.Delay(100);
         CanUseAbility = true;
     }
+
+   
 }
