@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Fusion;
+using System;
 using static BehaviourRegistry;
 
 public class CharacterMovement : CharacterRegistry, IReadInput
@@ -72,7 +72,8 @@ public class CharacterMovement : CharacterRegistry, IReadInput
 
         if(pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill))
         {
-            HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection.Forward);
+            //HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection.Forward);
+            Test();
         }
 
         PreviousButton = input.NetworkButtons;
@@ -146,7 +147,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
           
        
     }
-
+/*
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
     {
@@ -188,6 +189,47 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         IsInputDisabled = false;
         yield return new WaitForSeconds(2f);
        
+       
+    }
+    */
+
+    private void Test()
+    {
+        _characterStamina.StunPlayerRpc(3);
+    }
+
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public async void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
+    {
+        Debug.Log("ZAZA");
+
+
+        Vector3 movePos = attackDirection switch
+        {
+            CharacterAttackBehaviour.AttackDirection.Forward => -transform.forward,
+            CharacterAttackBehaviour.AttackDirection.FromRight => transform.right,
+            CharacterAttackBehaviour.AttackDirection.FromLeft => -transform.right,
+            CharacterAttackBehaviour.AttackDirection.Backward => transform.forward,
+            _ => Vector3.zero
+        };
+
+        IsInputDisabled = true;
+        _playerHUD.IsStunnedBarActive = true;
+        float elapsedTime = 0f;
+        _animController.UpdateStunAnimationState(attackDirection);
+        while (elapsedTime < 3f)
+        {
+            _characterController.Move(movePos * Time.deltaTime * 0.5f);
+            _playerHUD.UpdateStunBarFiller(elapsedTime);
+            elapsedTime += Time.deltaTime;
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
+
+        _playerHUD.IsStunnedBarActive = false;
+        IsInputDisabled = false;
+
+        await UniTask.Delay(TimeSpan.FromSeconds(2));
        
     }
 

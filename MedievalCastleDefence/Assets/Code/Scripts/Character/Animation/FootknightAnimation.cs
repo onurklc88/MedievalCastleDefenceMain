@@ -125,6 +125,8 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
         if (changed.Behaviour.IsPlayerStunned == false) return;
 
         changed.Behaviour._animationController.Play("Stun_StormshieldUpperBody", 1);
+        changed.Behaviour._animationController.Play("StunBackwards-Stormshield", 0);
+        /*
         Debug.Log("GelenDirection: " +changed.Behaviour._opponentAttackDirection);
         switch (changed.Behaviour._opponentAttackDirection)
         {
@@ -145,7 +147,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
                 break;
 
         }
-
+        */
     }
    public override void UpdateJumpAnimationState(bool state)
    {

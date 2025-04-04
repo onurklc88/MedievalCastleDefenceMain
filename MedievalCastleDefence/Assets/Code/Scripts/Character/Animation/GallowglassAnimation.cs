@@ -136,6 +136,8 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         if (changed.Behaviour.IsPlayerStunned == false) return;
         
         changed.Behaviour._animationController.Play("Gallowglass-Stun", 1);
+        changed.Behaviour._animationController.Play("Gallowglass_Stun_Backwards");
+        /*
         switch (changed.Behaviour.AttackDirection)
         {
             case CharacterAttackBehaviour.AttackDirection.Forward:
@@ -155,7 +157,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
               break;
 
         }
-      
+      */
     }
   
 

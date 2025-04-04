@@ -70,7 +70,9 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
       
         var currentButtons = input.NetworkButtons;
 
-      
+        if (!_characterHealth.IsPlayerDead) return;
+
+
         if (currentButtons.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Interact))
         {
            
@@ -142,7 +144,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     }
     private void HandleCameraRotation()
     {
-        if (_cinemachineCamera == null) return;
+        if (_cinemachineCamera == null || _characterMovement.IsInputDisabled) return;
         Vector3 dirToCombatLookAt = _cameraTargetPoint.position - new Vector3(_cinemachineCamera.transform.position.x, _cameraTargetPoint.transform.position.y, _cinemachineCamera.transform.position.z);
         _orientation.forward = dirToCombatLookAt.normalized;
       

@@ -53,17 +53,18 @@ public class Corn : MonoBehaviour
             Vector3 dirToTarget = (target.transform.position - transform.position).normalized;
             float angleToTarget = Vector3.Angle(transform.forward, dirToTarget);
 
-            // 1. Açý kontrolü (pasta dilimi içinde mi?)
+            
             if (angleToTarget > angle / 2) continue;
 
-            // 2. Engel kontrolü (Raycast ile)
+ 
             float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
             bool hasObstacle = Physics.Raycast(transform.position, dirToTarget, distanceToTarget, obstacleLayer);
+            
 
             if (!hasObstacle)
             {
-                Gizmos.DrawSphere(target.transform.position, 0.5f); // Tespit edilen oyuncu
-                Gizmos.DrawLine(transform.position, target.transform.position); // Görüþ hattý
+                Gizmos.DrawSphere(target.transform.position, 0.5f); 
+                Gizmos.DrawLine(transform.position, target.transform.position); 
             }
         }
     }

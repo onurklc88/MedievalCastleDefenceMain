@@ -29979,6 +29979,9 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 0}
+  _obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &3336664594166331206
 MonoBehaviour:
   m_ObjectHideFlags: 0
