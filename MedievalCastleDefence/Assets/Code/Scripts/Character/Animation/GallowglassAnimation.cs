@@ -17,6 +17,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     //[Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
+    [Networked(OnChanged = nameof(NetworkedAbilityAnimationStateChange))] public NetworkBool IsPlayerUseAbility { get; set; }
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
@@ -131,6 +132,15 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         }
     }
 
+    private static void NetworkedAbilityAnimationStateChange(Changed<GallowglassAnimation> changed)
+    {
+        if(changed.Behaviour.IsPlayerUseAbility == true)
+        {
+            changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 0);
+            changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 1);
+        }
+    }
+
     private static void NetworkedStunnedAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
         if (changed.Behaviour.IsPlayerStunned == false) return;
@@ -212,6 +222,10 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         SwingIndex = swingIndex;
         StartCoroutine(WaitAttack(0.1f));
+    }
+    public void UpdateUltimateAnimState(bool condition)
+    {
+        IsPlayerUseAbility = condition;
     }
     private IEnumerator WaitDamageAnimation()
     {
