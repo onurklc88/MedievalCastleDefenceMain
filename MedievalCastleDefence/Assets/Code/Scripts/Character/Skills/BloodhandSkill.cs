@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
 
 
+
 public class BloodhandSkill : CharacterRegistry, IReadInput
 {
     [SerializeField] private LayerMask _obstacleLayer;
@@ -15,9 +16,11 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
     public NetworkButtons PreviousButton { get; set; }
     private GallowglassAttack _bloodhandAttack;
     public bool CanUseAbility { get; private set; }
-    [SerializeField] private float _earthShatterRadius = 7f;
+    [SerializeField] private GameObject _test;
+    [SerializeField] private float _earthShatterRadius = 8f;
     [SerializeField] private float _earthShatterAngle = 90f;
     private GallowglassAnimation _gallowAnimation;
+    private PlayerStatsController _playerStatsController;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -41,6 +44,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
         _characterMovement = GetScript<CharacterMovement>();
         _playerVFX = GetScript<PlayerVFXSytem>();
         _gallowAnimation = GetScript<GallowglassAnimation>();
+        _playerStatsController = GetScript<PlayerStatsController>();
     }
 
    
@@ -78,31 +82,75 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
     private void CastGroundShatterSkill()
     {
         Collider[] targetsInRadius = Physics.OverlapSphere(transform.position, _earthShatterRadius);
+        HashSet<NetworkId> processedIds = new HashSet<NetworkId>();
         Gizmos.color = Color.blue;
 
-        foreach (Collider target in targetsInRadius)
+        foreach (Collider collider in targetsInRadius)
         {
-            var targetObject = target.transform.GetComponentInParent<Transform>();
-            if (targetObject.position.y > 1) continue;
-            var opponentStamina = targetObject.GetComponentInParent<CharacterStamina>();
-            /*
-            var opponentID = targetObject.GetComponentInParent<NetworkObject>().Id;
-            if (targetObject.GetComponentInParent<IDamageable>() == null || opponentStamina == null || opponentID == transform.GetComponent<NetworkObject>().Id) continue;
-            Vector3 dirToTarget = (target.transform.position - transform.position).normalized;
+            // Debug.Log("A");
+            
+            var detectedTransform = collider.GetComponentInParent<Transform>();
+            var networkObject = detectedTransform.GetComponentInParent<NetworkObject>();
+            var damageable = detectedTransform.GetComponentInParent<IDamageable>();
+            var stats = detectedTransform.GetComponentInParent<PlayerStatsController>();
+
+            if (networkObject == null || damageable == null || stats == null) continue;
+            Debug.Log("A");
+            if (networkObject.Id == transform.GetComponentInParent<NetworkObject>().Id) continue;
+            Debug.Log("B");
+            if (stats.PlayerTeam == _playerStatsController.PlayerTeam) continue;
+            Debug.Log("C");
+            if (processedIds.Contains(networkObject.Id)) continue; // Daha önce iþlendi mi?
+            Debug.Log("D");
+            processedIds.Add(networkObject.Id); // Ýþaretle
+            if (detectedTransform.position.y > 3f) continue;
+            Debug.Log("E");
+            Vector3 dirToTarget = (detectedTransform.position - transform.position).normalized;
             float angleToTarget = Vector3.Angle(transform.forward, dirToTarget);
             if (angleToTarget > _earthShatterAngle / 2) continue;
-           
-           
-            float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
+            Debug.Log("F");
+            float distanceToTarget = Vector3.Distance(transform.position, detectedTransform.position);
             bool hasObstacle = Physics.Raycast(transform.position, dirToTarget, distanceToTarget, _obstacleLayer);
 
+            float distance = Vector3.Distance(new Vector3(detectedTransform.position.x, transform.position.y, transform.position.z), detectedTransform.position);
+            GameObject debug = Instantiate(_test);
+            debug.transform.position = new Vector3(detectedTransform.position.x, transform.position.y, transform.position.z);
+            GameObject debug2 = Instantiate(_test);
+            debug2.transform.position = detectedTransform.position;
+            Debug.Log("Character: " + networkObject.Id + " distance: " + distance);
+
+            var opponentStamina = detectedTransform.GetComponentInParent<CharacterStamina>();
             if (!hasObstacle)
             {
-                opponentStamina.StunPlayerRpc(5);
+                opponentStamina.StunPlayerRpc(3);
             }
+            
+           
+            /*
+            var detectedObject = collider.GetComponentInParent<Transform>().gameObject;
+            if (detectedObject.GetComponentInParent<NetworkObject>() == null || detectedObject.GetComponentInParent<NetworkObject>().Id == transform.gameObject.GetComponentInParent<NetworkObject>().Id || detectedObject.GetComponentInParent<IDamageable>() == null || detectedObject.GetComponentInParent<PlayerStatsController>().PlayerTeam == _playerStatsController.PlayerTeam || processedIds.Contains(detectedObject.GetComponentInParent<PlayerStatsController>().Id)) continue;
+            
+            processedIds.Add(detectedObject.GetComponentInParent<PlayerStatsController>().Id);
+            if (detectedObject.transform.position.y > 1) continue;
+            Vector3 dirToTarget = (detectedObject.transform.position - transform.position).normalized;
+            float angleToTarget = Vector3.Angle(transform.forward, dirToTarget);
+            if (angleToTarget > _earthShatterAngle / 2) continue;
+            float distanceToTarget = Vector3.Distance(transform.position, detectedObject.transform.position);
+            bool hasObstacle = Physics.Raycast(transform.position, dirToTarget, distanceToTarget, _obstacleLayer);
 
-           Debug.Log("Detected: " + target.transform.gameObject.name);
+            float distance = Vector3.Distance(new Vector3(detectedObject.transform.position.x, transform.position.y, transform.position.z), detectedObject.transform.position);
+            GameObject debug = Instantiate(_test);
+            debug.transform.position = new Vector3(detectedObject.transform.position.x, transform.position.y, transform.position.z);
+            GameObject debug2 = Instantiate(_test);
+            debug2.transform.position = detectedObject.transform.position;
+            Debug.Log("Character: " + detectedObject.transform.GetComponentInParent<NetworkObject>().Id + " distance: " + distance);
+            var opponentStamina = detectedObject.GetComponentInParent<CharacterStamina>();
+            if (!hasObstacle)
+            {
+                opponentStamina.StunPlayerRpc(3);
+            }
             */
+            
         }
 
        

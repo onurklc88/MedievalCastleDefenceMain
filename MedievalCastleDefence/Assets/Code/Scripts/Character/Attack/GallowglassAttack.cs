@@ -87,26 +87,6 @@ public class GallowglassAttack : CharacterAttackBehaviour
         PreviousButton = input.NetworkButtons;
     }
 
-    private float GetAnimationTime()
-    {
-        AnimatorStateInfo stateInfo = _gallowGlassAnimation.BloodHandAnimator.GetCurrentAnimatorStateInfo(1);
-        float baseDuration = stateInfo.length;
-        float speed = stateInfo.speed * _gallowGlassAnimation.BloodHandAnimator.speed;
-
-        AnimatorClipInfo[] clipInfos = _gallowGlassAnimation.BloodHandAnimator.GetCurrentAnimatorClipInfo(1);
-
-        if (clipInfos.Length > 0)
-        {
-            string animName = clipInfos[0].clip.name;
-            float adjustedDuration = baseDuration / speed;
-            Debug.Log($"Animation Name: {animName}, Adjusted Length: {adjustedDuration}");
-            return adjustedDuration;
-        }
-
-        Debug.Log("No animation playing on layer 1.");
-        return 0f;
-    }
-
     protected override void BlockWeapon()
     {
         _gallowGlassAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
@@ -114,14 +94,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
     protected override void SwingSword()
     {
        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
-       
-        
-        Debug.Log("AVAVA");
-
-        AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
-        //AttackCooldown = TickTimer.CreateFromSeconds(Runner, GetAnimationTime());
-        _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
-        _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
+       AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
+       _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
+       _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;
        
         StartCoroutine(PerformAttack(swingTime));

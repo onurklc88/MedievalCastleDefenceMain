@@ -195,7 +195,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
 
     private void Test()
     {
-        _characterStamina.StunPlayerRpc(3);
+        //_characterStamina.StunPlayerRpc(3);
     }
 
 

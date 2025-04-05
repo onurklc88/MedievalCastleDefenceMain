@@ -257,6 +257,7 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
 
     public void UpdateSlideChargeCount(int count)
     {
+        if (_playerStatsController.PlayerNetworkStats.PlayerWarrior != CharacterStats.CharacterType.KnightCommander) return;
         _chargeTxt.text = count.ToString();
     }
 }

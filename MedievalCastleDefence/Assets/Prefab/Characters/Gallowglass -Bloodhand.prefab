@@ -29942,6 +29942,8 @@ MonoBehaviour:
     _value: 0
   _IsPlayerStunned:
     _value: 0
+  _IsPlayerUseAbility:
+    _value: 0
   _SwingIndex: 0
 --- !u!114 &6234195727965104301
 MonoBehaviour:
@@ -29982,6 +29984,9 @@ MonoBehaviour:
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 0
+  _test: {fileID: 8230794253742345829, guid: 4b2dca509caa8254fa58bf0bba30fa8f, type: 3}
+  _earthShatterRadius: 8
+  _earthShatterAngle: 90
 --- !u!114 &3336664594166331206
 MonoBehaviour:
   m_ObjectHideFlags: 0
