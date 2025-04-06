@@ -10,7 +10,7 @@ public class CharacterAnimationController : CharacterRegistry
     public virtual void UpdateSwingAnimationState(bool state) { }
     public virtual void UpdateJumpAnimationState(bool state) { }
     public virtual void UpdateDamageAnimationState() { }
-    public virtual void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection) { }
+    public virtual void UpdateStunAnimationState(int stunDuration) { }
     public virtual void PlayBlockAnimation() { }
     public virtual void TestUpdateLowerBodyStunAnimation() { }
 }

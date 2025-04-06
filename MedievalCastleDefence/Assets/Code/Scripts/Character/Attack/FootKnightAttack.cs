@@ -67,7 +67,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             }
            
         }
-        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner))
+        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_characterHealth.IsPlayerGotHit)
         {
            
             if (_characterStamina.CurrentAttackStamina > _weaponStats.StaminaWaste)
@@ -106,13 +106,13 @@ public class FootKnightAttack : CharacterAttackBehaviour
     {
 
        _blockArea.enabled = false;
-        yield return new WaitForSeconds(0.20f);
+        yield return new WaitForSeconds(0.10f);
         float elapsedTime = 0f;
         while (elapsedTime < 0.4f)
         {
-            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
-            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.6f, layerMask);
+            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
 
             var target = _hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
                          ?? _hitColliders.FirstOrDefault();
@@ -137,7 +137,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward * 1.2f, 0.6f);
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward * 1.1f, 0.5f);
         //Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward / 0.94f, 0.3f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);

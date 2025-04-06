@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Cysharp.Threading.Tasks;
 
 
 public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
@@ -17,6 +18,8 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
+    [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
+  
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
     //Bunu networked yapmak lazým
@@ -133,7 +136,12 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         else
             changed.Behaviour._animationController.Play("KnightCommander-LeftParry");
     }
-    
+
+    private static void NetworkStunExitTransitionChange(Changed<KnightCommanderAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetBool("CanStunExit", changed.Behaviour.CanStunExit);
+    }
+
     public override void UpdateJumpAnimationState(bool state)
     {
         IsPlayerJumping = state;
@@ -144,11 +152,14 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
        StartCoroutine(WaitDamageAnimation());
     }
    
-    public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
+    public async override void UpdateStunAnimationState(int stunDuration)
     {
-        IsPlayerStunned = true;
-        _opponentAttackDirection = attackDirection;
-        StartCoroutine(WaitStunnedAnimation());
+       IsPlayerStunned = true;
+       await UniTask.Delay(stunDuration);
+       CanStunExit = true;
+       await UniTask.Delay(50);
+        CanStunExit = false;
+       StartCoroutine(WaitStunnedAnimation());
     }
 
    

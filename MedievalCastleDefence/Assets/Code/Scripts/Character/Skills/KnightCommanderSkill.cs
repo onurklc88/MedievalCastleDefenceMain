@@ -14,6 +14,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
     private PlayerVFXSytem _characterVFX;
     private int _slideChargeCount;
     private CharacterController _characterController;
+    private CharacterMovement _characterMovement;
     public NetworkButtons PreviousButton { get; set; }
     private float _duration = 0.2f;
     private float _distance = 0.35f;
@@ -21,6 +22,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
     private Vector3 _slideDirection;
     private const int MAX_SLIDE_CHARGE_COUNT = 3;
     private bool _isRefilling = false;
+
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -33,6 +35,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
 
     private void Start()
     {
+        _characterMovement = GetScript<CharacterMovement>();
         _characterStamina = GetScript<CharacterStamina>();
         _playerHUD = GetScript<PlayerHUD>();
         _characterVFX = GetScript<PlayerVFXSytem>();
@@ -47,7 +50,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
     {
         if (!Object.HasStateAuthority) return;
         
-            if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
+            if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
             {
                ReadPlayerInputs(input);
             }

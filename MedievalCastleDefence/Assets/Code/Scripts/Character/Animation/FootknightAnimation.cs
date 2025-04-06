@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Cysharp.Threading.Tasks;
 
 public class FootknightAnimation : CharacterAnimationController, IReadInput
 {
@@ -14,7 +15,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkedAbilityAnimationStateChange))] public NetworkBool IsPlayerUseAbility { get; set; }
-   
+    [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private string[] _triggerAnimations;
     [Networked] private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection { get; set; }
@@ -110,7 +111,11 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour.PlayDamageAnimation();
        }
     }
-    
+    private static void NetworkStunExitTransitionChange(Changed<FootknightAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetBool("CanStunExit", changed.Behaviour.CanStunExit);
+    }
+
     private static void NetworkedAbilityAnimationStateChange(Changed<FootknightAnimation> changed)
     {
         if (changed.Behaviour.IsPlayerUseAbility == true)
@@ -149,7 +154,8 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
         }
         */
     }
-   public override void UpdateJumpAnimationState(bool state)
+   
+    public override void UpdateJumpAnimationState(bool state)
    {
         IsPlayerJumping = state;
         StartCoroutine(WaitJumpAnimation(0.3f));
@@ -165,12 +171,16 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
        StartCoroutine(WaitAttackAnimation(0.9f));
     }
 
-    public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
+    public async override void UpdateStunAnimationState(int stunDuration)
     {
         IsPlayerStunned = true;
-        _opponentAttackDirection = attackDirection;
+        await UniTask.Delay(stunDuration);
+        CanStunExit = true;
+        await UniTask.Delay(50);
+        CanStunExit = false;
         StartCoroutine(WaitStunnedAnimation());
     }
+
 
     public void UpdateAbilityAnimationState()
     {
@@ -199,6 +209,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
        _animationController.Play("Stun_StormshieldUpperBody");
 
     }
+  
     private IEnumerator WaitDamageAnimation()
     {
         yield return new WaitForSeconds(0.2f);

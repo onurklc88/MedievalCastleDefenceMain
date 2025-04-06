@@ -37,11 +37,6 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
         NetworkedHealth = _characterStats.TotalHealth;
         
     }
-
-    private void Update()
-    {
-       
-    }
     private void Start()
     {
        if (!Object.HasStateAuthority) return;
@@ -118,7 +113,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     }
     private async UniTaskVoid ResetHitStatus()
     {
-        await UniTask.Delay(1000);
+        await UniTask.Delay(500);
         IsPlayerGotHit = false;
     }
     public void DestroyObject() { }

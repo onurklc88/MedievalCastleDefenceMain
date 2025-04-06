@@ -67,11 +67,12 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
             _characterMovement.IsInputDisabled = true;
             
             _gallowAnimation.UpdateUltimateAnimState(true);
+            await UniTask.Delay(500);
             CastGroundShatterSkill();
-            //StartBloodhandCooldown().Forget();
-            await UniTask.Delay(1000);
+            await UniTask.Delay(500);
             _characterMovement.IsInputDisabled = false;
             CanUseAbility = true;
+           
             _gallowAnimation.UpdateUltimateAnimState(false);
             //_playerVFX.PlayUltimateVFX();
         }
@@ -88,68 +89,44 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
         foreach (Collider collider in targetsInRadius)
         {
             // Debug.Log("A");
-            
             var detectedTransform = collider.GetComponentInParent<Transform>();
             var networkObject = detectedTransform.GetComponentInParent<NetworkObject>();
+            if (networkObject == null) continue;
             var damageable = detectedTransform.GetComponentInParent<IDamageable>();
             var stats = detectedTransform.GetComponentInParent<PlayerStatsController>();
-
-            if (networkObject == null || damageable == null || stats == null) continue;
-            Debug.Log("A");
+            if (damageable == null || stats == null) continue;
             if (networkObject.Id == transform.GetComponentInParent<NetworkObject>().Id) continue;
-            Debug.Log("B");
             if (stats.PlayerTeam == _playerStatsController.PlayerTeam) continue;
-            Debug.Log("C");
-            if (processedIds.Contains(networkObject.Id)) continue; // Daha önce iþlendi mi?
-            Debug.Log("D");
-            processedIds.Add(networkObject.Id); // Ýþaretle
+            if (processedIds.Contains(networkObject.Id)) continue; 
+            processedIds.Add(networkObject.Id); 
             if (detectedTransform.position.y > 3f) continue;
-            Debug.Log("E");
             Vector3 dirToTarget = (detectedTransform.position - transform.position).normalized;
             float angleToTarget = Vector3.Angle(transform.forward, dirToTarget);
             if (angleToTarget > _earthShatterAngle / 2) continue;
-            Debug.Log("F");
             float distanceToTarget = Vector3.Distance(transform.position, detectedTransform.position);
             bool hasObstacle = Physics.Raycast(transform.position, dirToTarget, distanceToTarget, _obstacleLayer);
-
             float distance = Vector3.Distance(new Vector3(detectedTransform.position.x, transform.position.y, transform.position.z), detectedTransform.position);
-            GameObject debug = Instantiate(_test);
-            debug.transform.position = new Vector3(detectedTransform.position.x, transform.position.y, transform.position.z);
-            GameObject debug2 = Instantiate(_test);
-            debug2.transform.position = detectedTransform.position;
+            //GameObject debug = Instantiate(_test);
+            //debug.transform.position = new Vector3(detectedTransform.position.x, transform.position.y, transform.position.z);
+            //GameObject debug2 = Instantiate(_test);
+            //debug2.transform.position = new Vector3(detectedTransform.position.x, transform.position.y, detectedTransform.position.z);
             Debug.Log("Character: " + networkObject.Id + " distance: " + distance);
 
             var opponentStamina = detectedTransform.GetComponentInParent<CharacterStamina>();
             if (!hasObstacle)
             {
-                opponentStamina.StunPlayerRpc(3);
+                if(distance < 2.36f)
+                {
+                    Debug.Log("Diff bigger less 2");
+                    opponentStamina.StunPlayerRpc(3);
+                }
+                else
+                {
+                    Debug.Log("Diff bigger than 3");
+                    opponentStamina.StunPlayerRpc(2);
+                }
+               
             }
-            
-           
-            /*
-            var detectedObject = collider.GetComponentInParent<Transform>().gameObject;
-            if (detectedObject.GetComponentInParent<NetworkObject>() == null || detectedObject.GetComponentInParent<NetworkObject>().Id == transform.gameObject.GetComponentInParent<NetworkObject>().Id || detectedObject.GetComponentInParent<IDamageable>() == null || detectedObject.GetComponentInParent<PlayerStatsController>().PlayerTeam == _playerStatsController.PlayerTeam || processedIds.Contains(detectedObject.GetComponentInParent<PlayerStatsController>().Id)) continue;
-            
-            processedIds.Add(detectedObject.GetComponentInParent<PlayerStatsController>().Id);
-            if (detectedObject.transform.position.y > 1) continue;
-            Vector3 dirToTarget = (detectedObject.transform.position - transform.position).normalized;
-            float angleToTarget = Vector3.Angle(transform.forward, dirToTarget);
-            if (angleToTarget > _earthShatterAngle / 2) continue;
-            float distanceToTarget = Vector3.Distance(transform.position, detectedObject.transform.position);
-            bool hasObstacle = Physics.Raycast(transform.position, dirToTarget, distanceToTarget, _obstacleLayer);
-
-            float distance = Vector3.Distance(new Vector3(detectedObject.transform.position.x, transform.position.y, transform.position.z), detectedObject.transform.position);
-            GameObject debug = Instantiate(_test);
-            debug.transform.position = new Vector3(detectedObject.transform.position.x, transform.position.y, transform.position.z);
-            GameObject debug2 = Instantiate(_test);
-            debug2.transform.position = detectedObject.transform.position;
-            Debug.Log("Character: " + detectedObject.transform.GetComponentInParent<NetworkObject>().Id + " distance: " + distance);
-            var opponentStamina = detectedObject.GetComponentInParent<CharacterStamina>();
-            if (!hasObstacle)
-            {
-                opponentStamina.StunPlayerRpc(3);
-            }
-            */
             
         }
 

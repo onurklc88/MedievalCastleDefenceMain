@@ -106,16 +106,16 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private IEnumerator PerformAttack(float time)
     {
         base._blockArea.enabled = false;
-        yield return new WaitForSeconds(0.6f);
+        yield return new WaitForSeconds(0.24f);
         float elapsedTime = 0f;
         //AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1.5f);
 
         while (elapsedTime < 0.5f)
         {
 
-            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.5f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
-            Collider[] hitColliders = Physics.OverlapSphere(swingDirection, 0.7f, layerMask);
+            Collider[] hitColliders = Physics.OverlapSphere(swingDirection, 0.6f, layerMask);
 
             var target = hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
                          ?? hitColliders.FirstOrDefault();
@@ -182,9 +182,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.5f + -transform.right * 0.3f, 0.7f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + -transform.right * 0.3f, 0.6f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.5f + transform.right * 0.3f, 0.7f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * 0.3f, 0.6f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
     }

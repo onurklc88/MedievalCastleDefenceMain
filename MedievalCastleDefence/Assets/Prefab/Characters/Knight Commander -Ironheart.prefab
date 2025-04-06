@@ -730,7 +730,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2012100402955408734}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerHUD, Assembly-CSharp
         m_MethodName: OnRespawnStormshieldButtonClicked
         m_Mode: 1
@@ -2808,7 +2808,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2012100402955408734}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerHUD, Assembly-CSharp
         m_MethodName: OnRespawnKnightCommanderButtonClicked
         m_Mode: 1
@@ -3101,7 +3101,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2012100402955408734}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerHUD, Assembly-CSharp
         m_MethodName: OnRespawnRangerButtonClicked
         m_Mode: 1
@@ -4123,7 +4123,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2012100402955408734}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerHUD, Assembly-CSharp
         m_MethodName: OnRespawnStormshieldButtonClicked
         m_Mode: 1
@@ -4635,20 +4635,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6574679436527725842}
-  - component: {fileID: 999193052347185001}
-  - component: {fileID: 999193052347185007}
-  - component: {fileID: 9165233144116820496}
-  - component: {fileID: 421697461467430077}
   - component: {fileID: 894651988034674950}
-  - component: {fileID: 8107039158861367189}
   - component: {fileID: 368163971651759014}
-  - component: {fileID: 704264973135686376}
-  - component: {fileID: 4523527147080989133}
-  - component: {fileID: 5287867811867673000}
-  - component: {fileID: -3748063764809183040}
-  - component: {fileID: 4060013980439461772}
-  - component: {fileID: 6511355011640638625}
-  - component: {fileID: 2012100402955408734}
   m_Layer: 0
   m_Name: Knight Commander -Ironheart
   m_TagString: Untagged
@@ -4674,102 +4662,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &999193052347185001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObjectInterest: 1
-  DefaultInterestGroups: []
-  DestroyWhenStateAuthorityLeaves: 0
-  AllowStateAuthorityOverride: 1
-  AoiPositionSource: {fileID: 0}
-  Flags: 264449
-  NetworkGuid:
-    RawGuidValue: 7dbace0eaf080e948b56636a40a1f822
-  NestedObjects: []
-  NetworkedBehaviours:
-  - {fileID: 999193052347185007}
-  - {fileID: 9165233144116820496}
-  - {fileID: 421697461467430077}
-  - {fileID: 8107039158861367189}
-  - {fileID: 704264973135686376}
-  - {fileID: 4523527147080989133}
-  - {fileID: 5287867811867673000}
-  - {fileID: -3748063764809183040}
-  - {fileID: 4060013980439461772}
-  - {fileID: 6511355011640638625}
-  - {fileID: 2012100402955408734}
-  SimulationBehaviours: []
---- !u!114 &999193052347185007
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  InterpolationSpace: 0
-  InterpolationTarget: {fileID: 625515712464866465}
-  InterpolateErrorCorrection: 1
-  InterpolatedErrorCorrectionSettings:
-    MinRate: 3.3
-    MaxRate: 10
-    PosBlendStart: 0.25
-    PosBlendEnd: 1
-    PosMinCorrection: 0.025
-    PosTeleportDistance: 2
-    RotBlendStart: 0.1
-    RotBlendEnd: 0.5
-    RotTeleportRadians: 1.5
-  UseLegacySharedModeInterpolation: 0
-  TargetInterpolationDelay: 0.03
---- !u!114 &9165233144116820496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97eef8a10e1610c4bae96ad96709c86c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
-  SelectedCharacter: 2
---- !u!114 &421697461467430077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c461003c5c2b66e45af2996caed91ac3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
 --- !u!143 &894651988034674950
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4788,23 +4680,6 @@ CharacterController:
   m_SkinWidth: 0.3
   m_MinMoveDistance: 0.001
   m_Center: {x: 0.03, y: 1, z: 0.18}
---- !u!114 &8107039158861367189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4154b0ac760b9146a51273ccde7055d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
-  _characterController: {fileID: 894651988034674950}
 --- !u!95 &368163971651759014
 Animator:
   serializedVersion: 5
@@ -4826,162 +4701,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &704264973135686376
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16f8048dfa2d1984e83ba3e7c97baca5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 0}
-  _animationController: {fileID: 368163971651759014}
-  _characterDirections:
-  - PlayerVerticalDirection
-  - PlayerHorizontalDirection
-  _PlayerVerticalDirection: 0
-  _PlayerHorizontalDirection: 0
-  _OnPlayerWalk:
-    _value: 0
-  _IsPlayerParry:
-    _value: 0
-  _BlockIndex: 0
-  _IsPlayerJumping:
-    _value: 0
-  _IsPlayerGetDamage:
-    _value: 0
-  _IsPlayerStunned:
-    _value: 0
-  _SwingIndex: 0
---- !u!114 &4523527147080989133
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 461a768abac84584db869075c8eeebe5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 0}
-  _orientation: {fileID: 8493372368937935370}
-  _cameraTargetPoint: {fileID: 554130978381463020}
-  _cameraLookAtTarget: {fileID: 554130978381463020}
-  _uiCamera: {fileID: 1206425045858921329}
-  targetUIElement: {fileID: 2200774968558993406}
---- !u!114 &5287867811867673000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5465eb445d9c5cf46aed40f9751b25e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _debugText: {fileID: 4810856896995340322}
-  _localText: {fileID: 7214051490864943150}
---- !u!114 &-3748063764809183040
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bed731b03ebb4994aaa681e07e193366, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
-  _NetworkedHealth: 0
---- !u!114 &4060013980439461772
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 214b4855db4a31640b8b7a351d19cda0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
-  _IsPlayerBlockingLocal:
-    _value: 0
-  _PlayerSwordPositionLocal: 0
-  _IsPlayerBlocking:
-    _value: 0
-  _PlayerSwordPosition: 0
-  _weaponStats: {fileID: 11400000, guid: ef03e385307a14e49adba4e5dd941361, type: 2}
-  _blockArea: {fileID: 5605669304815212120}
-  _characterType: 2
-  _debugger: {fileID: 0}
-  test: {fileID: 7911425352771709435, guid: 9e6eeefe952f74d43a5afa019efc4a05, type: 3}
---- !u!114 &6511355011640638625
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41d75c3e05625de448633d0fb4ed32be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
---- !u!114 &2012100402955408734
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1396d606457c47c488f6c56b640477c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
-  _characterStaminaText: {fileID: 7214051490864943150}
-  _characterHealth: {fileID: 4810856896995340322}
-  _respawnPanel: {fileID: 5898547595881471574}
-  _arrowImage:
-  - {fileID: 1271247894814255012}
-  - {fileID: 6745414335553703350}
-  _aimTarget: {fileID: 0}
-  _stateTest: {fileID: 0}
 --- !u!1 &5830883500373072389
 GameObject:
   m_ObjectHideFlags: 0
@@ -5471,7 +5190,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2012100402955408734}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerHUD, Assembly-CSharp
         m_MethodName: OnRespawnGallowButtonClicked
         m_Mode: 1
@@ -7738,7 +7457,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2012100402955408734}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerHUD, Assembly-CSharp
         m_MethodName: OnRespawnKnightCommanderButtonClicked
         m_Mode: 1

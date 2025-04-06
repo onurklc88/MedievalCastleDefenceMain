@@ -121,9 +121,9 @@ public class CharacterStamina : CharacterRegistry
       
         if (CurrentDefenceStamina < _characterStats.KnockbackStaminaLimit)
         {
-            _characterAnim.UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection.Forward);
+            _characterAnim.UpdateStunAnimationState(3);
             //_characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer(CharacterAttackBehaviour.AttackDirection.Forward));
-            _characterMovement.HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection.Forward);
+            //_characterMovement.HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection.Forward);
             StunPlayerRpc(3);
         }
         else
@@ -136,12 +136,12 @@ public class CharacterStamina : CharacterRegistry
     public async void StunPlayerRpc(int stunDuration)
     {
         _characterMovement.IsInputDisabled = true;
-        _characterAnim.UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection.Forward);
+        if (!_characterMovement.IsPlayerGrounded())
+        {
+
+        }
+        _characterAnim.UpdateStunAnimationState(stunDuration * 1000);
         await UniTask.Delay(stunDuration * 1000);
-       
-
-
-
         _characterMovement.IsInputDisabled = false;
     }
 

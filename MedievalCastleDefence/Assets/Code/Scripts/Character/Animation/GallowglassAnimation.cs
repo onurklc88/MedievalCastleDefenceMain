@@ -2,6 +2,7 @@ using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 
 public class GallowglassAnimation : CharacterAnimationController, IReadInput
@@ -19,6 +20,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     //[Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkedAbilityAnimationStateChange))] public NetworkBool IsPlayerUseAbility { get; set; }
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
+    [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
     public Animator BloodHandAnimator { get; private set; }
@@ -132,6 +134,10 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         }
     }
 
+    private static void NetworkStunExitTransitionChange(Changed<GallowglassAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetBool("CanStunExit", changed.Behaviour.CanStunExit);
+    }
     private static void NetworkedAbilityAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
         if(changed.Behaviour.IsPlayerUseAbility == true)
@@ -190,11 +196,13 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         StartCoroutine(WaitDamageAnimation());
     }
 
-    public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
+    public async override void UpdateStunAnimationState(int stunDuration)
     {
-        AttackDirection = attackDirection;
-      
         IsPlayerStunned = true;
+        await UniTask.Delay(stunDuration);
+        CanStunExit = true;
+        await UniTask.Delay(50);
+        CanStunExit = false;
         StartCoroutine(WaitStunnedAnimation());
     }
     public void UpdateParryAnimation()

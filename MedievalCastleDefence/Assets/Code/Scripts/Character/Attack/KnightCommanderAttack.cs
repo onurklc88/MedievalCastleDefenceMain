@@ -100,7 +100,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         while (elapsedTime < 0.5f)
         {
            
-            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
             Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
 
@@ -131,9 +131,9 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward + -transform.right * 0.3f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.1f + -transform.right * 0.3f, 0.5f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward + transform.right * 0.3f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * 0.3f, 0.5f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
 

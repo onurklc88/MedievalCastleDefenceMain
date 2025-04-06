@@ -23571,6 +23571,8 @@ MonoBehaviour:
   _interpolationDataSource: 0
   _characterStats: {fileID: 11400000, guid: 91bf50986129f2548a869e2beb17cd9a, type: 2}
   _characterController: {fileID: 894651988034674950}
+  _jumpPower: 3.3
+  _highJumpPower: 4.5
 --- !u!114 &704264973135686376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23605,6 +23607,8 @@ MonoBehaviour:
   _IsPlayerStunned:
     _value: 0
   _SwingIndex: 0
+  _CanStunExit:
+    _value: 0
 --- !u!114 &4523527147080989133
 MonoBehaviour:
   m_ObjectHideFlags: 0

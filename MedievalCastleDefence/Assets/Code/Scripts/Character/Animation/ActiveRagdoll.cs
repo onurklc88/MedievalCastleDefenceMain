@@ -8,7 +8,7 @@ public class ActiveRagdoll : CharacterRegistry
 {
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private Animator _animator;
- 
+    [Networked(OnChanged = nameof(DisableRagdollStateOnChange))] public NetworkBool IsGameStart { get; set; }
     public Collider[] _ragdollColliders;
     public Rigidbody[] _limbsRigidbodies;
     
@@ -17,7 +17,8 @@ public class ActiveRagdoll : CharacterRegistry
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
-   }
+        //IsGameStart = true;
+    }
 
     private void Start()
     {
@@ -54,9 +55,31 @@ public class ActiveRagdoll : CharacterRegistry
 
     }
 
+    private static void DisableRagdollStateOnChange(Changed<ActiveRagdoll> changed)
+    {
+        
+        if (changed.Behaviour._ragdollColliders == null || changed.Behaviour._limbsRigidbodies == null)
+        {
+            return;
+        }
 
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        foreach (Collider col in changed.Behaviour._ragdollColliders)
+        {
+
+            if (col.gameObject.GetComponent<Rigidbody>() != null && col.gameObject.layer != 10)
+            {
+                col.enabled = false;
+
+            }
+        }
+
+        foreach (Rigidbody rb in changed.Behaviour._limbsRigidbodies)
+        {
+            rb.isKinematic = true;
+        }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
     private void RPCDisableRagdoll()
     {
         if (_ragdollColliders == null|| _limbsRigidbodies == null)

@@ -125,7 +125,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
         StartCoroutine(WaitDamageAnimation());
     }
 
-    public override void UpdateStunAnimationState(CharacterAttackBehaviour.AttackDirection attackDirection)
+    public override void UpdateStunAnimationState(int stunDuration)
     {
         IsPlayerStunned = true;
         //_opponentAttackDirection = attackDirection;
