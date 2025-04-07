@@ -1,3 +1,4 @@
+
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Fusion;
@@ -21,7 +22,8 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     private CharacterAnimationController _animController;
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
-
+    private PlayerInputData _playerInputData;
+    private bool _test;
     //test
     private float _currentDirection = 1f;
     private bool _isAutoMoving = false;
@@ -72,6 +74,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority || _characterController.enabled == false) return;
+        _test = false; // Her frame baþýnda sýfýrla
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
         {
             //ReadPlayerInputs(input);
@@ -88,12 +91,13 @@ public class CharacterMovement : CharacterRegistry, IReadInput
                 _currentMovement = GetInputDirection(input); 
                 CalculateCharacterSpeed(input);
             }
-           
+            _playerInputData = input;
         }
         ApplyGravity();
-       _characterController.Move(_currentMovement * CurrentMoveSpeed * Runner.DeltaTime);
-        
-       
+        // CheckPlayerCollision();
+        MoveCharacter(input);
+
+        //Debug.Log("TESTBOOL : " + _test);
         PreviousButton = input.NetworkButtons;
 
     }
@@ -145,7 +149,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             _elapsedTime = 0f;
             CurrentMoveSpeed = _characterStats.MoveSpeed;
         }
-     }
+    }
     private Vector3 GetInputDirection(PlayerInputData input)
     {
         if (!_isAutoMoving)
@@ -172,6 +176,21 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             return new Vector3(_currentDirection, 0, 0);
         }
        
+    }
+
+    private void MoveCharacter(PlayerInputData input)
+    {
+        if (_test)
+        {
+            if (input.HorizontalInput != 0)
+                _currentMovement.x = 0;
+
+            if (input.VerticalInput != 0)
+                _currentMovement.z = 0;
+         
+        }
+        Debug.Log("CurrentMovement: " + _currentMovement+ "bool: " +_test);
+        _characterController.Move(_currentMovement * CurrentMoveSpeed * Runner.DeltaTime);
     }
 
     private void ApplyGravity()
@@ -206,17 +225,34 @@ public class CharacterMovement : CharacterRegistry, IReadInput
        
         //_characterStamina.StunPlayerRpc(3);
     }
-    private bool _pushApplied = false;
+    
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        
+
+
+        if (hit.gameObject.layer == 6)
+        {
+            _test = true;
+        }
+
+
+
     }
 
-    private void ResetPush()
+    private void OnCollisionStay(Collision collision)
     {
-        _pushApplied = false;
+        if (collision.gameObject.layer == 6)
+        {
+            _test = true;
+        }
     }
+
+    private void OnTriggerExit(Collider other)
+    {
+       
+    }
+
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public async void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
