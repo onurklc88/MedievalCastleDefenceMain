@@ -97515,7 +97515,7 @@ GameObject:
   - component: {fileID: 9067719219929323319}
   - component: {fileID: 6122739738496821673}
   - component: {fileID: 3631194079973069614}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Foot Knight - Storm Shield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97661,12 +97661,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 1.44
-  m_Radius: 0.3
+  m_Radius: 0.31
   m_SlopeLimit: 40
   m_StepOffset: 0.1
   m_SkinWidth: 0.3
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0.03, y: 1, z: 0.18}
+  m_Center: {x: 0, y: 1, z: 0.08}
 --- !u!114 &8107039158861367189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97684,6 +97684,8 @@ MonoBehaviour:
   _interpolationDataSource: 0
   _characterStats: {fileID: 11400000, guid: b6abeda909e2e544daaed4dd2eafa7bc, type: 2}
   _characterController: {fileID: 894651988034674950}
+  _jumpPower: 3
+  _highJumpPower: 3.3
 --- !u!95 &368163971651759014
 Animator:
   serializedVersion: 5
@@ -97824,6 +97826,8 @@ MonoBehaviour:
     _value: 0
   _IsPlayerUseAbility:
     _value: 0
+  _CanStunExit:
+    _value: 0
   _triggerAnimations:
   - foot-knight-jump
   _attackStates:
@@ -97900,6 +97904,8 @@ MonoBehaviour:
   _characterStats: {fileID: 0}
   _characterController: {fileID: 894651988034674950}
   _animator: {fileID: 368163971651759014}
+  _IsGameStart:
+    _value: 0
   _ragdollColliders: []
   _limbsRigidbodies: []
 --- !u!114 &4807367121575163045

@@ -48,7 +48,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
 
     public override void FixedUpdateNetwork()
     {
-        if (!Object.HasStateAuthority) return;
+        if (!Object.HasStateAuthority || _characterMovement == null) return;
         
             if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
             {

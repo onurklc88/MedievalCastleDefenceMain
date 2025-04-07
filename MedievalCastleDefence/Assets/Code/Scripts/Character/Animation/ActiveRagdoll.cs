@@ -15,6 +15,7 @@ public class ActiveRagdoll : CharacterRegistry
 
     public override void Spawned()
     {
+        GetRagdollBits();
         if (!Object.HasStateAuthority) return;
         InitScript(this);
         //IsGameStart = true;
@@ -22,8 +23,9 @@ public class ActiveRagdoll : CharacterRegistry
 
     private void Start()
     {
+       
         if (!Object.HasStateAuthority) return;
-        GetRagdollBits();
+      
         RPCDisableRagdoll();
     }
 
@@ -57,6 +59,7 @@ public class ActiveRagdoll : CharacterRegistry
 
     private static void DisableRagdollStateOnChange(Changed<ActiveRagdoll> changed)
     {
+
         
         if (changed.Behaviour._ragdollColliders == null || changed.Behaviour._limbsRigidbodies == null)
         {
@@ -79,12 +82,14 @@ public class ActiveRagdoll : CharacterRegistry
         }
     }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPCDisableRagdoll()
     {
         if (_ragdollColliders == null|| _limbsRigidbodies == null)
         {
-           return;
+            Debug.LogWarning("Ragdoll parts missing on: " + Object.InputAuthority);
+            GetRagdollBits(); // Son þans olarak tekrar çaðýr
+                              // return;
         }
       
         foreach (Collider col in _ragdollColliders)

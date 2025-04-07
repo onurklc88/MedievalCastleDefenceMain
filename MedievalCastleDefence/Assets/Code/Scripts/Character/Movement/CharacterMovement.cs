@@ -21,6 +21,12 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     private CharacterAnimationController _animController;
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
+
+    //test
+    private float _currentDirection = 1f;
+    private bool _isAutoMoving = false;
+    private float _movementBound = 5f; // 5 metre sýnýr
+    private Vector3 _startPosition; // Baþlangýç pozisyonu
     public override void Spawned()
     {
        if (!Object.HasStateAuthority) return;
@@ -37,7 +43,6 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             _isInputDisabled = value;
             if (_isInputDisabled)
             {
-                Debug.Log("Veve");
                 _currentMovement.x = 0;
                 _currentMovement.z = 0;
             }
@@ -69,16 +74,27 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         if (!Object.HasStateAuthority || _characterController.enabled == false) return;
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
         {
-            ReadPlayerInputs(input);
+            //ReadPlayerInputs(input);
             if (!IsInputDisabled)
             {
+                var pressedButton = input.NetworkButtons.GetPressed(PreviousButton);
+               
+                if (pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Interact) && !_isAutoMoving)
+                {
+                    
+                    _isAutoMoving = true;
+                    _startPosition = transform.position;
+                }
                 _currentMovement = GetInputDirection(input); 
                 CalculateCharacterSpeed(input);
             }
            
         }
         ApplyGravity();
-        _characterController.Move(_currentMovement * CurrentMoveSpeed * Runner.DeltaTime);
+       _characterController.Move(_currentMovement * CurrentMoveSpeed * Runner.DeltaTime);
+        
+       
+        PreviousButton = input.NetworkButtons;
 
     }
     public void ReadPlayerInputs(PlayerInputData input)
@@ -132,12 +148,30 @@ public class CharacterMovement : CharacterRegistry, IReadInput
      }
     private Vector3 GetInputDirection(PlayerInputData input)
     {
-        float verticalSpeed = input.VerticalInput;
-        float horizontalSpeed = input.HorizontalInput;
-        Vector3 horizontalMovement = new Vector3(horizontalSpeed, 0, verticalSpeed).normalized;
-        horizontalMovement = transform.rotation * horizontalMovement;
-        horizontalMovement.y = _currentMovement.y;
-        return horizontalMovement;
+        if (!_isAutoMoving)
+        {
+            float verticalSpeed = input.VerticalInput;
+            float horizontalSpeed = input.HorizontalInput;
+            Vector3 horizontalMovement = new Vector3(horizontalSpeed, 0, verticalSpeed).normalized;
+            horizontalMovement = transform.rotation * horizontalMovement;
+            horizontalMovement.y = _currentMovement.y;
+
+            return horizontalMovement;
+        }
+        else
+        {
+            float currentDistance = transform.position.x - _startPosition.x;
+
+            // Sýnýr aþýldýysa yönü tersine çevir
+            if (Mathf.Abs(currentDistance) >= _movementBound)
+            {
+                _currentDirection *= -1f; // Yön deðiþtir
+                _startPosition = transform.position; // Sýnýrý resetle
+            }
+
+            return new Vector3(_currentDirection, 0, 0);
+        }
+       
     }
 
     private void ApplyGravity()
@@ -162,60 +196,27 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         if (_characterStats.WarriorType != CharacterStats.CharacterType.Gallowglass && _characterStamina.CanPlayerJump())
         {
             _animController.UpdateJumpAnimationState(true);
-            _velocity = _jumpPower; // += deðil, direkt set!
+            _velocity = _jumpPower; 
         }
     }
-    /*
-        [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        public void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
-        {
-            Debug.Log("ZAZA");
-            StartCoroutine(KnockbackPlayer(attackDirection));
-            _animController.UpdateStunAnimationState(attackDirection);
-        }
-
-        public IEnumerator KnockbackPlayer(CharacterAttackBehaviour.AttackDirection attackDirection)
-        {
-            Vector3 movePos = Vector3.zero;
-            switch (attackDirection)
-            {
-                case CharacterAttackBehaviour.AttackDirection.Forward:
-                    movePos = -transform.forward;
-                    break;
-                case CharacterAttackBehaviour.AttackDirection.FromRight:
-                    movePos = transform.right;
-                    break;
-                case CharacterAttackBehaviour.AttackDirection.FromLeft:
-                    movePos = -transform.right;
-                    break;
-                case CharacterAttackBehaviour.AttackDirection.Backward:
-                    movePos = transform.forward;
-                    break;
-            }
-
-            IsInputDisabled = true;
-            _playerHUD.IsStunnedBarActive = IsInputDisabled;
-            float elapsedTime = 0f;
-            while(elapsedTime < 3f)
-            {
-                _characterController.Move(movePos * Time.deltaTime * 0.5f);
-                _playerHUD.UpdateStunBarFiller(elapsedTime);
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-            _playerHUD.IsStunnedBarActive = false;
-            IsInputDisabled = false;
-            yield return new WaitForSeconds(2f);
-
-
-        }
-        */
-
+   
     private void Test()
     {
-        _characterStamina.StunPlayerRpc(3);
+          
+       
+        //_characterStamina.StunPlayerRpc(3);
+    }
+    private bool _pushApplied = false;
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        
     }
 
+    private void ResetPush()
+    {
+        _pushApplied = false;
+    }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public async void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
@@ -260,5 +261,54 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         Gizmos.DrawRay(rayOrigin, Vector3.down * rayLength);
     }
 
-    
+
+    #region legacy
+    /*
+       [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+       public void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
+       {
+           Debug.Log("ZAZA");
+           StartCoroutine(KnockbackPlayer(attackDirection));
+           _animController.UpdateStunAnimationState(attackDirection);
+       }
+
+       public IEnumerator KnockbackPlayer(CharacterAttackBehaviour.AttackDirection attackDirection)
+       {
+           Vector3 movePos = Vector3.zero;
+           switch (attackDirection)
+           {
+               case CharacterAttackBehaviour.AttackDirection.Forward:
+                   movePos = -transform.forward;
+                   break;
+               case CharacterAttackBehaviour.AttackDirection.FromRight:
+                   movePos = transform.right;
+                   break;
+               case CharacterAttackBehaviour.AttackDirection.FromLeft:
+                   movePos = -transform.right;
+                   break;
+               case CharacterAttackBehaviour.AttackDirection.Backward:
+                   movePos = transform.forward;
+                   break;
+           }
+
+           IsInputDisabled = true;
+           _playerHUD.IsStunnedBarActive = IsInputDisabled;
+           float elapsedTime = 0f;
+           while(elapsedTime < 3f)
+           {
+               _characterController.Move(movePos * Time.deltaTime * 0.5f);
+               _playerHUD.UpdateStunBarFiller(elapsedTime);
+               elapsedTime += Time.deltaTime;
+               yield return null;
+           }
+           _playerHUD.IsStunnedBarActive = false;
+           IsInputDisabled = false;
+           yield return new WaitForSeconds(2f);
+
+
+       }
+       */
+
+    #endregion
+
 }
