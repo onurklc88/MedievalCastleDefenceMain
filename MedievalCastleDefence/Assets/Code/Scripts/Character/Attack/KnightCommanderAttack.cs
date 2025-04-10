@@ -57,9 +57,10 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
        
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-        if (_knightCommanderAnimation != null) BlockWeapon();
+      
         //IsPlayerBlockingLocal = true;
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
+        if (_knightCommanderAnimation != null) BlockWeapon();
         //if (!IsPlayerBlocking && _knightCommanderAnimation != null) BlockWeapon();
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_characterHealth.IsPlayerGotHit)

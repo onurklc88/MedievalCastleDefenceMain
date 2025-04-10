@@ -102,15 +102,14 @@ public class GallowglassAttack : CharacterAttackBehaviour
                 _lastBlockDirection = currentDirection;
             }
 
-            _gallowGlassAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
-           
+
+            _gallowGlassAnimation.UpdateBlockAnimState(_lockedBlockDirection);
         }
         else
         {
 
             _lockedBlockDirection = 0;
             _gallowGlassAnimation.UpdateBlockAnimState(0);
-            
         }
     }
 
