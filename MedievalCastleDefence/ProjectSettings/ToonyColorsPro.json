@@ -5,11 +5,18 @@
     "LoadAllShaders": false,
     "CustomOutputPath": "/JMO Assets/Toony Colors Pro/Shaders Generated/",
     "LastImplementationExportImportPath": "E:/Projects/MedievalCastleDefenceMain/MedievalCastleDefence/Assets",
-    "OpenedFoldouts": [],
-    "UseCustomFont": false,
+    "OpenedFoldouts": [
+        "TRANSPARENCY/BLENDING",
+        "STYLIZATION",
+        "SHADER STATES",
+        "SURFACE"
+    ],
+    "UseCustomFont": true,
     "CustomFont": {
-        "instanceID": 0
+        "fileID": 12800000,
+        "guid": "8a406076b7de34849be1f35585875a66",
+        "type": 3
     },
-    "CustomFontInitialized": false,
+    "CustomFontInitialized": true,
     "Upgrade_Hybrid1toHybrid2_Done": true
 }

@@ -99,6 +99,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     private static void NetworkedUpperbodyBlockAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
         //changed.Behaviour._animationController.SetBool("OnPlayerParry", changed.Behaviour.IsPlayerParry);
+
         changed.Behaviour._animationController.SetInteger("BlockIndex", changed.Behaviour.BlockIndex);
     }
     private static void NetworkAttackAnimationStateChange(Changed<KnightCommanderAnimation> changed)
@@ -131,6 +132,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     private static void NetworkParryAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
         if (changed.Behaviour.IsPlayerParry == false) return;
+        if (changed.Behaviour.IsPlayerStunned == true) return;
         if (changed.Behaviour.BlockIndex == 1)
             changed.Behaviour._animationController.Play("KnightCommander-RightParry");
         else
@@ -154,6 +156,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
    
     public async override void UpdateStunAnimationState(int stunDuration)
     {
+        UpdateBlockAnimState(0);
        IsPlayerStunned = true;
        await UniTask.Delay(stunDuration);
        CanStunExit = true;

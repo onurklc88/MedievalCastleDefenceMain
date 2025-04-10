@@ -198,6 +198,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
 
     public async override void UpdateStunAnimationState(int stunDuration)
     {
+        UpdateBlockAnimState(0);
         IsPlayerStunned = true;
         await UniTask.Delay(stunDuration);
         CanStunExit = true;

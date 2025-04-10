@@ -57,7 +57,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     private static void OnNetworkBlockChanged(Changed<CharacterAttackBehaviour> changed)
     {
         changed.Behaviour.IsPlayerBlocking = changed.Behaviour.IsPlayerBlockingLocal;
-        if (changed.Behaviour._characterStats.WarriorType == CharacterStats.CharacterType.FootKnight) return;
+        //if (changed.Behaviour._characterStats.WarriorType == CharacterStats.CharacterType.FootKnight) return;
         changed.Behaviour._blockArea.enabled = changed.Behaviour.IsPlayerBlockingLocal;
      
     }
@@ -111,9 +111,9 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 */
         if (opponent.gameObject.layer == 11 && isOpponentParrying)
         {
-            opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
+            opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-            opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
+           // opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
         }
         else
         {
@@ -143,7 +143,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
            opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-           opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
+           opponent.transform.GetComponentInParent<IronheartVFXController>().UpdateParryVFXRpc();
         }
         else
         {

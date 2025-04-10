@@ -117,13 +117,12 @@ public class CharacterStamina : CharacterRegistry
             StartCoroutine(RegenerateDefenceStamina());
         }
         if (_characterStats.WarriorType == CharacterStats.CharacterType.FootKnight)
-            _characterAnim.UpdateDamageAnimationState();
+            _characterAnim.UpdateDamageAnimationState(); 
+       Debug.Log("CurrentDefenceStamina: " + CurrentDefenceStamina);
       
         if (CurrentDefenceStamina < _characterStats.KnockbackStaminaLimit)
         {
-            _characterAnim.UpdateStunAnimationState(3);
-            //_characterMovement.StartCoroutine(_characterMovement.KnockbackPlayer(CharacterAttackBehaviour.AttackDirection.Forward));
-            //_characterMovement.HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection.Forward);
+            //_characterAnim.UpdateStunAnimationState(3);
             StunPlayerRpc(3);
         }
         else
@@ -135,11 +134,9 @@ public class CharacterStamina : CharacterRegistry
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public async void StunPlayerRpc(int stunDuration)
     {
+        Debug.Log("Stun Yedi ");
         _characterMovement.IsInputDisabled = true;
-        if (!_characterMovement.IsPlayerGrounded())
-        {
-
-        }
+       
         _characterAnim.UpdateStunAnimationState(stunDuration * 1000);
         await UniTask.Delay(stunDuration * 1000);
         _characterMovement.IsInputDisabled = false;

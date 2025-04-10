@@ -156,10 +156,10 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     }
    
     public override void UpdateJumpAnimationState(bool state)
-   {
+    {
         IsPlayerJumping = state;
         StartCoroutine(WaitJumpAnimation(0.3f));
-   }
+    } 
 
    public override void UpdateDamageAnimationState()
    {
@@ -173,6 +173,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
 
     public async override void UpdateStunAnimationState(int stunDuration)
     {
+        IsPlayerParry = false;
         IsPlayerStunned = true;
         await UniTask.Delay(stunDuration);
         CanStunExit = true;
@@ -207,7 +208,6 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     {
        _animationController.Play("Stun-Stormsheildlowerbody");
        _animationController.Play("Stun_StormshieldUpperBody");
-
     }
   
     private IEnumerator WaitDamageAnimation()

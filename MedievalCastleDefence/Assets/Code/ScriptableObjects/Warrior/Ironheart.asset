@@ -18,5 +18,5 @@ MonoBehaviour:
   TotalHealth: 90
   AttackStamina: 500000
   DefenceStamina: 60
-  KnockbackStaminaLimit: 40
+  KnockbackStaminaLimit: 30
   KnockBackDuration: 3

@@ -11,10 +11,9 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _ragdollManager;
     private PlayerVFXSytem _playerVFXSystem;
-   
-
+    private int _lockedBlockDirection = 0;
+    private int _lastBlockDirection = 0;
     [SerializeField] private RPCDebugger _debugger;
-   
     [SerializeField] private GameObject test;
    
     public override void Spawned()
@@ -32,13 +31,12 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _characterStamina = GetScript<CharacterStamina>();
         _characterMovement = GetScript<CharacterMovement>();
         _ragdollManager = GetScript<ActiveRagdoll>();
-        _playerVFXSystem = GetScript<PlayerVFXSytem>();
+        _playerVFXSystem = GetScript<IronheartVFXController>();
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
     }
     public override void FixedUpdateNetwork()
     {
-
         if (!Object.HasStateAuthority) return;
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
         {
@@ -57,10 +55,12 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
+       
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        if (_knightCommanderAnimation != null) BlockWeapon();
         //IsPlayerBlockingLocal = true;
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
-        if (_knightCommanderAnimation != null) BlockWeapon();
+        //if (!IsPlayerBlocking && _knightCommanderAnimation != null) BlockWeapon();
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_characterHealth.IsPlayerGotHit)
         {
@@ -73,9 +73,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
+            Debug.Log("Selam");
+            _characterStamina.DecreaseDefenceStaminaRPC(28f);
+           
             //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }
+
+        Debug.Log("IsplayerBlocking: " + IsPlayerBlocking);
         PreviousButton = input.NetworkButtons;
     }
     protected override void SwingSword()
@@ -86,7 +91,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         {
             Debug.Log("is null? :");
         }
-        Debug.Log("test1-2");
+      
         _knightCommanderAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
@@ -121,13 +126,32 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         yield return new WaitForSeconds(1f);
         _playerVFXSystem.ActivateSwordTrail(false);
     }
+   
+
     protected override void BlockWeapon()
     {
-        _knightCommanderAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
-        //_debugger.ShowDebugMessageRPC("Is Block area active: " + base._blockArea.enabled.ToString());
-        //Debug.Log("IsplayerBlocking: " + IsPlayerBlocking + " Sword pos: " + PlayerSwordPositionLocal);
+        if (IsPlayerBlocking)
+        {
+            int currentDirection = (int)GetSwordPosition();
+
+           
+            if (_lockedBlockDirection == 0 || _lockedBlockDirection == currentDirection)
+            {
+                _lockedBlockDirection = currentDirection;
+                _lastBlockDirection = currentDirection;
+            }
+
+        
+            _knightCommanderAnimation.UpdateBlockAnimState(_lockedBlockDirection);
+        }
+        else
+        {
+            
+            _lockedBlockDirection = 0;
+            _knightCommanderAnimation.UpdateBlockAnimState(0);
+        }
     }
-  
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

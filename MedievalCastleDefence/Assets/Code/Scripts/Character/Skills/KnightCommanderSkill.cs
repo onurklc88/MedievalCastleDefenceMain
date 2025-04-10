@@ -14,6 +14,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
     private PlayerVFXSytem _characterVFX;
     private int _slideChargeCount;
     private CharacterController _characterController;
+    private Rigidbody _rigidbody;
     private CharacterMovement _characterMovement;
     public NetworkButtons PreviousButton { get; set; }
     private float _duration = 0.2f;
@@ -26,7 +27,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
-        _characterController = GetComponent<CharacterController>();
+        _rigidbody = GetComponent<Rigidbody>();
         InitScript(this);
         if (!Runner.IsSharedModeMasterClient)
              _distance = 0.17f;
@@ -78,7 +79,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
         }
         else
         {
-            Debug.Log("No slide charges left! Waiting for recharge...");
+           // Debug.Log("No slide charges left! Waiting for recharge...");
         }
     }
 
@@ -127,19 +128,22 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
         _characterVFX.ActivateSwordTrail(IsPlayerDash);
         EventLibrary.OnPlayerDash.Invoke(IsPlayerDash);
         Vector3 startPos = transform.position;
-        Vector3 targetPos = startPos + direction * _distance;
-
+        
+       
         float elapsedTime = 0f;
+        float forceMultiplier = 1700f; 
+        float duration = 0.3f; 
 
-        while (elapsedTime < _duration)
+        while (elapsedTime < duration)
         {
-            Vector3 movement = Vector3.Lerp(Vector3.zero, targetPos - startPos, elapsedTime / _duration);
-            _characterController.Move(movement);
-            elapsedTime += Time.deltaTime;
+            // Kuvveti kademeli azalt (elapsedTime ile ters orantýlý)
+            float currentForce = forceMultiplier * (1 - (elapsedTime / duration));
+            _rigidbody.AddForce(direction * currentForce, ForceMode.Acceleration);
+
+            elapsedTime += Runner.DeltaTime;
             await UniTask.Yield();
         }
-
-        transform.position = targetPos;
+       
         IsPlayerDash = false;
        
         EventLibrary.OnPlayerDash.Invoke(IsPlayerDash);

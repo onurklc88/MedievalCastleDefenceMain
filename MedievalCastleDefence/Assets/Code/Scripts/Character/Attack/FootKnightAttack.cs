@@ -7,10 +7,10 @@ using System.Linq;
 public class FootKnightAttack : CharacterAttackBehaviour
 {
     [SerializeField] private RPCDebugger _rpcdebugger;
+    [SerializeField] private Rigidbody _shieldRigidbody;
     private FootknightAnimation _animation;
     private CharacterMovement _characterMovement;
-    private ActiveRagdoll _activeRagdoll;
-    private PlayerVFXSytem _playerVFX;
+   
   
     
     public override void Spawned()
@@ -18,17 +18,15 @@ public class FootKnightAttack : CharacterAttackBehaviour
         if (!Object.HasStateAuthority) return;
         _characterController = GetComponent<CharacterController>();
         _characterType = CharacterStats.CharacterType.FootKnight;
+        _shieldRigidbody.mass = 0;
         InitScript(this);
-        
-        _animation = transform.GetComponent<FootknightAnimation>();
+       _animation = transform.GetComponent<FootknightAnimation>();
     }
     private void Start()
     {
         _characterMovement = GetScript<CharacterMovement>();
         _characterStamina = GetScript<CharacterStamina>();
-        _activeRagdoll = GetScript<ActiveRagdoll>();
-        _playerVFX = GetScript<PlayerVFXSytem>();
-        _playerStatsController = GetScript<PlayerStatsController>();
+       _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
     }
     public override void FixedUpdateNetwork()
@@ -59,7 +57,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         var pressedButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (IsPlayerBlockingLocal)
         {
-            _characterMovement.CurrentMoveSpeed = _characterStats.MoveSpeed;
+            //_characterMovement.CurrentMoveSpeed = _characterStats.MoveSpeed;
 
             if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_characterHealth.IsPlayerGotHit)
             {
@@ -78,15 +76,21 @@ public class FootKnightAttack : CharacterAttackBehaviour
         else
         {
             if(_characterMovement != null)
+            {
                 _characterMovement.CurrentMoveSpeed = _characterStats.SprintSpeed;
+            }
+
         }
 
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
-            IsPlayerBlockingLocal = true;
+            _characterStamina.DecreaseDefenceStaminaRPC(50f);
+            //IsPlayerBlockingLocal = true;
             //_activeRagdoll.RPCActivateRagdoll();
         }
+
+        
 
         PreviousButton = input.NetworkButtons;
     }
@@ -110,9 +114,9 @@ public class FootKnightAttack : CharacterAttackBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < 0.4f)
         {
-            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
-            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
+            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.6f, layerMask);
 
             var target = _hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
                          ?? _hitColliders.FirstOrDefault();
@@ -137,7 +141,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward * 1.1f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward, 0.6f);
         //Gizmos.DrawWireSphere(transform.position + transform.up + transform.forward / 0.94f, 0.3f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);

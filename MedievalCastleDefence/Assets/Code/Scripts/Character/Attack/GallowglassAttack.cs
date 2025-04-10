@@ -14,7 +14,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
      private BloodhandSkill _bloodhandSkill;
     private BloodhandVFXController _bloodhandVFX;
     private TickTimer _blockReleaseCooldown;
-   
+    private int _lockedBlockDirection = 0;
+    private int _lastBlockDirection = 0;
+
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -79,18 +81,39 @@ public class GallowglassAttack : CharacterAttackBehaviour
               
             }
         }
-        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && _bloodhandSkill.CanUseAbility)
+        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && _bloodhandSkill.CanUseAbility)
         {
-            IsPlayerBlockingLocal = true;
+            //IsPlayerBlockingLocal = true;
+            _characterStamina.DecreaseDefenceStaminaRPC(60f);
         }
 
         PreviousButton = input.NetworkButtons;
     }
-
     protected override void BlockWeapon()
     {
-        _gallowGlassAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
+        if (IsPlayerBlocking)
+        {
+            int currentDirection = (int)GetSwordPosition();
+
+
+            if (_lockedBlockDirection == 0 || _lockedBlockDirection == currentDirection)
+            {
+                _lockedBlockDirection = currentDirection;
+                _lastBlockDirection = currentDirection;
+            }
+
+            _gallowGlassAnimation.UpdateBlockAnimState(IsPlayerBlocking ? (int)GetSwordPosition() : 0);
+           
+        }
+        else
+        {
+
+            _lockedBlockDirection = 0;
+            _gallowGlassAnimation.UpdateBlockAnimState(0);
+            
+        }
     }
+
     protected override void SwingSword()
     {
        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
@@ -175,7 +198,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         var opponentMovement = opponent.transform.GetComponentInParent<CharacterMovement>();
         if (opponentMovement == null) return;
         _characterStamina.DecreaseCharacterAttackStamina(10f);
-        opponentMovement.HandleKnockBackRPC(attackDirection);
+        //opponentMovement.HandleKnockBackRPC(attackDirection);
     }
 
 

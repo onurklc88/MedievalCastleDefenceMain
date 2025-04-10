@@ -1,4 +1,219 @@
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+using Fusion;
+using static BehaviourRegistry;
 
+[RequireComponent(typeof(Rigidbody))]
+public class CharacterMovement : CharacterRegistry, IReadInput
+{
+    
+    [SerializeField] private float _jumpForce = 5f;
+    [SerializeField] private float _groundCheckDistance = 0.3f;
+    [SerializeField] private float _accelerationTime = 2f;
+    public float CurrentMoveSpeed;
+   
+    private Rigidbody _rigidbody;
+    private Vector3 _moveDirection;
+    private bool _isGrounded;
+    private float _elapsedTime; 
+    private CharacterAnimationController _animController;
+    private CharacterStamina _characterStamina;
+    private bool _isInputDisabled;
+
+    private bool autoMoveEnabled = false; 
+    private Vector3 _autoMoveStartPos;
+    private int _autoMoveDirection = 1;
+    [Networked] public NetworkButtons PreviousButton { get; set; }
+
+    public override void Spawned()
+    {
+        if (!Object.HasStateAuthority) return;
+        InitScript(this);
+        _rigidbody = GetComponent<Rigidbody>();
+        _rigidbody.freezeRotation = true;
+        _rigidbody.drag = 0f;
+        _autoMoveStartPos = transform.position;
+    }
+
+    private void Start()
+    {
+        switch (base._characterStats.WarriorType)
+        {
+            case CharacterStats.CharacterType.FootKnight:
+                _animController = GetScript<FootknightAnimation>();
+                break;
+            case CharacterStats.CharacterType.Gallowglass:
+                _animController = GetScript<GallowglassAnimation>();
+                break;
+            case CharacterStats.CharacterType.KnightCommander:
+                _animController = GetScript<KnightCommanderAnimation>();
+                break;
+            case CharacterStats.CharacterType.Ranger:
+                _animController = GetScript<RangerAnimation>();
+                break;
+        }
+        _characterStamina = GetScript<CharacterStamina>();
+    }
+
+    public NetworkBool IsInputDisabled
+    {
+        get => _isInputDisabled;
+        set
+        {
+            _isInputDisabled = value;
+            if (_isInputDisabled) _moveDirection = Vector3.zero;
+        }
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if (!Object.HasStateAuthority || IsInputDisabled) return;
+
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                autoMoveEnabled = !autoMoveEnabled;
+            }
+
+            if (!_isGrounded)
+            {
+               _rigidbody.AddForce(Vector3.down * 20f, ForceMode.Acceleration);
+            }
+            GroundCheck();
+            CalculateCurrentSpeed(input); 
+            HandleMovement(input);
+            HandleJump(input);
+
+            PreviousButton = input.NetworkButtons;
+        }
+      
+    }
+
+    
+    private void CalculateCurrentSpeed(PlayerInputData input)
+    {
+        float targetSpeed = (input.VerticalInput > 0 || input.HorizontalInput != 0) ? _characterStats.SprintSpeed : _characterStats.MoveSpeed;
+
+        if (targetSpeed == _characterStats.SprintSpeed)
+        {
+            _elapsedTime += Runner.DeltaTime;
+            CurrentMoveSpeed = Mathf.Lerp(_characterStats.MoveSpeed, _characterStats.SprintSpeed, _elapsedTime / _accelerationTime);
+        }
+        else
+        {
+            _elapsedTime = 0f;
+            CurrentMoveSpeed = _characterStats.MoveSpeed;
+        }
+    }
+
+    private void HandleMovement(PlayerInputData input)
+    {
+        if (autoMoveEnabled)
+        {
+            AutoMove();
+            return;
+        }
+        Vector3 inputDir = new Vector3(input.HorizontalInput, 0f, input.VerticalInput);
+        _moveDirection = transform.TransformDirection(inputDir.normalized);
+
+        Vector3 targetVelocity = _moveDirection * CurrentMoveSpeed;
+        targetVelocity.y = _rigidbody.velocity.y;
+        _rigidbody.velocity = targetVelocity;
+    }
+
+    private void AutoMove()
+    {
+        // Sað veya sol hareket etme
+        Vector3 direction = Vector3.right * _autoMoveDirection;
+        Vector3 moveDir = transform.TransformDirection(direction.normalized);
+
+        // Hýz karakterin mevcut hýzýna göre olacak
+        Vector3 velocity = moveDir * CurrentMoveSpeed;
+        velocity.y = _rigidbody.velocity.y;
+        _rigidbody.velocity = velocity;
+
+        // Belirli mesafeyi aþtýðýnda yönü deðiþtir
+        if (Mathf.Abs(transform.position.x - _autoMoveStartPos.x) >= 5f)
+        {
+            _autoMoveDirection *= -1; // Yönü tersine çevir
+            _autoMoveStartPos = transform.position; // Baþlangýç noktasýný güncelle
+        }
+    }
+        private void HandleJump(PlayerInputData input)
+    {
+        var pressed = input.NetworkButtons.GetPressed(PreviousButton);
+        if (pressed.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Jump) && _isGrounded &&
+            _characterStamina.CanPlayerJump())
+        {
+            _rigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            _animController?.UpdateJumpAnimationState(true);
+        }
+    }
+
+    private void GroundCheck()
+    {
+        _isGrounded = Physics.Raycast(
+            transform.position + Vector3.up * 0.1f,
+            Vector3.down,
+            _groundCheckDistance
+        );
+    }
+
+    public void ReadPlayerInputs(PlayerInputData input) { }
+    public bool IsPlayerGrounded() => _isGrounded;
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position + Vector3.up * 0.1f, Vector3.down * _groundCheckDistance);
+    }
+}
+
+/*
+[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public async void HandleKnockBackRPC(CharacterAttackBehaviour.AttackDirection attackDirection)
+    {
+        Vector3 knockbackDirection = GetKnockbackDirection(attackDirection);
+        IsInputDisabled = true;
+        _playerHUD.IsStunnedBarActive = true;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < 3f)
+        {
+            _rigidbody.AddForce(knockbackDirection * 5f, ForceMode.Force);
+            _playerHUD.UpdateStunBarFiller(elapsedTime / 3f);
+            elapsedTime += Runner.DeltaTime;
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
+
+        _playerHUD.IsStunnedBarActive = false;
+        IsInputDisabled = false;
+    }
+
+    private Vector3 GetKnockbackDirection(CharacterAttackBehaviour.AttackDirection direction)
+    {
+        return direction switch
+        {
+            CharacterAttackBehaviour.AttackDirection.Forward => -transform.forward,
+            CharacterAttackBehaviour.AttackDirection.FromRight => transform.right,
+            CharacterAttackBehaviour.AttackDirection.FromLeft => -transform.right,
+            CharacterAttackBehaviour.AttackDirection.Backward => transform.forward,
+            _ => Vector3.zero
+        };
+    }
+
+    public bool IsPlayerGrounded() => _isGrounded;
+
+    public void ReadPlayerInputs(PlayerInputData input)
+    {
+        // Implement if needed
+    }
+*/
+
+
+#region legacy
+/*
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Fusion;
@@ -345,6 +560,8 @@ public class CharacterMovement : CharacterRegistry, IReadInput
        }
        */
 
-    #endregion
 
-}
+
+//}
+
+#endregion

@@ -23,7 +23,19 @@ public class PlayerVFXSytem : CharacterRegistry
 
     private void Start()
     {
-        _playerStatsController = GetScript<PlayerStatsController>();
+        /*
+         _playerStatsController = GetScript<PlayerStatsController>();
+        
+
+        if (_playerStatsController == null)
+        {
+            Debug.Log("Bulundu PlayerVFX");
+        }
+        else
+        {
+            Debug.Log("Bulunamadý PlayerVFX");
+        }
+        */
     }
     public void PlayBloodVFX()
     {
@@ -87,6 +99,7 @@ public class PlayerVFXSytem : CharacterRegistry
 
         await UniTask.Delay(300);
         _parryVFX.Play();
+        if (_playerStatsController == null) return;
         if(_playerStatsController.PlayerNetworkStats.PlayerWarrior == CharacterStats.CharacterType.KnightCommander)
         {
             _cfxrEffect.PlayLightAnimation();
