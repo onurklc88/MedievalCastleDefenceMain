@@ -29,7 +29,7 @@ public class IronheartVFXController : PlayerVFXSytem
     {
         if (!Object.HasStateAuthority) return;
         _playerStatsController = GetScript<PlayerStatsController>();
-
+        _stunnedText.transform.localPosition = new Vector3(_stunnedText.transform.localPosition.x, _stunnedText.transform.localPosition.y - 0.3f, _stunnedText.transform.localPosition.z);
 
         if (_playerStatsController == null)
         {

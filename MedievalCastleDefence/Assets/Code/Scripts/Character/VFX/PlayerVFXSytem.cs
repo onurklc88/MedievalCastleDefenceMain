@@ -13,6 +13,8 @@ public class PlayerVFXSytem : CharacterRegistry
     [SerializeField] protected ParticleSystem _healingVFX;
     [SerializeField] private ParticleSystem _swordTrail;
     [SerializeField] private CFXR_Effect _cfxrEffect;
+    [SerializeField] private ParticleSystem _stunnedEffect;
+    [SerializeField] protected ParticleSystem _stunnedText;
    
     protected PlayerStatsController _playerStatsController;
  
@@ -112,5 +114,17 @@ public class PlayerVFXSytem : CharacterRegistry
     {
         await UniTask.Delay(300);
         _healingVFX.Play();
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public async void PlayDisabledVFXRpc()
+    {
+        _stunnedEffect.Play();
+        _stunnedText.Play();
+        await UniTask.Delay(2000);
+        _stunnedEffect.Stop();
+        _stunnedText.Stop();
+
+
     }
 }

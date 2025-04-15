@@ -159,7 +159,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
     {
       
        _gallowGlassAnimation.UpdateJumpAnimationState(true);
-        StartCoroutine(PerformKickAction());
+       // StartCoroutine(PerformKickAction());
     }
 
     private IEnumerator PerformKickAction()

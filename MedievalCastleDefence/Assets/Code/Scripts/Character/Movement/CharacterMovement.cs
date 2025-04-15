@@ -61,7 +61,10 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         set
         {
             _isInputDisabled = value;
-            if (_isInputDisabled) _moveDirection = Vector3.zero;
+            if (_isInputDisabled)
+            {
+                _moveDirection = Vector3.zero;
+            }
         }
     }
 
@@ -124,20 +127,17 @@ public class CharacterMovement : CharacterRegistry, IReadInput
 
     private void AutoMove()
     {
-        // Sað veya sol hareket etme
+        
         Vector3 direction = Vector3.right * _autoMoveDirection;
         Vector3 moveDir = transform.TransformDirection(direction.normalized);
 
-        // Hýz karakterin mevcut hýzýna göre olacak
         Vector3 velocity = moveDir * CurrentMoveSpeed;
         velocity.y = _rigidbody.velocity.y;
         _rigidbody.velocity = velocity;
-
-        // Belirli mesafeyi aþtýðýnda yönü deðiþtir
         if (Mathf.Abs(transform.position.x - _autoMoveStartPos.x) >= 5f)
         {
-            _autoMoveDirection *= -1; // Yönü tersine çevir
-            _autoMoveStartPos = transform.position; // Baþlangýç noktasýný güncelle
+            _autoMoveDirection *= -1;
+            _autoMoveStartPos = transform.position;
         }
     }
         private void HandleJump(PlayerInputData input)

@@ -106,10 +106,6 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
             float distanceToTarget = Vector3.Distance(transform.position, detectedTransform.position);
             bool hasObstacle = Physics.Raycast(transform.position, dirToTarget, distanceToTarget, _obstacleLayer);
             float distance = Vector3.Distance(new Vector3(detectedTransform.position.x, transform.position.y, transform.position.z), detectedTransform.position);
-            //GameObject debug = Instantiate(_test);
-            //debug.transform.position = new Vector3(detectedTransform.position.x, transform.position.y, transform.position.z);
-            //GameObject debug2 = Instantiate(_test);
-            //debug2.transform.position = new Vector3(detectedTransform.position.x, transform.position.y, detectedTransform.position.z);
             Debug.Log("Character: " + networkObject.Id + " distance: " + distance);
 
             var opponentStamina = detectedTransform.GetComponentInParent<CharacterStamina>();
@@ -136,7 +132,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
 
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying) return;
+        //if (!Application.isPlaying) return;
 
         //Gizmos.color = new Color(0, 0, 1, 0.5f);
         //Gizmos.DrawWireSphere(transform.position, _earthShatterRadius);

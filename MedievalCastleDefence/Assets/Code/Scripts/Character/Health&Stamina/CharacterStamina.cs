@@ -20,6 +20,7 @@ public class CharacterStamina : CharacterRegistry
    
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
+    private PlayerVFXSytem _playerVFX;
     private bool _isRegenerating = false;
     public override void Spawned()
     {
@@ -45,11 +46,14 @@ public class CharacterStamina : CharacterRegistry
         {
             case CharacterStats.CharacterType.FootKnight:
                 _characterAnim = GetScript<FootknightAnimation>();
+                _playerVFX = GetScript<StormshieldVFXController>();
+               // _playerVFX = GetScript<IronheartVFXController>();
                 break;
             case CharacterStats.CharacterType.Gallowglass:
                 _characterAnim = GetScript<GallowglassAnimation>();
                 break;
             case CharacterStats.CharacterType.KnightCommander:
+                _playerVFX = GetScript<IronheartVFXController>();
                 _characterAnim = GetScript<KnightCommanderAnimation>();
                 break;
         }
@@ -136,7 +140,7 @@ public class CharacterStamina : CharacterRegistry
     {
         Debug.Log("Stun Yedi ");
         _characterMovement.IsInputDisabled = true;
-       
+        _playerVFX.PlayDisabledVFXRpc();
         _characterAnim.UpdateStunAnimationState(stunDuration * 1000);
         await UniTask.Delay(stunDuration * 1000);
         _characterMovement.IsInputDisabled = false;
