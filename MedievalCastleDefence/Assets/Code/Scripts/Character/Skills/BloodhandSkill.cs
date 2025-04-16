@@ -11,7 +11,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
 {
     [SerializeField] private LayerMask _obstacleLayer;
     private CharacterMovement _characterMovement;
-   private PlayerVFXSytem _playerVFX;
+   private BloodhandVFXController _playerVFX;
     [Networked] private TickTimer _kickCooldown { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private GallowglassAttack _bloodhandAttack;
@@ -42,7 +42,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
         CanUseAbility = true;
         _bloodhandAttack = GetScript<GallowglassAttack>();
         _characterMovement = GetScript<CharacterMovement>();
-        _playerVFX = GetScript<PlayerVFXSytem>();
+        _playerVFX = GetScript<BloodhandVFXController>();
         _gallowAnimation = GetScript<GallowglassAnimation>();
         _playerStatsController = GetScript<PlayerStatsController>();
     }
@@ -69,12 +69,15 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
             _gallowAnimation.UpdateUltimateAnimState(true);
             await UniTask.Delay(500);
             CastGroundShatterSkill();
-            await UniTask.Delay(500);
+            await UniTask.Delay(100);
+            _playerVFX.PlayEarthShatterVFXRpc();
+            await UniTask.Delay(400);
             _characterMovement.IsInputDisabled = false;
             CanUseAbility = true;
            
             _gallowAnimation.UpdateUltimateAnimState(false);
-            //_playerVFX.PlayUltimateVFX();
+         
+           
         }
        
         PreviousButton = input.NetworkButtons;
@@ -88,7 +91,6 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
 
         foreach (Collider collider in targetsInRadius)
         {
-            // Debug.Log("A");
             var detectedTransform = collider.GetComponentInParent<Transform>();
             var networkObject = detectedTransform.GetComponentInParent<NetworkObject>();
             if (networkObject == null) continue;
