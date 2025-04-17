@@ -32,7 +32,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _characterMovement = GetScript<CharacterMovement>();
         _gallowGlassAnimation = GetScript<GallowglassAnimation>();
         //_activeRagdoll = GetScript<ActiveRagdoll>();
-        //_playerVFX = GetScript<PlayerVFXSytem>();
+        _bloodhandVFX = GetScript<BloodhandVFXController>();
         _bloodhandSkill = GetScript<BloodhandSkill>();
         _characterHealth = GetScript<CharacterHealth>();
         
@@ -128,6 +128,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private IEnumerator PerformAttack(float time)
     {
         base._blockArea.enabled = false;
+        _bloodhandVFX.ActivateAxeTrail(true);
         yield return new WaitForSeconds(0.24f);
         float elapsedTime = 0f;
         //AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1.5f);
@@ -153,6 +154,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
         yield return new WaitForSeconds(0.2f);
         base._blockArea.enabled = true;
+        _bloodhandVFX.ActivateAxeTrail(false);
     }
 
     public void KickAction()

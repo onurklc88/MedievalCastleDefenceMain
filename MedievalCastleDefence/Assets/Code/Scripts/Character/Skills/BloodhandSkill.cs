@@ -67,6 +67,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
             _characterMovement.IsInputDisabled = true;
             
             _gallowAnimation.UpdateUltimateAnimState(true);
+            _playerVFX.PlaySpritualVFXRpc();
             await UniTask.Delay(500);
             CastGroundShatterSkill();
             await UniTask.Delay(100);
