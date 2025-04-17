@@ -27,30 +27,12 @@ public class BloodhandVFXController : PlayerVFXSytem
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
-    public async void PlayEarthShatterVFXRpc()
+    public void PlayEarthShatterVFXRpc()
     {
 
-        //_earthShatterVFX.transform.rotation = Quaternion.identity;
-        //_currentPlayerObject = Runner.Spawn(_knightCommanderdNetworkPrefab, spawnPosition, Quaternion.identity, playerRef);
-        var earthVFX =  Runner.Spawn(_earthShatterTest, new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), transform.rotation, Runner.LocalPlayer);
+      Runner.Spawn(_earthShatterTest, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), transform.rotation, Runner.LocalPlayer);
        
-       // test.transform.GetComponentInParent<ParticleSystem>().Play();
-        //_earthShatterVFX.Play();
-        
-       
-        for (int i = 0; i < _stoneParticles.Length; i++)
-        {
-            await UniTask.Delay(150);
-           // _stoneParticles[i].Play();
-        }
-
-
-        //&& await UniTask.Delay(200);
-       
-        //_earthShatterVFX.Stop();
-       
-
-    }
+     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void PlaySpritualVFXRpc()
