@@ -27,12 +27,13 @@ public class BloodhandVFXController : PlayerVFXSytem
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
-    public void PlayEarthShatterVFXRpc()
+    public async void PlayEarthShatterVFXRpc()
     {
+        var earthVFX = Runner.Spawn(_earthShatterTest, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), transform.rotation, Runner.LocalPlayer);
+        await UniTask.Delay(3000);
+        Runner.Despawn(earthVFX);
 
-      Runner.Spawn(_earthShatterTest, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), transform.rotation, Runner.LocalPlayer);
-       
-     }
+    }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void PlaySpritualVFXRpc()

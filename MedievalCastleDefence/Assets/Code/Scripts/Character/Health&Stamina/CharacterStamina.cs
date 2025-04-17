@@ -47,10 +47,10 @@ public class CharacterStamina : CharacterRegistry
             case CharacterStats.CharacterType.FootKnight:
                 _characterAnim = GetScript<FootknightAnimation>();
                 _playerVFX = GetScript<StormshieldVFXController>();
-               // _playerVFX = GetScript<IronheartVFXController>();
                 break;
             case CharacterStats.CharacterType.Gallowglass:
                 _characterAnim = GetScript<GallowglassAnimation>();
+                _playerVFX = GetScript<BloodhandVFXController>();
                 break;
             case CharacterStats.CharacterType.KnightCommander:
                 _playerVFX = GetScript<IronheartVFXController>();

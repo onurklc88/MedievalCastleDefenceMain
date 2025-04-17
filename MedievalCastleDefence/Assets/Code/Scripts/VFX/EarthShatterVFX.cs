@@ -19,6 +19,9 @@ public class EarthShatterVFX : MonoBehaviour
             await UniTask.Delay(100);
             _stoneParticles[i].Play();
         }
+
+        await UniTask.Delay(1000);
+        
     }
 
 }
