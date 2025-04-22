@@ -11,11 +11,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _ragdollManager;
     private PlayerVFXSytem _playerVFXSystem;
+   
     private int _lockedBlockDirection = 0;
     private int _lastBlockDirection = 0;
+
     [SerializeField] private RPCDebugger _debugger;
     [SerializeField] private GameObject test;
-   
+
+    private BloodDecals _bloodDecals;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -30,7 +33,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
         _characterMovement = GetScript<CharacterMovement>();
-        _ragdollManager = GetScript<ActiveRagdoll>();
+        //_ragdollManager = GetScript<ActiveRagdoll>();
+        _bloodDecals = GetScript<BloodDecals>();
         _playerVFXSystem = GetScript<IronheartVFXController>();
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
@@ -74,9 +78,9 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
-            Debug.Log("Selam");
+            
             _characterStamina.DecreaseDefenceStaminaRPC(28f);
-           
+            _bloodDecals.EnableRandomBloodDecal();
             //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }

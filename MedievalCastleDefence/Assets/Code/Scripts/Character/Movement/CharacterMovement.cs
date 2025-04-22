@@ -64,6 +64,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             if (_isInputDisabled)
             {
                 _moveDirection = Vector3.zero;
+                _rigidbody.velocity = Vector3.zero;
             }
         }
     }

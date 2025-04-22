@@ -107,7 +107,7 @@ public class CharacterStamina : CharacterRegistry
         }
         else
         {
-            CanAttackStaminaRegenerating = false;
+            CanDefenceStaminaRegenerating = false;
         }
 
     }

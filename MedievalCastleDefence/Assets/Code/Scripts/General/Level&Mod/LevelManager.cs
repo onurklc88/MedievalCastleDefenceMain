@@ -255,7 +255,7 @@ public class LevelManager : ManagerRegistry, IGameStateListener
                 {
                     alivePlayerList++;
                     var characterStamina = playerObject.GetComponentInParent<CharacterStamina>();
-                    var characterDecals = playerObject.GetComponentInParent<CharacterDecals>();
+                    var characterDecals = playerObject.GetComponentInParent<BloodDecals>();
                     characterHealth.ResetPlayerHealth();
                     characterStamina.ResetPlayerStamina();
                     characterDecals.DisableBloodDecals();

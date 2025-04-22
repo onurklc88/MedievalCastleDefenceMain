@@ -15,15 +15,7 @@ public class IronheartVFXController : PlayerVFXSytem
         InitScript(this);
         _swordLocalTrails[0].SetActive(true);
         _swordLocalTrails[1].SetActive(true);
-        _playerStatsController = GetScript<PlayerStatsController>();
-        if (_playerStatsController == null)
-        {
-            Debug.Log("Bulundu");
-        }
-        else
-        {
-            Debug.Log("Bulunamadý");
-        }
+      
     }
     private void Start()
     {

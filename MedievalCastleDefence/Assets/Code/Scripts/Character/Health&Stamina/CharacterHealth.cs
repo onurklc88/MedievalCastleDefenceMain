@@ -16,7 +16,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _activeRagdoll;
     private PlayerVFXSytem _playerVFX;
-    private CharacterDecals _characterDecals;
+    private BloodDecals _characterDecals;
     private PlayerStatsController _playerStatsController;
     private CharacterCameraController _characterCameraController;
 
@@ -45,7 +45,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
             _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
         _activeRagdoll = GetScript<ActiveRagdoll>();
         _playerVFX = GetScript<PlayerVFXSytem>();
-        _characterDecals = GetScript<CharacterDecals>();
+        _characterDecals = GetScript<BloodDecals>();
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterCameraController = GetScript<CharacterCameraController>();
         switch (_characterStats.WarriorType)

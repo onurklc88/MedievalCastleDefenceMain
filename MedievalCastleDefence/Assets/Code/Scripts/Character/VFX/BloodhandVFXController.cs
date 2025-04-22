@@ -11,7 +11,7 @@ public class BloodhandVFXController : PlayerVFXSytem
     [Networked(OnChanged = nameof(OnNetworkTrailStateChange))] public NetworkBool IsPlayerSwing { get; set; }
     [SerializeField] private ParticleSystem _earthShatterVFX;
     [SerializeField] private Trail _axeTrail;
-    [SerializeField] private ParticleSystem[] _stoneParticles;
+  
     [SerializeField] private ParticleSystem _spritualVFX;
     [SerializeField] private GameObject _earthShatterTest;
     public override void Spawned()
@@ -30,7 +30,7 @@ public class BloodhandVFXController : PlayerVFXSytem
     public async void PlayEarthShatterVFXRpc()
     {
         var earthVFX = Runner.Spawn(_earthShatterTest, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), transform.rotation, Runner.LocalPlayer);
-        await UniTask.Delay(3000);
+        await UniTask.Delay(4000);
         Runner.Despawn(earthVFX);
 
     }
