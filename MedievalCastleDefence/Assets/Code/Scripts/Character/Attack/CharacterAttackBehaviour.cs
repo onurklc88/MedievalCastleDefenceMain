@@ -37,6 +37,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     protected IDamageable _collidedObject;
     public CharacterStats.CharacterType _characterType;
     protected CharacterStamina _characterStamina;
+    protected CharacterCollision _characterCollision;
     private SwordPosition _lastSwordPosition;
     private float _movementTreshold = 0.25f;
 
@@ -102,13 +103,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-/*
-       if (opponent.gameObject.layer == 11 && !isOpponentParrying)
-       {
-            opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
-            return;
-       }
-*/
         if (opponent.gameObject.layer == 11 && isOpponentParrying)
         {
             opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
@@ -177,6 +171,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
+            opponent.transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else

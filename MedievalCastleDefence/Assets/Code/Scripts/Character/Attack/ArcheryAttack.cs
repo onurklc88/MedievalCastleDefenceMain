@@ -10,6 +10,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
     private CharacterCameraController _camController;
     private RangerAnimation _rangerAnimation;
     private RangerAnimationRigging _rangerAnimationRigging;
+   
     [SerializeField] private GameObject _lookAtTarget;
     [SerializeField] private GameObject _arrow;
     [SerializeField] private GameObject _arrowFirePoint;
@@ -35,6 +36,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
         _characterMovement = GetScript<CharacterMovement>();
         _camController = GetScript<CharacterCameraController>();
         _activeRagdoll = GetScript<ActiveRagdoll>();
+        _characterCollision = GetScript<CharacterCollision>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -52,14 +54,14 @@ public class ArcheryAttack : CharacterAttackBehaviour
         if (_characterMovement == null || _camController == null) return;
         var isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        if (isPlayerAiming != _previousAimingInput && _characterMovement.IsPlayerGrounded())
+        if (isPlayerAiming != _previousAimingInput && _characterCollision.IsPlayerGrounded)
         {
             _characterMovement.IsInputDisabled = isPlayerAiming;
             _playerHUD.UpdateAimTargetState(isPlayerAiming);
             _rangerAnimationRigging.UpdateConstraits(isPlayerAiming);
         }
         
-        if (_characterMovement.IsPlayerGrounded())
+        if (_characterCollision.IsPlayerGrounded)
         {
             _camController.UpdateCameraPriority(isPlayerAiming);
             UpdateTargetPosition();

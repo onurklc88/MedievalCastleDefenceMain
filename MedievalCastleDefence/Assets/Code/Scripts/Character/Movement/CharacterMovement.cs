@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Fusion;
 using static BehaviourRegistry;
@@ -14,10 +14,10 @@ public class CharacterMovement : CharacterRegistry, IReadInput
    
     private Rigidbody _rigidbody;
     private Vector3 _moveDirection;
-    private bool _isGrounded;
     private float _elapsedTime; 
     private CharacterAnimationController _animController;
     private CharacterStamina _characterStamina;
+    private CharacterCollision _characterCollision;
     private bool _isInputDisabled;
 
     private bool autoMoveEnabled = false; 
@@ -53,6 +53,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
                 break;
         }
         _characterStamina = GetScript<CharacterStamina>();
+        _characterCollision = GetScript<CharacterCollision>();
     }
 
     public NetworkBool IsInputDisabled
@@ -80,11 +81,11 @@ public class CharacterMovement : CharacterRegistry, IReadInput
                 autoMoveEnabled = !autoMoveEnabled;
             }
 
-            if (!_isGrounded)
+            if (!_characterCollision.IsPlayerGrounded)
             {
                _rigidbody.AddForce(Vector3.down * 20f, ForceMode.Acceleration);
             }
-            GroundCheck();
+           
             CalculateCurrentSpeed(input); 
             HandleMovement(input);
             HandleJump(input);
@@ -141,10 +142,10 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             _autoMoveStartPos = transform.position;
         }
     }
-        private void HandleJump(PlayerInputData input)
+    private void HandleJump(PlayerInputData input)
     {
         var pressed = input.NetworkButtons.GetPressed(PreviousButton);
-        if (pressed.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Jump) && _isGrounded &&
+        if (pressed.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Jump) && _characterCollision.IsPlayerGrounded &&
             _characterStamina.CanPlayerJump())
         {
             _rigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
@@ -152,17 +153,25 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         }
     }
 
-    private void GroundCheck()
+    public void ThrowCharacter()
     {
-        _isGrounded = Physics.Raycast(
-            transform.position + Vector3.up * 0.1f,
-            Vector3.down,
-            _groundCheckDistance
+        float angle = 60f; // Derece cinsinden aÃ§Ä±
+        float forceMagnitude = 15f; // Ä°stediÄŸin kuvvet ÅŸiddeti (adjustable)
+
+        // AÃ§Ä±yÄ± radyana Ã§evir ve yÃ¶n vektÃ¶rÃ¼nÃ¼ hesapla
+        float angleRad = angle * Mathf.Deg2Rad;
+        Vector3 throwDirection = new Vector3(
+            Mathf.Cos(angleRad),  // X: Yatay bileÅŸen
+            Mathf.Sin(angleRad),  // Y: Dikey bileÅŸen
+            0                     // Z: 2D oyunlarda 0
         );
+
+        // Rigidbody'ye kuvvet uygula (kÃ¼tleyi dikkate alan ForceMode)
+        _rigidbody.AddForce(Vector3.up + transform.forward * 50f, ForceMode.Impulse);
     }
 
     public void ReadPlayerInputs(PlayerInputData input) { }
-    public bool IsPlayerGrounded() => _isGrounded;
+   
 
     private void OnDrawGizmos()
     {
@@ -243,8 +252,8 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     //test
     private float _currentDirection = 1f;
     private bool _isAutoMoving = false;
-    private float _movementBound = 5f; // 5 metre sýnýr
-    private Vector3 _startPosition; // Baþlangýç pozisyonu
+    private float _movementBound = 5f; // 5 metre sÄ±nÄ±r
+    private Vector3 _startPosition; // BaÅŸlangÄ±Ã§ pozisyonu
     public override void Spawned()
     {
        if (!Object.HasStateAuthority) return;
@@ -290,7 +299,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority || _characterController.enabled == false) return;
-        _test = false; // Her frame baþýnda sýfýrla
+        _test = false; // Her frame baÅŸÄ±nda sÄ±fÄ±rla
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
         {
             //ReadPlayerInputs(input);
@@ -382,11 +391,11 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         {
             float currentDistance = transform.position.x - _startPosition.x;
 
-            // Sýnýr aþýldýysa yönü tersine çevir
+            // SÄ±nÄ±r aÅŸÄ±ldÄ±ysa yÃ¶nÃ¼ tersine Ã§evir
             if (Mathf.Abs(currentDistance) >= _movementBound)
             {
-                _currentDirection *= -1f; // Yön deðiþtir
-                _startPosition = transform.position; // Sýnýrý resetle
+                _currentDirection *= -1f; // YÃ¶n deÄŸiÅŸtir
+                _startPosition = transform.position; // SÄ±nÄ±rÄ± resetle
             }
 
             return new Vector3(_currentDirection, 0, 0);

@@ -10,6 +10,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     [SerializeField] private Rigidbody _shieldRigidbody;
     private FootknightAnimation _animation;
     private CharacterMovement _characterMovement;
+    
    
   
     
@@ -28,6 +29,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         _characterStamina = GetScript<CharacterStamina>();
        _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
+        _characterCollision = GetScript<CharacterCollision>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -100,7 +102,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     protected override void SwingSword()
     {
         if (!Object.HasStateAuthority) return;
-        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
+        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded) return;
         //_playerVFX.EnableWeaponParticles();
         _animation.UpdateSwingAnimationState(true);
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);

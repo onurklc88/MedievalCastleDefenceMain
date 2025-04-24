@@ -38,6 +38,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerVFXSystem = GetScript<IronheartVFXController>();
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
+        _characterCollision = GetScript<CharacterCollision>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -85,12 +86,12 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             //_ragdollManager.RPCActivateRagdoll();
         }
 
-        Debug.Log("IsplayerBlocking: " + IsPlayerBlocking);
+        //Debug.Log("IsplayerBlocking: " + IsPlayerBlocking);
         PreviousButton = input.NetworkButtons;
     }
     protected override void SwingSword()
     {
-        if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
+        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded) return;
         //_playerVFXSystem.EnableWeaponParticles();
         if(_knightCommanderAnimation == null)
         {

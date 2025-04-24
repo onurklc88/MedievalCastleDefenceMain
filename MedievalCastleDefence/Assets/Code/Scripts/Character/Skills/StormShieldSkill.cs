@@ -14,6 +14,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
     private StormshieldVFXController _playerVFX;
     private int _skillChargeCount;
     private FootknightAnimation _footnightAnimation;
+    private CharacterCollision _characterCollision;
     public NetworkButtons PreviousButton { get; set; }
     private bool canUseAbility = true;
     private CancellationTokenSource cts;
@@ -24,7 +25,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
         
         InitScript(this);
     }
-
+    
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
@@ -39,7 +40,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
     {
         
         var pressedButton = input.NetworkButtons.GetPressed(PreviousButton);
-        if (pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && _characterMovement.IsPlayerGrounded() && canUseAbility)
+        if (pressedButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && _characterCollision.IsPlayerGrounded && canUseAbility)
         {
             canUseAbility = false;
             UseAbility();
@@ -66,6 +67,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
         _characterHealth = GetScript<CharacterHealth>();
         _playerVFX = GetScript<StormshieldVFXController>();
         _footnightAnimation = GetScript<FootknightAnimation>();
+        _characterCollision = GetScript<CharacterCollision>();
 
     }
 

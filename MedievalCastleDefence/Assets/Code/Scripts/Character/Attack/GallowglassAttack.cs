@@ -35,6 +35,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _bloodhandVFX = GetScript<BloodhandVFXController>();
         _bloodhandSkill = GetScript<BloodhandSkill>();
         _characterHealth = GetScript<CharacterHealth>();
+        _characterCollision = GetScript<CharacterCollision>();
         
     }
     public override void FixedUpdateNetwork()
@@ -60,7 +61,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
        
         bool wasBlocking = IsPlayerBlockingLocal;
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
 
       
         if (wasBlocking && !IsPlayerBlockingLocal)
@@ -83,8 +84,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
         else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && _bloodhandSkill.CanUseAbility)
         {
-            //IsPlayerBlockingLocal = true;
-            _characterStamina.DecreaseDefenceStaminaRPC(60f);
+            IsPlayerBlockingLocal = true;
+           // _characterStamina.DecreaseDefenceStaminaRPC(60f);
+           // transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
         }
 
         PreviousButton = input.NetworkButtons;
@@ -115,7 +117,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
     protected override void SwingSword()
     {
-       if (IsPlayerBlockingLocal || !_characterMovement.IsPlayerGrounded()) return;
+       if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded) return;
        AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
        _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
        _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
