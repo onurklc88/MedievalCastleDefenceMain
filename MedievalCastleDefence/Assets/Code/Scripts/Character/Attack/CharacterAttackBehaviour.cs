@@ -132,6 +132,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
         var isOpponentDash = opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsPlayerDash;
+        Debug.Log("IsOpponentDash: " + isOpponentDash);
         if (isOpponentDash) return;
 
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)

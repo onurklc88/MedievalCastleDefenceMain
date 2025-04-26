@@ -7,7 +7,8 @@ using static BehaviourRegistry;
 
 public class KnightCommanderSkill : CharacterRegistry, IReadInput
 {
-    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsPlayerDash { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsPlayerDashLocal { get; set; }
+    [Networked] public NetworkBool IsPlayerDash { get; set; }
     public int SlideCharges { get; set; }
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
@@ -54,15 +55,50 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
             if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
             {
                ReadPlayerInputs(input);
+            Debug.Log("IsplayerDashLocal: " + IsPlayerDashLocal);
             }
         
     }
     
     private static void OnNetworkDashStateChange(Changed<KnightCommanderSkill> changed)
     {
+        changed.Behaviour.IsPlayerDash = changed.Behaviour.IsPlayerDashLocal;
+    }
+    public void ReadPlayerInputs(PlayerInputData input)
+    {
+        /*
+        if (input.ForwardDoubleTab)
+            _slideDirection = transform.forward;
+        else if (input.RightDoubleTab)
+            _slideDirection = transform.right;
+        else if (input.LeftDoubleTab)
+            _slideDirection = -transform.right;
+        else if (input.BacwardsDoubleTab)
+            _slideDirection = -transform.forward;
+        else
+            return;
+
+        
+
+        ActivateUtilitySkill();
+        PreviousButton = input.NetworkButtons;
+        */
+        var utilityButton = input.NetworkButtons.GetPressed(PreviousButton);
+        if (utilityButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill))
+        {
+
+            Vector3 direction = new Vector3(input.HorizontalInput, 0f, input.VerticalInput);
+
+            if (direction.sqrMagnitude < 0.1f)
+                return;
+
+            _slideDirection = transform.TransformDirection(direction.normalized);
+            ActivateUtilitySkill();
+           
+        }
+        PreviousButton = input.NetworkButtons;
 
     }
-
     private void ActivateUtilitySkill()
     {
         if(_slideChargeCount > 0 && _characterStamina.CurrentAttackStamina > 10)
@@ -84,23 +120,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
     }
 
   
-    public void ReadPlayerInputs(PlayerInputData input)
-    {
-      
-        if (input.ForwardDoubleTab)
-            _slideDirection = transform.forward;
-        else if (input.RightDoubleTab)
-            _slideDirection = transform.right;
-        else if (input.LeftDoubleTab)
-            _slideDirection = -transform.right;
-        else if (input.BacwardsDoubleTab)
-            _slideDirection = -transform.forward;
-        else
-            return;
-
-        ActivateUtilitySkill();
-        PreviousButton = input.NetworkButtons;
-    }
+    
 
 
     private async UniTaskVoid RechargeSlideAsync()
@@ -109,7 +129,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
 
         while (_slideChargeCount < 3) 
         {
-            await UniTask.Delay(4000);
+            await UniTask.Delay(5000);
             _slideChargeCount += 1; 
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
         }
@@ -121,14 +141,12 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
 
     private async UniTaskVoid SlideCharacter(Vector3 direction)
     {
-        if (IsPlayerDash) return;
+        if (IsPlayerDashLocal) return;
         
         if (_slideChargeCount < 0) return;
-        IsPlayerDash = true;
-        _characterVFX.ActivateSwordTrail(IsPlayerDash);
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerDash);
-        Vector3 startPos = transform.position;
-        
+        IsPlayerDashLocal = true;
+        _characterVFX.ActivateSwordTrail(IsPlayerDashLocal);
+        EventLibrary.OnPlayerDash.Invoke(IsPlayerDashLocal);
        
         float elapsedTime = 0f;
         float forceMultiplier = 1700f; 
@@ -143,12 +161,13 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
             elapsedTime += Runner.DeltaTime;
             await UniTask.Yield();
         }
-       
-        IsPlayerDash = false;
-       
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerDash);
-        await UniTask.Delay(1000);
-        _characterVFX.ActivateSwordTrail(IsPlayerDash);
+      
+        await UniTask.Delay(200);
+        IsPlayerDashLocal = false;
+        EventLibrary.OnPlayerDash.Invoke(IsPlayerDashLocal);
+        await UniTask.Delay(500);
+        
+        _characterVFX.ActivateSwordTrail(IsPlayerDashLocal);
 
     }
 

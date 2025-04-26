@@ -16,7 +16,7 @@ MonoBehaviour:
   MoveSpeed: 3.8
   SprintSpeed: 4.5
   TotalHealth: 120
-  AttackStamina: 50000
-  DefenceStamina: 120
+  AttackStamina: 90
+  DefenceStamina: 90
   KnockbackStaminaLimit: 25
   KnockBackDuration: 3

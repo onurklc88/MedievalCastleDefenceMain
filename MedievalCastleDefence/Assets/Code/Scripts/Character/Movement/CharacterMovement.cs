@@ -155,19 +155,11 @@ public class CharacterMovement : CharacterRegistry, IReadInput
 
     public void ThrowCharacter()
     {
-        float angle = 60f; // Derece cinsinden açı
-        float forceMagnitude = 15f; // İstediğin kuvvet şiddeti (adjustable)
+        float force = 150f; // Daha yumuşak ve kontrollü
+        Vector3 direction = (Vector3.forward * 1f + Vector3.up * 0.5f).normalized;
 
-        // Açıyı radyana çevir ve yön vektörünü hesapla
-        float angleRad = angle * Mathf.Deg2Rad;
-        Vector3 throwDirection = new Vector3(
-            Mathf.Cos(angleRad),  // X: Yatay bileşen
-            Mathf.Sin(angleRad),  // Y: Dikey bileşen
-            0                     // Z: 2D oyunlarda 0
-        );
-
-        // Rigidbody'ye kuvvet uygula (kütleyi dikkate alan ForceMode)
-        _rigidbody.AddForce(Vector3.up + transform.forward * 50f, ForceMode.Impulse);
+        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.AddForce(Vector3.up + transform.forward * force, ForceMode.Impulse);
     }
 
     public void ReadPlayerInputs(PlayerInputData input) { }

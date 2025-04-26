@@ -80,8 +80,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
             
-            _characterStamina.DecreaseDefenceStaminaRPC(28f);
-            _bloodDecals.EnableRandomBloodDecal();
+            //_characterStamina.DecreaseDefenceStaminaRPC(28f);
+            //_bloodDecals.EnableRandomBloodDecal();
             //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }

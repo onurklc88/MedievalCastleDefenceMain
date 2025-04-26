@@ -12,11 +12,11 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
     [SerializeField] private LayerMask _obstacleLayer;
     private CharacterMovement _characterMovement;
    private BloodhandVFXController _playerVFX;
-    [Networked] private TickTimer _kickCooldown { get; set; }
+   
     public NetworkButtons PreviousButton { get; set; }
     private GallowglassAttack _bloodhandAttack;
     public bool CanUseAbility { get; private set; }
-    [SerializeField] private GameObject _test;
+   
     [SerializeField] private float _earthShatterRadius = 8f;
     [SerializeField] private float _earthShatterAngle = 90f;
     private GallowglassAnimation _gallowAnimation;
@@ -112,6 +112,9 @@ public class BloodhandSkill : CharacterRegistry, IReadInput
             Debug.Log("Character: " + networkObject.Id + " distance: " + distance);
 
             var opponentStamina = detectedTransform.GetComponentInParent<CharacterStamina>();
+            var opponentWarrior = detectedTransform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerWarrior;
+          // if(opponentWarrior == CharacterStats.CharacterType.KnightCommander)
+                 
             if (!hasObstacle)
             {
                 if(distance < 2.36f)
