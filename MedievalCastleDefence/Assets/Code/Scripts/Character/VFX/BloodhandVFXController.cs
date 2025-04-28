@@ -24,6 +24,7 @@ public class BloodhandVFXController : PlayerVFXSytem
     {
         if (!Object.HasStateAuthority) return;
         IsPlayerSwing = enable;
+        Debug.Log("zaza");
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]

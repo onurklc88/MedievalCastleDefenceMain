@@ -126,7 +126,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 0.22745098}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 2.2588236, g: 2.2588236, b: 2.2588236, a: 0.6}
+    - _Color: {r: 2.79544, g: 2.79544, b: 2.79544, a: 0.6}
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 3.592157, g: 3.3411765, b: 3.3411765, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}

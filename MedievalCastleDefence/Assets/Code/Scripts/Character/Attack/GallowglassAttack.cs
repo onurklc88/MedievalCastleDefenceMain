@@ -132,12 +132,12 @@ public class GallowglassAttack : CharacterAttackBehaviour
         base._blockArea.enabled = false;
         _bloodhandVFX.ActivateAxeTrail(true);
         yield return new WaitForSeconds(0.24f);
+
         float elapsedTime = 0f;
-        //AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1.5f);
+       
 
         while (elapsedTime < 0.5f)
         {
-
             Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
             Collider[] hitColliders = Physics.OverlapSphere(swingDirection, 0.6f, layerMask);
@@ -148,13 +148,15 @@ public class GallowglassAttack : CharacterAttackBehaviour
             if (target != null)
             {
                 CheckAttackCollision(target.transform.gameObject);
-                yield break;
+                break; 
             }
 
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+
         yield return new WaitForSeconds(0.2f);
+
         base._blockArea.enabled = true;
         _bloodhandVFX.ActivateAxeTrail(false);
     }

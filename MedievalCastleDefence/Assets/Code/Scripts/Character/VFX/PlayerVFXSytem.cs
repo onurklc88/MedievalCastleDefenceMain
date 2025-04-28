@@ -4,6 +4,7 @@ using UnityEngine;
 using Fusion;
 using CartoonFX;
 using static BehaviourRegistry;
+using Tiny;
 using Cysharp.Threading.Tasks;
 public class PlayerVFXSytem : CharacterRegistry
 {
@@ -15,6 +16,7 @@ public class PlayerVFXSytem : CharacterRegistry
     [SerializeField] private CFXR_Effect _cfxrEffect;
     [SerializeField] private ParticleSystem _stunnedEffect;
     [SerializeField] protected ParticleSystem _stunnedText;
+    [SerializeField] protected Trail _trailRenderer;
    
     protected PlayerStatsController _playerStatsController;
  
@@ -79,20 +81,23 @@ public class PlayerVFXSytem : CharacterRegistry
     {
         if (!Object.HasStateAuthority) return;
        IsTrailActive = enable;
+        Debug.Log("IstrailActive: " + IsTrailActive);
     }
 
     private static void OnSwordTrailStateChange(Changed<PlayerVFXSytem> changed)
     {
-
+       
         if (changed.Behaviour.IsTrailActive)
         {
+           
             changed.Behaviour._swordTrail.Play();
         }
         else
         {
             changed.Behaviour._swordTrail.Stop();
         }
-      
+        if (changed.Behaviour._trailRenderer != null)
+            changed.Behaviour._trailRenderer.enabled = changed.Behaviour.IsTrailActive;
     }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
