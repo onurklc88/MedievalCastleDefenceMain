@@ -66,7 +66,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
       
         if (wasBlocking && !IsPlayerBlockingLocal)
         {
-            _blockReleaseCooldown = TickTimer.CreateFromSeconds(Runner, 0.5f);
+            _blockReleaseCooldown = TickTimer.CreateFromSeconds(Runner, 0.1f);
         }
 
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
@@ -121,9 +121,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
        AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
        _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
        _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
-        float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;
-       
-        StartCoroutine(PerformAttack(swingTime));
+       float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;
+       StartCoroutine(PerformAttack(swingTime));
 
        
     }

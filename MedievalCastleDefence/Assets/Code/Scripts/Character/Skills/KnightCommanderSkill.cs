@@ -5,19 +5,23 @@ using Fusion;
 using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
 
-public class KnightCommanderSkill : CharacterRegistry, IReadInput
+public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
 {
-    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsPlayerDashLocal { get; set; }
-    [Networked] public NetworkBool IsPlayerDash { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsPlayerUseAbilityLocal { get; set; }
+   
+    [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
     public int SlideCharges { get; set; }
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
     private PlayerVFXSytem _characterVFX;
-    private int _slideChargeCount;
     private CharacterController _characterController;
     private Rigidbody _rigidbody;
     private CharacterMovement _characterMovement;
     public NetworkButtons PreviousButton { get; set; }
+   
+   
+
+    private int _slideChargeCount;
     private float _duration = 0.2f;
     private float _distance = 0.35f;
   
@@ -55,17 +59,18 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
             if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
             {
                ReadPlayerInputs(input);
-            Debug.Log("IsplayerDashLocal: " + IsPlayerDashLocal);
+            //Debug.Log("IsplayerDashLocal: " + IsPlayerUseAbility);
             }
         
     }
     
     private static void OnNetworkDashStateChange(Changed<KnightCommanderSkill> changed)
     {
-        changed.Behaviour.IsPlayerDash = changed.Behaviour.IsPlayerDashLocal;
+        changed.Behaviour.IsPlayerUseAbility = changed.Behaviour.IsPlayerUseAbilityLocal;
     }
     public void ReadPlayerInputs(PlayerInputData input)
     {
+        #region legacy
         /*
         if (input.ForwardDoubleTab)
             _slideDirection = transform.forward;
@@ -83,6 +88,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
         ActivateUtilitySkill();
         PreviousButton = input.NetworkButtons;
         */
+        #endregion
         var utilityButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (utilityButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill))
         {
@@ -118,11 +124,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
            // Debug.Log("No slide charges left! Waiting for recharge...");
         }
     }
-
-  
-    
-
-
+   
     private async UniTaskVoid RechargeSlideAsync()
     {
         _isRefilling = true; 
@@ -141,12 +143,12 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
 
     private async UniTaskVoid SlideCharacter(Vector3 direction)
     {
-        if (IsPlayerDashLocal) return;
+        if (IsPlayerUseAbilityLocal) return;
         
         if (_slideChargeCount < 0) return;
-        IsPlayerDashLocal = true;
-        _characterVFX.ActivateSwordTrail(IsPlayerDashLocal);
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerDashLocal);
+        IsPlayerUseAbilityLocal = true;
+        _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
+        EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
        
         float elapsedTime = 0f;
         float forceMultiplier = 1700f; 
@@ -163,11 +165,11 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput
         }
       
         await UniTask.Delay(200);
-        IsPlayerDashLocal = false;
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerDashLocal);
+        IsPlayerUseAbilityLocal = false;
+        EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
         await UniTask.Delay(500);
         
-        _characterVFX.ActivateSwordTrail(IsPlayerDashLocal);
+        _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
 
     }
 

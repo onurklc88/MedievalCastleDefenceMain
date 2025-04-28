@@ -131,7 +131,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentDash = opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsPlayerDash;
+        var isOpponentDash = opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsPlayerUseAbilityLocal;
         Debug.Log("IsOpponentDash: " + isOpponentDash);
         if (isOpponentDash) return;
 

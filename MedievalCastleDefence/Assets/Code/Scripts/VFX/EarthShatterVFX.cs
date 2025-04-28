@@ -11,7 +11,7 @@ public class EarthShatterVFX : MonoBehaviour
 
     private async void Start()
     {
-        Debug.Log("Hav");
+       
         _earthShatter.Play();
 
         for (int i = 0; i < _stoneParticles.Length; i++)

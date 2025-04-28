@@ -6,8 +6,11 @@ using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
 using System.Threading;
 
-public class StormShieldSkill : CharacterRegistry, IReadInput
+public class StormShieldSkill : CharacterRegistry, IReadInput, IAbility
 {
+    [Networked(OnChanged = nameof(OnNetworkAbilityStateChange))] public NetworkBool IsPlayerUseAbilityLocal { get; set; }
+    [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
+
     private PlayerStatsController _playerStatsController;
     private CharacterMovement _characterMovement;
     private CharacterHealth _characterHealth;
@@ -16,6 +19,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
     private FootknightAnimation _footnightAnimation;
     private CharacterCollision _characterCollision;
     public NetworkButtons PreviousButton { get; set; }
+   
     private bool canUseAbility = true;
     private CancellationTokenSource cts;
 
@@ -25,7 +29,10 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
         
         InitScript(this);
     }
-    
+    private static void OnNetworkAbilityStateChange(Changed<StormShieldSkill> changed)
+    {
+        changed.Behaviour.IsPlayerUseAbility = changed.Behaviour.IsPlayerUseAbilityLocal;
+    }
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
@@ -77,8 +84,9 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
        
         _characterMovement.IsInputDisabled = true;
         _footnightAnimation.UpdateAbilityAnimationState();
+        IsPlayerUseAbilityLocal = true;
        
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 5f);
+         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 5f);
         HashSet<NetworkBehaviourId> healedCharacters = new HashSet<NetworkBehaviourId>();
         for (int i = 0; i < hitColliders.Length; i++)
         {
@@ -90,7 +98,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
                // Debug.Log("charStats: " + characterStatsController.PlayerTeam + " HealerTeam: " + _playerStatsController.PlayerTeam);
                 if (characterStatsController.PlayerTeam == _playerStatsController.PlayerTeam && !healedCharacters.Contains(playerID))
                 {
-                    Debug.Log("HealingRPC called");
+                    
                     hitColliders[i].transform.GetComponentInParent<CharacterHealth>().ApplyHealingRpc(40f);
                     if(_playerStatsController.Id != playerID)
                     {
@@ -108,6 +116,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput
         }
         await UniTask.Delay(300);
         _playerVFX.PlayUltimateVFX();
+        IsPlayerUseAbilityLocal = false;
         await UniTask.Delay(1450);
         
         

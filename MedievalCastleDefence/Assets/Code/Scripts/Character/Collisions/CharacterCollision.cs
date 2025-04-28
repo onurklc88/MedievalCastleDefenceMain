@@ -45,7 +45,7 @@ public class CharacterCollision : CharacterRegistry
           0.3f
        );
 
-        Debug.Log("IsplayerGorunded: " + IsPlayerGrounded);
+       // Debug.Log("IsplayerGorunded: " + IsPlayerGrounded);
         if (!IsPlayerGrounded) return;
 
         switch (_groundHit.transform.gameObject.layer)
