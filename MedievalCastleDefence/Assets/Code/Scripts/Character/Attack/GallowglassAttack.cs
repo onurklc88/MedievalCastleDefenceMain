@@ -73,7 +73,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         if (_gallowGlassAnimation != null) BlockWeapon();
 
         
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && _bloodhandSkill.CanUseAbility && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)) && !_characterHealth.IsPlayerGotHit)
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_bloodhandSkill.IsPlayerUseAbilityLocal && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)) && !_characterHealth.IsPlayerGotHit)
         {
             if (_characterStamina.CurrentAttackStamina > 30)
             {
@@ -82,7 +82,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
               
             }
         }
-        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && _bloodhandSkill.CanUseAbility)
+        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && !_bloodhandSkill.IsPlayerUseAbilityLocal)
         {
             //IsPlayerBlockingLocal = true;
            // _characterStamina.DecreaseDefenceStaminaRPC(60f);

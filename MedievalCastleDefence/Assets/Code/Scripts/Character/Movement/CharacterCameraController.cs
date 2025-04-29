@@ -144,7 +144,9 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     }
     private void HandleCameraRotation()
     {
-        if (_cinemachineCamera == null || _characterMovement.IsInputDisabled) return;
+        if (_cinemachineCamera == null) return;
+        if (_playerStatsController.PlayerLocalStats.PlayerWarrior != CharacterStats.CharacterType.Ranger && _characterMovement.IsInputDisabled) return;
+      
         Vector3 dirToCombatLookAt = _cameraTargetPoint.position - new Vector3(_cinemachineCamera.transform.position.x, _cameraTargetPoint.transform.position.y, _cinemachineCamera.transform.position.z);
         _orientation.forward = dirToCombatLookAt.normalized;
       
