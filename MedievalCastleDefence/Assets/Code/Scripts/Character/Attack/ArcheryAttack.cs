@@ -111,6 +111,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
                 RelaseArrow();
             }
             _rangerAnimation.UpdateDrawAnimState(false);
+            _rangerAnimation.DisableDummyArrows();
             _drawDuration = 0.15f;
         }
     }

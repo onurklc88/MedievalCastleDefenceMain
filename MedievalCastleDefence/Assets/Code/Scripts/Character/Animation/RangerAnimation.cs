@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Cysharp.Threading.Tasks;
 
 public class RangerAnimation : CharacterAnimationController, IReadInput
 {
@@ -13,7 +14,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkDrawAnimationStateChange))] public NetworkBool IsPlayerDrawingBow { get; set; }
-
+    [SerializeField] private GameObject[] _dummyArrows;
     
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
@@ -91,6 +92,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     private static void NetworkDrawAnimationStateChange(Changed<RangerAnimation> changed)
     {
         changed.Behaviour._animationController.SetBool("IsPlayerDrawing", changed.Behaviour.IsPlayerDrawingBow);
+        changed.Behaviour.EnableDummyArrows(true);
         //changed.Behaviour._animationController.Play("Draw-Ranger");
         //  changed.Behaviour._animationController.SetBool("IsRightSwing", changed.Behaviour.IsPlayerSwing);
         // if (changed.Behaviour.SwingIndex == 0) return;
@@ -114,7 +116,22 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
         changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody", 1);
     }
   
+    private async void EnableDummyArrows(bool condition)
+    {
+        await UniTask.Delay(200);
+        _dummyArrows[0].gameObject.SetActive(condition);
+        await UniTask.Delay(200);
+        _dummyArrows[0].gameObject.SetActive(false);
+        _dummyArrows[1].gameObject.SetActive(condition);
+        
+    }
 
+    public void DisableDummyArrows()
+    {
+        _dummyArrows[0].gameObject.SetActive(false);
+        _dummyArrows[1].gameObject.SetActive(false);
+
+    }
     public override void UpdateJumpAnimationState(bool state)
     {
         IsPlayerJumping = state;
