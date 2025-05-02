@@ -17,10 +17,11 @@ public class RangerAnimationRigging : CharacterRegistry
 
     public void UpdateConstraits(bool condition)
     {
+
         if (condition)
             _leftHandConstrait.weight = 0.6f;
         else
-            _leftHandConstrait.weight = 0f;
+            _leftHandConstrait.weight = 0.47f;
     }
         
 }
