@@ -29,7 +29,7 @@ public class RangerAnimationRigging : CharacterRegistry
         if (condition)
         {
           
-            _leftHandConstrait.weight = 0.6f;
+            _leftHandConstrait.weight = 1f;
         }
         else
             _leftHandConstrait.weight = 0.47f;

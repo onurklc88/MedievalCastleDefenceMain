@@ -118,19 +118,21 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
   
     private async void EnableDummyArrows(bool condition)
     {
-        await UniTask.Delay(200);
-        _dummyArrows[0].gameObject.SetActive(condition);
-        await UniTask.Delay(200);
-        _dummyArrows[0].gameObject.SetActive(false);
-        _dummyArrows[1].gameObject.SetActive(condition);
+        if (condition)
+        {
+            await UniTask.Delay(200);
+            _dummyArrows[0].gameObject.SetActive(condition);
+            await UniTask.Delay(200);
+            _dummyArrows[0].gameObject.SetActive(false);
+            _dummyArrows[1].gameObject.SetActive(condition);
+        }
+        else
+        {
+            _dummyArrows[0].gameObject.SetActive(false);
+            _dummyArrows[1].gameObject.SetActive(false);
+        }
+       
         
-    }
-
-    public void DisableDummyArrows()
-    {
-        _dummyArrows[0].gameObject.SetActive(false);
-        _dummyArrows[1].gameObject.SetActive(false);
-
     }
     public override void UpdateJumpAnimationState(bool state)
     {
