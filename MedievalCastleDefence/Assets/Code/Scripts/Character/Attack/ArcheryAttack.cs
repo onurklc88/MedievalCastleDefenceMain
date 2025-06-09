@@ -58,7 +58,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
         {
             _characterMovement.IsInputDisabled = isPlayerAiming;
             _playerHUD.UpdateAimTargetState(isPlayerAiming);
-            _rangerAnimationRigging.UpdateConstraits(isPlayerAiming);
+            //_rangerAnimationRigging.UpdateConstraits(isPlayerAiming);
         }
         
         if (_characterCollision.IsPlayerGrounded)

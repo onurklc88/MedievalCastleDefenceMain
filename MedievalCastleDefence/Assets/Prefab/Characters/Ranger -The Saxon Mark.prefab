@@ -2016,7 +2016,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4142237009755834404}
-  - {fileID: 1135256622741556919}
   - {fileID: 6095789144603789702}
   m_Father: {fileID: 2086091588482336182}
   m_RootOrder: 2
@@ -2567,68 +2566,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!1 &1891530886755864623
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1135256622741556919}
-  - component: {fileID: 1149124703209578769}
-  m_Layer: 3
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1135256622741556919
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1891530886755864623}
-  m_LocalRotation: {x: -0.0012275093, y: 2.3278804e-10, z: 1.1620484e-11, w: 0.9999993}
-  m_LocalPosition: {x: 0, y: 0.11652489, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9201205501952333082}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1149124703209578769
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1891530886755864623}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WordOffset: 0
-  WordCount: 0
-  _interpolationDataSource: 0
-  InterpolationSpace: 0
-  InterpolationTarget: {fileID: 6095789144603789702}
-  InterpolateErrorCorrection: 1
-  InterpolatedErrorCorrectionSettings:
-    MinRate: 3.3
-    MaxRate: 10
-    PosBlendStart: 0.25
-    PosBlendEnd: 1
-    PosMinCorrection: 0.025
-    PosTeleportDistance: 2
-    RotBlendStart: 0.1
-    RotBlendEnd: 0.5
-    RotTeleportRadians: 1.5
-  UseLegacySharedModeInterpolation: 0
-  TargetInterpolationDelay: 0.03
 --- !u!1 &1900558040246088677
 GameObject:
   m_ObjectHideFlags: 0
@@ -16164,7 +16101,7 @@ Transform:
   m_Children:
   - {fileID: 3676460063989837886}
   m_Father: {fileID: 9201205501952333082}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5114400518112361734
 GameObject:
@@ -16345,7 +16282,7 @@ MonoBehaviour:
     m_MaintainOffset: 0
     m_ConstrainedAxes:
       x: 1
-      y: 1
+      y: 0
       z: 0
 --- !u!1 &5292046251507775437
 GameObject:
@@ -21887,7 +21824,6 @@ MonoBehaviour:
   - {fileID: 2539591852716934105}
   - {fileID: 6312819791103742626}
   - {fileID: 9215558042942499515}
-  - {fileID: 1149124703209578769}
   - {fileID: 2084102026568960811}
   - {fileID: 7559269688538153344}
   - {fileID: 7442856801124004374}
@@ -22223,19 +22159,6 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _characterStats: {fileID: 0}
-  _leftHandConstrait: {fileID: 8089057276699636092}
-  _rightHandConstrait: {fileID: 0}
-  _IsPlayerDrawing:
-    _value: 0
-  _networkLeftArmRigidbody: {fileID: 2084102026568960811}
-  _networkHeadRigidbody: {fileID: 7559269688538153344}
-  _networkRightHandRigidbody: {fileID: 7442856801124004374}
-  _networkSpineRigidbody: {fileID: 0}
-  _leftArm: {fileID: 716596266035502198}
-  _head: {fileID: 4437278709873822791}
-  _rightHand: {fileID: 7257929937231942666}
-  _spine: {fileID: 6095789144603789702}
-  lookAtTarget: {fileID: 0}
 --- !u!114 &7315415985782827403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22452,7 +22375,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5797861915547711400}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20aaa2a4b17b06840891a4f6177e26c2, type: 3}
   m_Name: 
@@ -22461,8 +22384,7 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   spineBone: {fileID: 6095789144603789702}
-  spineConstraint: {fileID: 8188854238439408612}
-  interpolationSpeed: 8
+  rigBuilder: {fileID: 7845039346336932982}
 --- !u!1 &5820283890497175642
 GameObject:
   m_ObjectHideFlags: 0

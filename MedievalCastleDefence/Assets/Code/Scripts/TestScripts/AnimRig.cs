@@ -1,49 +1,40 @@
-using Fusion;
+ï»¿using Fusion;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
 public class AnimRig : NetworkBehaviour
 {
-    [Networked(OnChanged = nameof(OnSpineDataChanged))]
-    private Quaternion NetworkedSpineRotation { get; set; }
+    [Networked] private Quaternion NetworkedSpineRotation { get; set; }
+    public Transform spineBone; // Rigging'in kontrol ettiÄŸi kemik
+    public RigBuilder rigBuilder; // RigBuilder referansÄ±
 
-    [Networked]
-    private float NetworkedRigWeight { get; set; }
-
-    // Referanslar
-    public Transform spineBone; // Kontrol etmek istediðiniz spine kemiði
-    public MultiAimConstraint spineConstraint; // Spine için rig constraint
-    public float interpolationSpeed = 8f;
-
-  
+    public override void Spawned()
+    {
+        if (!Object.HasStateAuthority)
+        {
+            Destroy(GetComponent<RigBuilder>()); // Remote player'da Rigging'i TAMAMEN KAPAT
+        }
+    }
     public override void FixedUpdateNetwork()
     {
+        // 1. AUTHORITY: Rigging Ã§alÄ±ÅŸsÄ±n ve sonucu networke gÃ¶ndersin
         if (Object.HasStateAuthority)
         {
-            // Rigging sonuçlarýný networke gönder
             NetworkedSpineRotation = spineBone.localRotation;
-            NetworkedRigWeight = spineConstraint.weight;
-           
+            return;
         }
-        else
-        {
-            // Remote player'lar için yumuþak geçiþ
-            spineBone.localRotation = Quaternion.Lerp(
-                spineBone.localRotation,
-                NetworkedSpineRotation,
-                Runner.DeltaTime * interpolationSpeed
-            );
 
-            spineConstraint.weight = Mathf.Lerp(
-                spineConstraint.weight,
-                NetworkedRigWeight,
-                Runner.DeltaTime * interpolationSpeed
-            );
-        }
+        // 2. REMOTE: Networkten gelen rotasyonu direkt uygula
+        spineBone.localRotation = NetworkedSpineRotation;
     }
-
-    private static void OnSpineDataChanged(Changed<AnimRig> changed)
+    private void LateUpdate()
     {
-        // Veri deðiþtiðinde hemen güncelle (lerp Update'de yapýlýyor)
+        // Remote player'da animasyonun dÃ¼zgÃ¼n gÃ¶rÃ¼nmesi iÃ§in
+        if (!Object.HasStateAuthority)
+        {
+            spineBone.localRotation = NetworkedSpineRotation;
+        }
     }
+
+
 }
