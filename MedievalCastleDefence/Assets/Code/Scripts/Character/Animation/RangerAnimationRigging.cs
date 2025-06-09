@@ -24,6 +24,7 @@ public class RangerAnimationRigging : CharacterRegistry
 
     public void UpdateConstraits(bool condition)
     {
+        /*
         IsPlayerDrawing = condition;
         Debug.Log("IsplayerDrawing: " + condition);
         if (condition)
@@ -33,6 +34,7 @@ public class RangerAnimationRigging : CharacterRegistry
         }
         else
             _leftHandConstrait.weight = 0.47f;
+        */
     }
 
     private static void OnNetworkDrawStateChange(Changed<RangerAnimationRigging> changed)

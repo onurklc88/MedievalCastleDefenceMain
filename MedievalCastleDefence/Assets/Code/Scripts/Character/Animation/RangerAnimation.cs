@@ -123,13 +123,13 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
             await UniTask.Delay(200);
             _dummyArrows[0].gameObject.SetActive(condition);
             await UniTask.Delay(200);
-            _dummyArrows[0].gameObject.SetActive(false);
-            _dummyArrows[1].gameObject.SetActive(condition);
+            //_dummyArrows[0].gameObject.SetActive(false);
+            //_dummyArrows[1].gameObject.SetActive(condition);
         }
         else
         {
-            _dummyArrows[0].gameObject.SetActive(false);
-            _dummyArrows[1].gameObject.SetActive(false);
+            //_dummyArrows[0].gameObject.SetActive(false);
+            //_dummyArrows[1].gameObject.SetActive(false);
         }
        
         
