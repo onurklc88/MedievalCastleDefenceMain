@@ -2016,6 +2016,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4142237009755834404}
+  - {fileID: 1135256622741556919}
   - {fileID: 6095789144603789702}
   m_Father: {fileID: 2086091588482336182}
   m_RootOrder: 2
@@ -2143,7 +2144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Weight: 0
+  m_Weight: 1
   m_Effectors: []
 --- !u!1 &1572603859216993614
 GameObject:
@@ -2566,6 +2567,68 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!1 &1891530886755864623
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135256622741556919}
+  - component: {fileID: 1149124703209578769}
+  m_Layer: 3
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1135256622741556919
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891530886755864623}
+  m_LocalRotation: {x: -0.0012275093, y: 2.3278804e-10, z: 1.1620484e-11, w: 0.9999993}
+  m_LocalPosition: {x: 0, y: 0.11652489, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9201205501952333082}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1149124703209578769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891530886755864623}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WordOffset: 0
+  WordCount: 0
+  _interpolationDataSource: 0
+  InterpolationSpace: 0
+  InterpolationTarget: {fileID: 6095789144603789702}
+  InterpolateErrorCorrection: 1
+  InterpolatedErrorCorrectionSettings:
+    MinRate: 3.3
+    MaxRate: 10
+    PosBlendStart: 0.25
+    PosBlendEnd: 1
+    PosMinCorrection: 0.025
+    PosTeleportDistance: 2
+    RotBlendStart: 0.1
+    RotBlendEnd: 0.5
+    RotTeleportRadians: 1.5
+  UseLegacySharedModeInterpolation: 0
+  TargetInterpolationDelay: 0.03
 --- !u!1 &1900558040246088677
 GameObject:
   m_ObjectHideFlags: 0
@@ -10734,7 +10797,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4608915270467659598}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.183, y: 1.467, z: 1.812}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -16094,14 +16157,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5057323519406429700}
-  m_LocalRotation: {x: -0.0012275233, y: -5.662659e-28, z: -6.457746e-27, w: 0.9999993}
-  m_LocalPosition: {x: -0, y: 0.11652517, z: 9.313226e-10}
-  m_LocalScale: {x: 1, y: 1, z: 0.99999994}
+  m_LocalRotation: {x: -0.0012275093, y: 4.6537002e-10, z: 2.2417405e-11, w: 0.9999993}
+  m_LocalPosition: {x: 2.2023938e-11, y: 0.11652465, z: 0.000000017695129}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3676460063989837886}
   m_Father: {fileID: 9201205501952333082}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5114400518112361734
 GameObject:
@@ -16242,9 +16305,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3c430f382484144e925c097c2d33cfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Weight: 0
+  m_Weight: 0.7
   m_Data:
-    m_ConstrainedObject: {fileID: 3676460063989837886}
+    m_ConstrainedObject: {fileID: 6095789144603789702}
     m_SourceObjects:
       m_Length: 1
       m_Item0:
@@ -16276,13 +16339,13 @@ MonoBehaviour:
     m_MaxLimit: 180
     m_AimAxis: 4
     m_UpAxis: 2
-    m_WorldUpType: 0
+    m_WorldUpType: 2
     m_WorldUpObject: {fileID: 0}
     m_WorldUpAxis: 2
     m_MaintainOffset: 0
     m_ConstrainedAxes:
       x: 1
-      y: 0
+      y: 1
       z: 0
 --- !u!1 &5292046251507775437
 GameObject:
@@ -21754,6 +21817,9 @@ GameObject:
   - component: {fileID: -728041390059955811}
   - component: {fileID: 2539591852716934105}
   - component: {fileID: 6312819791103742626}
+  - component: {fileID: 7845039346336932982}
+  - component: {fileID: 3833701311069768666}
+  - component: {fileID: 9215558042942499515}
   m_Layer: 6
   m_Name: Ranger -The Saxon Mark
   m_TagString: Untagged
@@ -21820,6 +21886,8 @@ MonoBehaviour:
   - {fileID: -728041390059955811}
   - {fileID: 2539591852716934105}
   - {fileID: 6312819791103742626}
+  - {fileID: 9215558042942499515}
+  - {fileID: 1149124703209578769}
   - {fileID: 2084102026568960811}
   - {fileID: 7559269688538153344}
   - {fileID: 7442856801124004374}
@@ -22162,9 +22230,12 @@ MonoBehaviour:
   _networkLeftArmRigidbody: {fileID: 2084102026568960811}
   _networkHeadRigidbody: {fileID: 7559269688538153344}
   _networkRightHandRigidbody: {fileID: 7442856801124004374}
+  _networkSpineRigidbody: {fileID: 0}
   _leftArm: {fileID: 716596266035502198}
   _head: {fileID: 4437278709873822791}
   _rightHand: {fileID: 7257929937231942666}
+  _spine: {fileID: 6095789144603789702}
+  lookAtTarget: {fileID: 0}
 --- !u!114 &7315415985782827403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22274,6 +22345,124 @@ MonoBehaviour:
   _interpolationDataSource: 0
   lookAtTarget: {fileID: 1979586594736575696}
   rotationSmoothSpeed: 10
+--- !u!114 &7845039346336932982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5797861915547711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RigLayers:
+  - m_Rig: {fileID: 5614126181861887217}
+    m_Active: 1
+  m_Effectors: []
+--- !u!114 &3833701311069768666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5797861915547711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2d8418b0b9634b1892b0268dd9c2743, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boneShape: 1
+  drawBones: 0
+  drawTripods: 0
+  boneSize: 0.01
+  tripodSize: 1
+  boneColor: {r: 0.92620075, g: 1, b: 0, a: 0.5}
+  m_Transforms:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+--- !u!114 &9215558042942499515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5797861915547711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20aaa2a4b17b06840891a4f6177e26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WordOffset: 0
+  WordCount: 0
+  _interpolationDataSource: 0
+  spineBone: {fileID: 6095789144603789702}
+  spineConstraint: {fileID: 8188854238439408612}
+  interpolationSpeed: 8
 --- !u!1 &5820283890497175642
 GameObject:
   m_ObjectHideFlags: 0
