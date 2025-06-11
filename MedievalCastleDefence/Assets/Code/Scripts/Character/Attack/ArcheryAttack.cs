@@ -14,10 +14,12 @@ public class ArcheryAttack : CharacterAttackBehaviour
     [SerializeField] private GameObject _lookAtTarget;
     [SerializeField] private GameObject _arrow;
     [SerializeField] private GameObject _arrowFirePoint;
+    [SerializeField] private GameObject _angle;
     private bool _previousAimingInput;
     private ActiveRagdoll _activeRagdoll;
- 
-  
+    private Vector3 _defaultAnglePosition;
+    private Vector3 _aimingAnglePosition = new Vector3(0.032f, 0.289f, 0.322f);
+
     private float _drawDuration;
     public override void Spawned()
     {
@@ -26,6 +28,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
         _characterType = CharacterStats.CharacterType.Ranger;
         InitScript(this);
         _drawDuration = .15f;
+        _defaultAnglePosition = _angle.transform.position;
     }
     private void Start()
     {
@@ -56,9 +59,16 @@ public class ArcheryAttack : CharacterAttackBehaviour
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (isPlayerAiming != _previousAimingInput && _characterCollision.IsPlayerGrounded)
         {
-            _characterMovement.IsInputDisabled = isPlayerAiming;
+            //_characterMovement.IsInputDisabled = isPlayerAiming;
+            Debug.Log("Test");
+            _angle.transform.localPosition = _aimingAnglePosition;
+            _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
             _playerHUD.UpdateAimTargetState(isPlayerAiming);
-            //_rangerAnimationRigging.UpdateConstraits(isPlayerAiming);
+            
+        }
+        else
+        {
+
         }
         
         if (_characterCollision.IsPlayerGrounded)
