@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-
+using Cysharp.Threading.Tasks;
 public class ArcheryAttack : CharacterAttackBehaviour
 {
     private PlayerHUD _playerHUD;
@@ -19,7 +19,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
     private ActiveRagdoll _activeRagdoll;
     private Vector3 _defaultAnglePosition;
     private Vector3 _aimingAnglePosition = new Vector3(0.032f, 0.289f, 0.322f);
-
+    private bool _canDrawArrow = true;
     private float _drawDuration;
     public override void Spawned()
     {
@@ -28,7 +28,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
         _characterType = CharacterStats.CharacterType.Ranger;
         InitScript(this);
         _drawDuration = .15f;
-        _defaultAnglePosition = _angle.transform.position;
+        _defaultAnglePosition = _angle.transform.localPosition;
     }
     private void Start()
     {
@@ -57,24 +57,24 @@ public class ArcheryAttack : CharacterAttackBehaviour
         if (_characterMovement == null || _camController == null) return;
         var isPlayerAiming = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        if (isPlayerAiming != _previousAimingInput && _characterCollision.IsPlayerGrounded)
+        if (isPlayerAiming != _previousAimingInput && _characterCollision.IsPlayerGrounded && _canDrawArrow)
         {
-            //_characterMovement.IsInputDisabled = isPlayerAiming;
-            Debug.Log("Test");
-            _angle.transform.localPosition = _aimingAnglePosition;
-            _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
-            _playerHUD.UpdateAimTargetState(isPlayerAiming);
             
-        }
-        else
-        {
+          
+           
+            _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
+          
+            //_camController.UpdateCameraPriority(isPlayerAiming);
+            UpdateTargetPosition();
 
         }
-        
-        if (_characterCollision.IsPlayerGrounded)
+        Debug.Log("TEST: " + _rangerAnimation.GetCurrentPlayingAnimationClipName());
+        if (_characterCollision.IsPlayerGrounded && _canDrawArrow)
         {
             _camController.UpdateCameraPriority(isPlayerAiming);
-            UpdateTargetPosition();
+            // UpdateTargetPosition();
+            _angle.transform.localPosition = isPlayerAiming ? _aimingAnglePosition : _defaultAnglePosition;
+            _playerHUD.UpdateAimTargetState(isPlayerAiming);
             CalculateDrawDuration(isPlayerAiming);
         }
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Reload))
@@ -95,6 +95,8 @@ public class ArcheryAttack : CharacterAttackBehaviour
 
     private void RelaseArrow()
     {
+       // Debug.Log("PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        StartDrawCooldown().Forget();
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
         var arrow = Runner.Spawn(_arrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
@@ -105,6 +107,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
    
     private void CalculateDrawDuration(bool condition)
     {
+        Debug.Log("TEST: " + _rangerAnimation.GetCurrentPlayingAnimationClipName());
         if (condition)
         {
             _rangerAnimation.UpdateDrawAnimState(true);
@@ -118,7 +121,13 @@ public class ArcheryAttack : CharacterAttackBehaviour
         {
             if (_drawDuration <= 0)
             {
+                
                 RelaseArrow();
+            }
+            else
+            {
+                _rangerAnimation.UpdateDrawAnimState(false);
+                _rangerAnimation.UpdateIdleAnimationState();
             }
             _rangerAnimation.UpdateDrawAnimState(false);
            // _rangerAnimation.DisableDummyArrows();
@@ -126,7 +135,17 @@ public class ArcheryAttack : CharacterAttackBehaviour
         }
     }
 
-  
+    private async UniTaskVoid StartDrawCooldown()
+    {
+        _canDrawArrow = false;
+
+        await UniTask.WaitUntil(
+            () => _rangerAnimation.GetCurrentPlayingAnimationClipName() == "Idle-RangerV2",
+            cancellationToken: this.GetCancellationTokenOnDestroy()
+        ); 
+
+        _canDrawArrow = true;
+    }
     void OnDrawGizmos()
     {
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using Cysharp.Threading.Tasks;
-
+using UnityEngine.Animations;
 public class RangerAnimation : CharacterAnimationController, IReadInput
 {
 
@@ -14,7 +14,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkDrawAnimationStateChange))] public NetworkBool IsPlayerDrawingBow { get; set; }
-    [SerializeField] private GameObject[] _dummyArrows;
+  
     
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
@@ -51,7 +51,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
         if (input.VerticalInput != 0)
         {
             PlayerVerticalDirection = input.VerticalInput;
-            OnPlayerWalk = true;
+            //OnPlayerWalk = true;
         }
         else
         {
@@ -87,17 +87,14 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     private static void NetworkedUpperbodyWalkAnimationStateChange(Changed<RangerAnimation> changed)
     {
         //changed.Behaviour._animationController.SetBool("OnPlayerWalk", changed.Behaviour.OnPlayerWalk);
+        if (changed.Behaviour.OnPlayerWalk == false) return;
+        changed.Behaviour._animationController.Play("Idle-Ranger", 1);
     }
  
     private static void NetworkDrawAnimationStateChange(Changed<RangerAnimation> changed)
     {
         changed.Behaviour._animationController.SetBool("IsPlayerDrawing", changed.Behaviour.IsPlayerDrawingBow);
-        changed.Behaviour.EnableDummyArrows(true);
-        //changed.Behaviour._animationController.Play("Draw-Ranger");
-        //  changed.Behaviour._animationController.SetBool("IsRightSwing", changed.Behaviour.IsPlayerSwing);
-        // if (changed.Behaviour.SwingIndex == 0) return;
-
-        //changed.Behaviour._animationController.SetInteger("SwingIndex", changed.Behaviour.SwingIndex);
+      
     }
 
     private static void NetworkedDamageAnimationStateChange(Changed<RangerAnimation> changed)
@@ -115,24 +112,26 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
 
         changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody", 1);
     }
-  
-    private async void EnableDummyArrows(bool condition)
+
+
+    public string GetCurrentPlayingAnimationClipName()
     {
-        if (condition)
+        AnimatorClipInfo[] clipInfo = _animationController.GetCurrentAnimatorClipInfo(1);
+
+        if (clipInfo.Length > 0)
         {
-            await UniTask.Delay(200);
-            _dummyArrows[0].gameObject.SetActive(condition);
-            await UniTask.Delay(200);
-            //_dummyArrows[0].gameObject.SetActive(false);
-            //_dummyArrows[1].gameObject.SetActive(condition);
+            AnimationClip clip = clipInfo[0].clip;
+            return clip.name;
         }
-        else
-        {
-            //_dummyArrows[0].gameObject.SetActive(false);
-            //_dummyArrows[1].gameObject.SetActive(false);
-        }
-       
-        
+
+        return "none";
+    }
+
+    public async void UpdateIdleAnimationState()
+    {
+        OnPlayerWalk = true;
+        await UniTask.Delay(200);
+        OnPlayerWalk = false;
     }
     public override void UpdateJumpAnimationState(bool state)
     {
