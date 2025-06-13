@@ -27,7 +27,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
         _characterController = GetComponent<CharacterController>();
         _characterType = CharacterStats.CharacterType.Ranger;
         InitScript(this);
-        _drawDuration = .15f;
+        _drawDuration = .2f;
         _defaultAnglePosition = _angle.transform.localPosition;
     }
     private void Start()
@@ -131,7 +131,7 @@ public class ArcheryAttack : CharacterAttackBehaviour
             }
             _rangerAnimation.UpdateDrawAnimState(false);
            // _rangerAnimation.DisableDummyArrows();
-            _drawDuration = 0.15f;
+            _drawDuration = 0.2f;
         }
     }
 
