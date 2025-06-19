@@ -178,13 +178,13 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
 
         if (_playerStatsController.CurrentGamePhase == LevelManager.GamePhase.Warmup)
         {
-            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Ranger);
         }
         else
         {
             await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.Preparation);
 
-            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Gallowglass);
+            EventLibrary.OnRespawnRequested?.Invoke(Runner.LocalPlayer, CharacterStats.CharacterType.Ranger);
         }
     }
 

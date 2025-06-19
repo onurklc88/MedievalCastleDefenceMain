@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arrow-Ranger
   m_EditorClassIdentifier: 
   TimeBetweenSwings: 1
-  Damage: 20
+  Damage: 50
   StaminaWaste: 0
   WeaponStaminaReductionOnParry: 0
   SkillCooldown: 0

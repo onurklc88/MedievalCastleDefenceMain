@@ -25,22 +25,6 @@ public class PlayerVFXSytem : CharacterRegistry
     [Networked(OnChanged = nameof(NetworkBloodVFXOnChange))] public NetworkBool IsBloodVFXReady { get; set; }
     [Networked(OnChanged = nameof(NetworkUltimateVFXOnChange))] public NetworkBool IsPlayerUseUltimate { get; set; }
 
-    private void Start()
-    {
-        /*
-         _playerStatsController = GetScript<PlayerStatsController>();
-        
-
-        if (_playerStatsController == null)
-        {
-            Debug.Log("Bulundu PlayerVFX");
-        }
-        else
-        {
-            Debug.Log("Bulunamadý PlayerVFX");
-        }
-        */
-    }
     public void PlayBloodVFX()
     {
         IsBloodVFXReady = true;

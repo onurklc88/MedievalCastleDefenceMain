@@ -79,7 +79,11 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
         NetworkedHealth -= givenDamage;
         IsPlayerGotHit = true;
         _characterAnim.UpdateDamageAnimationState();
-        _playerVFX.PlayBloodVFX();
+        if(_playerVFX != null)
+        {
+            _playerVFX.PlayBloodVFX();
+        }
+       
         EventLibrary.OnPlayerTakeDamage.Invoke();
         ResetHitStatus().Forget();
         if (NetworkedHealth <= 0)

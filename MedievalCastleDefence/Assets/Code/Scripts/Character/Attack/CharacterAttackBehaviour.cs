@@ -32,7 +32,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
     protected CharacterController _characterController;
-    protected PlayerStatsController _playerStatsController;
+    public PlayerStatsController _playerStatsController { get; set; }
     protected CharacterHealth _characterHealth;
     protected IDamageable _collidedObject;
     public CharacterStats.CharacterType _characterType;
@@ -60,7 +60,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         changed.Behaviour.IsPlayerBlocking = changed.Behaviour.IsPlayerBlockingLocal;
         //if (changed.Behaviour._characterStats.WarriorType == CharacterStats.CharacterType.FootKnight) return;
         changed.Behaviour._blockArea.enabled = changed.Behaviour.IsPlayerBlockingLocal;
-     
     }
 
     private static void OnNetworkBlockPositionChanged(Changed<CharacterAttackBehaviour> changed)
@@ -75,9 +74,16 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
         var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam;
+        if (_playerStatsController == null)
+        {
+            Debug.Log("StatsNullDöndü1");
+        }
         if (opponentTeam == _playerStatsController.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
+        Debug.Log("A0");
+        // if (opponentTeam == _playerStatsController.PlayerTeam) return;
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
+            Debug.Log("A");
            var opponentType = GetCharacterType(collidedObject);
             switch (opponentType)
             {
@@ -91,8 +97,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                     DamageToKnightCommander(collidedObject);
                     break;
                 case CharacterStats.CharacterType.Ranger:
-                    var opponentHealth = collidedObject.transform.GetComponentInParent<CharacterHealth>();
-                    opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
+                    Debug.Log("B");
+                    DamageToRanger(collidedObject);
                     break;
             }
         }
@@ -121,7 +127,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                 }
                
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
-
             }
         }
     }
@@ -156,8 +161,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                 EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
             }
         }
-
-       // opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc(false);
     }
 
     protected void DamageToGallowGlass(GameObject opponent)
@@ -187,6 +190,22 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
             }
+        }
+    }
+
+    protected void DamageToRanger(GameObject opponent)
+    {
+        Debug.Log("C");
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
+        if (IsOpponentDead(opponentHealth.NetworkedHealth))
+        {
+            if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
+            {
+                _playerStatsController.UpdatePlayerKillCountRpc();
+            }
+
+            EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
         }
     }
 

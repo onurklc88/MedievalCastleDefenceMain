@@ -32,7 +32,7 @@ public class RangerAnimationRigging : CharacterRegistry
     }
     public override void FixedUpdateNetwork()
     {
-        
+        //Debug.Log("Test");
         //if (!IsPlayerAiming) { return; }
         float targetWeight = IsPlayerAiming ? 0.7f : 0f;
         if (_lastWeight != targetWeight)
