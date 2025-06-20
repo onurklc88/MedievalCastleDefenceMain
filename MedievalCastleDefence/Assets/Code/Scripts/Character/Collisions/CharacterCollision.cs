@@ -9,6 +9,7 @@ public class CharacterCollision : CharacterRegistry
     private CharacterMovement _characterMovement;
     public override void Spawned()
     {
+        if (!Object.HasStateAuthority) return;
         InitScript(this);
 
     }

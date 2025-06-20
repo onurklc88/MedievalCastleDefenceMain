@@ -22,6 +22,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
     private Vector3 _aimingAnglePosition = new Vector3(0.032f, 0.289f, 0.322f);
     private bool _canDrawArrow = true;
     private float _drawDuration;
+ 
   
     private enum ArrowType
     {
@@ -30,7 +31,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         Bomb
     }
     private ArrowType _selectedArrowType;
-    private const int DEFAULT_BOMB_ARROW_AMOUNT = 5;
+    private const int DEFAULT_BOMB_ARROW_AMOUNT = 3;
     private int _currentBombArrowAmount;
    
     public override void Spawned()
@@ -39,7 +40,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _characterController = GetComponent<CharacterController>();
         _characterType = CharacterStats.CharacterType.Ranger;
         InitScript(this);
-        _drawDuration = .2f;
+        _drawDuration = .3f;
         _defaultAnglePosition = _angle.transform.localPosition;
         _currentBombArrowAmount = DEFAULT_BOMB_ARROW_AMOUNT;
         _selectedArrowType = ArrowType.Standart;
@@ -55,6 +56,8 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _activeRagdoll = GetScript<ActiveRagdoll>();
         _characterCollision = GetScript<CharacterCollision>();
         _playerStats = GetScript<PlayerStatsController>();
+        _characterHealth = GetScript<CharacterHealth>();
+        
        
     }
     public override void FixedUpdateNetwork()
@@ -85,7 +88,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
         }
        
-        if (_characterCollision.IsPlayerGrounded && _canDrawArrow)
+        if (_characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterHealth.IsPlayerDead && _characterStamina.CurrentAttackStamina > 10)
         {
             UpdateTargetPosition();
             _camController.UpdateCameraPriority(isPlayerAiming);
@@ -108,7 +111,6 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
         _lookAtTarget.transform.position = Vector3.Lerp(_lookAtTarget.transform.position, endPoint, Time.deltaTime * 50f);
-
     }
 
     private void SwitchArrowType()
@@ -136,24 +138,28 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
         Arrow arrowScript = null;
-        if(_selectedArrowType == ArrowType.Standart)
-        {
-            var arrow = Runner.Spawn(_standartArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
-            arrowScript = arrow.GetComponent<StandartArrow>();
-        }
-        else
+       
+
+        if(_currentBombArrowAmount > 0 && _selectedArrowType == ArrowType.Bomb)
         {
             _currentBombArrowAmount -= 1;
             var arrow = Runner.Spawn(_bombArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
             arrowScript = arrow.GetComponent<BombArrow>();
         }
+        else
+        {
+            var arrow = Runner.Spawn(_standartArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
+            arrowScript = arrow.GetComponent<StandartArrow>();
+        }
+
+
        
         if (arrowScript == null)
         {
             Debug.LogError("StandartArrow scripti bulunamadý!");
             return;
         }
-
+        Debug.Log("CurrentBombAmo: " + _currentBombArrowAmount);
         arrowScript.InitOwnerStats(_playerStats); 
         arrowScript.ExecuteShot(ray.direction);
     }
@@ -161,7 +167,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
    
     private void CalculateDrawDuration(bool condition)
     {
-       
+        if (!Object.HasStateAuthority) return;
         if (condition)
         {
             _rangerAnimation.UpdateDrawAnimState(true);
@@ -173,9 +179,11 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         }
         else
         {
+
             if (_drawDuration <= 0)
             {
-                 RelaseArrow();
+                _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
+                RelaseArrow();
             }
             else
             {
@@ -184,7 +192,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             }
             _rangerAnimation.UpdateDrawAnimState(false);
          
-            _drawDuration = 0.2f;
+            _drawDuration = 0.3f;
         }
 
        

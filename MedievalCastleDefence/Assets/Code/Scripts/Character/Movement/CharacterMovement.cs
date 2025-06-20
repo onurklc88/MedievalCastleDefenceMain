@@ -72,7 +72,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
 
     public override void FixedUpdateNetwork()
     {
-        if (!Object.HasStateAuthority || IsInputDisabled) return;
+        if (!Object.HasStateAuthority || IsInputDisabled || _characterCollision == null) return;
 
         if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input))
         {
@@ -80,7 +80,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             {
                 autoMoveEnabled = !autoMoveEnabled;
             }
-
+         
             if (!_characterCollision.IsPlayerGrounded)
             {
                _rigidbody.AddForce(Vector3.down * 20f, ForceMode.Acceleration);

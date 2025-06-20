@@ -21882,7 +21882,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
-  _characterStats: {fileID: 0}
+  _characterStats: {fileID: 11400000, guid: 507e7d87490c4314786c7dd3b9e4d809, type: 2}
   _IsPlayerBlockingLocal:
     _value: 0
   _PlayerSwordPositionLocal: 0
@@ -21890,7 +21890,7 @@ MonoBehaviour:
     _value: 0
   _PlayerSwordPosition: 0
   _CurrentGamePhase: 0
-  _weaponStats: {fileID: 0}
+  _weaponStats: {fileID: 11400000, guid: 18a73990dea2edc44a6ce931f21b823c, type: 2}
   _blockArea: {fileID: 0}
   _characterType: 0
   _standartArrow: {fileID: 9116450625100534685, guid: 6ba116670dac1554183b40fd576319fc, type: 3}

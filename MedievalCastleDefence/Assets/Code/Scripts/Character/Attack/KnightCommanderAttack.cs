@@ -61,7 +61,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
        
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+       // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
       
         //IsPlayerBlockingLocal = true;
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
@@ -82,7 +82,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             
             //_characterStamina.DecreaseDefenceStaminaRPC(28f);
             //_bloodDecals.EnableRandomBloodDecal();
-            //IsPlayerBlockingLocal = true;
+            IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }
 

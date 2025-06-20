@@ -52,11 +52,10 @@ public class StandartArrow : Arrow
        
         if (_isArrowCollided)
         {
-            _rigidbody.isKinematic = true;
-
             return;
         }
         _isArrowCollided = true;
+        _rigidbody.isKinematic = true;
 
         if (!Runner.IsClient) return;
 

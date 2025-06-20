@@ -129,6 +129,8 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
 
     public async void UpdateIdleAnimationState()
     {
+        if (!Object.HasStateAuthority) return;
+        if (!Object || !Object.IsValid) return;
         OnPlayerWalk = true;
         await UniTask.Delay(200);
         OnPlayerWalk = false;

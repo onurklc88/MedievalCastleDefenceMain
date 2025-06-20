@@ -79,11 +79,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
             Debug.Log("StatsNullDöndü1");
         }
         if (opponentTeam == _playerStatsController.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
-        Debug.Log("A0");
-        // if (opponentTeam == _playerStatsController.PlayerTeam) return;
+      
+       
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
-            Debug.Log("A");
+          
            var opponentType = GetCharacterType(collidedObject);
             switch (opponentType)
             {
@@ -97,7 +97,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                     DamageToKnightCommander(collidedObject);
                     break;
                 case CharacterStats.CharacterType.Ranger:
-                    Debug.Log("B");
                     DamageToRanger(collidedObject);
                     break;
             }
@@ -195,7 +194,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
     protected void DamageToRanger(GameObject opponent)
     {
-        Debug.Log("C");
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
         if (IsOpponentDead(opponentHealth.NetworkedHealth))

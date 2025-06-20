@@ -51,18 +51,55 @@ public class BombArrow : Arrow
 
     private void TriggerExplosiveArrow(Vector3 explosionPosition)
     {
+        if (_isArrowCollided) return;
+        _isArrowCollided = true;
         DrawExplosionDebug(explosionPosition, 5f);
         _rigidbody.isKinematic = true;
         _bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
         IsBombReadyToExplode = true;
         Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
-
-        for(int i = 0; i < hitColliders.Length; i++)
+        HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
+        /*
+        for (int i = 0; i < hitColliders.Length; i++)
         {
-            if(hitColliders[i].transform.GetComponentInParent<IDamageable>() != null)
+            NetworkObject netObj = hitColliders[i].transform.GetComponentInParent<NetworkObject>();
+            if (netObj == null || !netObj.IsValid)
+                continue;
+            NetworkId damageableId = netObj.Id;
+
+            if (!alreadyDamaged.Contains(damageableId))
             {
-                CheckAttackCollision(hitColliders[i].transform.gameObject);
+               alreadyDamaged.Add(damageableId);
+                //CheckAttackCollision(hitColliders[i].transform.gameObject);
+                var collidedObject = hitColliders[i].transform.gameObject.GetComponentInParent<IDamageable>();
+                if(collidedObject != null)
+                    collidedObject.DealDamageRPC(50f, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), CharacterStats.CharacterType.Ranger);
             }
+           
+        }
+        */
+        foreach (var hitCollider in hitColliders)
+        {
+            NetworkObject netObj = hitCollider.transform.GetComponentInParent<NetworkObject>();
+            if (netObj == null || !netObj.IsValid)
+                continue;
+
+            NetworkId damageableId = netObj.Id;
+
+            if (alreadyDamaged.Contains(damageableId))
+                continue;
+
+            alreadyDamaged.Add(damageableId);
+
+            var damageable = hitCollider.transform.GetComponentInParent<IDamageable>();
+            if (damageable == null)
+                continue;
+
+            damageable.DealDamageRPC(
+                50f,
+                _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
+                CharacterStats.CharacterType.Ranger
+            );
         }
     }
     private IEnumerator DestroyArrow(float delayDuration)
