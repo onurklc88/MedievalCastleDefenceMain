@@ -25,7 +25,8 @@ public class LocalInputPoller : NetworkBehaviour, INetworkRunnerCallbacks, IBefo
         Hotkey2,
         LeftArrow,
         RightArrow,
-        SwitchTeamKey
+        SwitchTeamKey,
+        Throwable
     }
 
     private float _horizontal;
@@ -93,6 +94,7 @@ public class LocalInputPoller : NetworkBehaviour, INetworkRunnerCallbacks, IBefo
         data.NetworkButtons.Set(PlayerInputButtons.LeftArrow, Input.GetKey(KeyCode.LeftArrow));
         data.NetworkButtons.Set(PlayerInputButtons.RightArrow, Input.GetKey(KeyCode.RightArrow));
         data.NetworkButtons.Set(PlayerInputButtons.SwitchTeamKey, Input.GetKey(KeyCode.M));
+        data.NetworkButtons.Set(PlayerInputButtons.Throwable, Input.GetKey(KeyCode.G));
 
         return data;
     }

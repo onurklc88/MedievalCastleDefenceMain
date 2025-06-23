@@ -63,7 +63,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
        
        // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
       
-        //IsPlayerBlockingLocal = true;
+      
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
         if (_knightCommanderAnimation != null) BlockWeapon();
         //if (!IsPlayerBlocking && _knightCommanderAnimation != null) BlockWeapon();

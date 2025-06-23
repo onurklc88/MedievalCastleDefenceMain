@@ -13,7 +13,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
     [Networked] public SwordPosition PlayerSwordPosition { get; set; }
     [Networked] public LevelManager.GamePhase CurrentGamePhase { get; set; }
-
+    
     public enum SwordPosition
     {
         None,
@@ -35,6 +35,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     public PlayerStatsController _playerStatsController { get; set; }
     protected CharacterHealth _characterHealth;
     protected IDamageable _collidedObject;
+    protected bool _isPlayerHoldingBomb { get; set; }
     public CharacterStats.CharacterType _characterType;
     protected CharacterStamina _characterStamina;
     protected CharacterCollision _characterCollision;
@@ -45,6 +46,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
     protected virtual void AttackCollision() { }
     protected virtual void SwingSword() { }
+    protected virtual void ThrowBomb(bool state) { }
     protected virtual void BlockWeapon() { }
     private void OnEnable()
     {

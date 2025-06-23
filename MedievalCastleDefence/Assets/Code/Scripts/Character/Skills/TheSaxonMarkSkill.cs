@@ -3,11 +3,13 @@ using Fusion;
 using Cysharp.Threading.Tasks;
 using static BehaviourRegistry;
 
-public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
+
+public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
 {
-    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsPlayerUseAbilityLocal { get; set; }
-   
+    public NetworkButtons PreviousButton { get; set; }
     [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
+    public NetworkBool IsPlayerUseAbilityLocal { get; set; }
+   
     public int SlideCharges { get; set; }
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
@@ -15,16 +17,16 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     private CharacterController _characterController;
     private Rigidbody _rigidbody;
     private CharacterMovement _characterMovement;
-    public NetworkButtons PreviousButton { get; set; }
    
-   
+
+
 
     private int _slideChargeCount;
     private float _duration = 0.2f;
     private float _distance = 0.35f;
-  
+
     private Vector3 _slideDirection;
-    private const int MAX_SLIDE_CHARGE_COUNT = 3;
+    private const int MAX_SLIDE_CHARGE_COUNT = 1;
     private bool _isRefilling = false;
 
     public override void Spawned()
@@ -33,8 +35,8 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
         _rigidbody = GetComponent<Rigidbody>();
         InitScript(this);
         if (!Runner.IsSharedModeMasterClient)
-             _distance = 0.17f;
-        
+            _distance = 0.17f;
+
     }
 
     private void Start()
@@ -53,19 +55,19 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
-        
-            if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
-            {
-               ReadPlayerInputs(input);
+
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
+        {
+            ReadPlayerInputs(input);
             //Debug.Log("IsplayerDashLocal: " + IsPlayerUseAbility);
-            }
-        
+        }
+
     }
-    
-    private static void OnNetworkDashStateChange(Changed<KnightCommanderSkill> changed)
+    private static void OnNetworkDashStateChange(Changed<TheSaxonMarkSkill> changed)
     {
         changed.Behaviour.IsPlayerUseAbility = changed.Behaviour.IsPlayerUseAbilityLocal;
     }
+
     public void ReadPlayerInputs(PlayerInputData input)
     {
         #region legacy
@@ -98,59 +100,58 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
 
             _slideDirection = transform.TransformDirection(direction.normalized);
             ActivateUtilitySkill();
-           
+
         }
         PreviousButton = input.NetworkButtons;
 
     }
+
     private void ActivateUtilitySkill()
     {
-        if(_slideChargeCount > 0 && _characterStamina.CurrentAttackStamina > 10)
+        if (_slideChargeCount > 0 && _characterStamina.CurrentAttackStamina > 10)
         {
             _slideChargeCount -= 1;
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
             _characterStamina.DecreaseCharacterAttackStamina(10f);
             SlideCharacter(_slideDirection).Forget();
 
-            if (_slideChargeCount < 3 && !_isRefilling)
+            if (_slideChargeCount < 1 && !_isRefilling)
             {
                 RechargeSlideAsync().Forget();
             }
         }
         else
         {
-           // Debug.Log("No slide charges left! Waiting for recharge...");
+            // Debug.Log("No slide charges left! Waiting for recharge...");
         }
     }
-   
+
     private async UniTaskVoid RechargeSlideAsync()
     {
-        _isRefilling = true; 
+        _isRefilling = true;
 
-        while (_slideChargeCount < 3) 
+        while (_slideChargeCount < 1)
         {
             await UniTask.Delay(5000);
-            _slideChargeCount += 1; 
+            _slideChargeCount += 1;
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
         }
 
         _isRefilling = false;
     }
 
-
-
     private async UniTaskVoid SlideCharacter(Vector3 direction)
     {
         if (IsPlayerUseAbilityLocal) return;
-        
+
         if (_slideChargeCount < 0) return;
         IsPlayerUseAbilityLocal = true;
         _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
         EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
-       
+
         float elapsedTime = 0f;
-        float forceMultiplier = 1700f; 
-        float duration = 0.3f; 
+        float forceMultiplier = 1700f;
+        float duration = 0.3f;
 
         while (elapsedTime < duration)
         {
@@ -161,15 +162,13 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
             elapsedTime += Runner.DeltaTime;
             await UniTask.Yield();
         }
-      
+
         await UniTask.Delay(200);
         IsPlayerUseAbilityLocal = false;
         EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
         await UniTask.Delay(500);
-        
+
         _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
 
     }
-
-
 }

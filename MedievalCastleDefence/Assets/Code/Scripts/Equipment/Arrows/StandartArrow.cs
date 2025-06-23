@@ -50,11 +50,11 @@ public class StandartArrow : Arrow
     private void ArrowCollision(Collider collidedObject)
     {
        
-        if (_isArrowCollided)
+        if (IsObjectCollided)
         {
             return;
         }
-        _isArrowCollided = true;
+        IsObjectCollided = true;
         _rigidbody.isKinematic = true;
 
         if (!Runner.IsClient) return;

@@ -65,7 +65,6 @@ public class PlayerVFXSytem : CharacterRegistry
     {
         if (!Object.HasStateAuthority) return;
        IsTrailActive = enable;
-        Debug.Log("IstrailActive: " + IsTrailActive);
     }
 
     private static void OnSwordTrailStateChange(Changed<PlayerVFXSytem> changed)

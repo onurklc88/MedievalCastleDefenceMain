@@ -62,7 +62,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         bool wasBlocking = IsPlayerBlockingLocal;
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-
+        _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
+        Debug.Log("_isPlayerHoldingBomb: " + _isPlayerHoldingBomb);
 
         if (wasBlocking && !IsPlayerBlockingLocal)
         {
@@ -73,7 +74,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         if (_gallowGlassAnimation != null) BlockWeapon();
 
 
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_bloodhandSkill.IsPlayerUseAbilityLocal && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)) && !_characterHealth.IsPlayerGotHit)
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_bloodhandSkill.IsPlayerUseAbilityLocal && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)) && !_characterHealth.IsPlayerGotHit && !_isPlayerHoldingBomb)
         {
             if (_characterStamina.CurrentAttackStamina > 30)
             {
@@ -91,6 +92,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         PreviousButton = input.NetworkButtons;
     }
+
+   
     protected override void BlockWeapon()
     {
         if (IsPlayerBlocking)
@@ -114,19 +117,21 @@ public class GallowglassAttack : CharacterAttackBehaviour
             _gallowGlassAnimation.UpdateBlockAnimState(0);
         }
     }
+    protected override void ThrowBomb(bool state)
+    {
 
+    }
     protected override void SwingSword()
     {
         if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded) return;
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
         _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
-        float swingTime = (base.GetSwordPosition() == SwordPosition.Right) ? 0.5f : 0.5f;
-        StartCoroutine(PerformAttack(swingTime));
+        StartCoroutine(PerformAttack());
 
 
     }
-    private IEnumerator PerformAttack(float time)
+    private IEnumerator PerformAttack()
     {
         base._blockArea.enabled = false;
         _bloodhandVFX.ActivateAxeTrail(true);
@@ -160,11 +165,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _bloodhandVFX.ActivateAxeTrail(false);
     }
 
-    public void KickAction()
-    {
-        _gallowGlassAnimation.UpdateJumpAnimationState(true);
-       
-    }
+   
+
 
 
 

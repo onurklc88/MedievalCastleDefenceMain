@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-public class Arrow : CharacterAttackBehaviour
+public class Arrow : CharacterAttackBehaviour, IThrowable
 {
-    [Networked] public NetworkString<_16> OwnerNickname { get; set; }
-    [Networked] public int OwnerWarriorType { get; set; }
     public bool IsArrowReleased { get; set; }
+    public bool IsObjectCollided { get; set; }
+
     [SerializeField] protected Rigidbody _rigidbody;
     [SerializeField] protected WeaponStats _weapon;
-    protected bool _isArrowCollided = false;
+    //protected bool _isArrowCollided = false;
     protected Transform _parentTransform;
     [SerializeField] protected Transform _interpolationTarget;
     [SerializeField] protected BoxCollider _collison;
-    public PlayerStatsController OwnerInfo { get; set; }
+
     public virtual void InitOwnerStats(PlayerStatsController ownerInfo) { } 
     public override void FixedUpdateNetwork()
     {
         if (!IsArrowReleased) return;
 
-        if (_isArrowCollided)
+        if (IsObjectCollided)
         {
              return;
         }

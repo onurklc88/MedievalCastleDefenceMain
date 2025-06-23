@@ -56,6 +56,11 @@ public class CharacterStamina : CharacterRegistry
                 _playerVFX = GetScript<IronheartVFXController>();
                 _characterAnim = GetScript<KnightCommanderAnimation>();
                 break;
+            case CharacterStats.CharacterType.Ranger:
+                _playerVFX = GetScript<RangerVFXController>();
+                _characterAnim = GetScript<RangerAnimation>();
+                break;
+                
         }
     }
 

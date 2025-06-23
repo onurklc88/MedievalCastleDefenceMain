@@ -23,7 +23,13 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
+
         InitScript(this);
+    }
+    private void Start()
+    {
+        if (!Object.HasStateAuthority) return;
+        _characterMovement = GetScript<CharacterMovement>();
     }
 
     public override void FixedUpdateNetwork()
@@ -37,17 +43,9 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
+        if (_characterMovement.IsInputDisabled) return;
 
-
-        if (input.VerticalInput != 0 || input.HorizontalInput != 0)
-        {
-            //OnPlayerWalk = true;
-        }
-        else
-        {
-            //OnPlayerWalk = false;
-        }
-
+      
         if (input.VerticalInput != 0)
         {
             PlayerVerticalDirection = input.VerticalInput;
@@ -110,7 +108,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
         if (changed.Behaviour.IsPlayerStunned == false) return;
 
 
-        changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody", 1);
+        changed.Behaviour._animationController.Play("StunV2_Saxon", 1);
     }
 
 
@@ -165,7 +163,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
   
     private void PlayJumpAnimation()
     {
-        _animationController.Play("KnightCommander-Jump");
+        _animationController.Play("Ranger_Jump");
     }
     private IEnumerator WaitJumpAnimation(float time)
     {

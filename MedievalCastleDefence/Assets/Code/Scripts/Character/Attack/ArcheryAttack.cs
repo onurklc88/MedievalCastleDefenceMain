@@ -31,7 +31,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         Bomb
     }
     private ArrowType _selectedArrowType;
-    private const int DEFAULT_BOMB_ARROW_AMOUNT = 3;
+    private const int DEFAULT_BOMB_ARROW_AMOUNT = 30;
     private int _currentBombArrowAmount;
    
     public override void Spawned()
@@ -57,8 +57,6 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _characterCollision = GetScript<CharacterCollision>();
         _playerStats = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
-        
-       
     }
     public override void FixedUpdateNetwork()
     {
@@ -88,7 +86,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
         }
        
-        if (_characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterHealth.IsPlayerDead && _characterStamina.CurrentAttackStamina > 10)
+        if (_characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterHealth.IsPlayerDead && _characterStamina.CurrentAttackStamina > 30)
         {
             UpdateTargetPosition();
             _camController.UpdateCameraPriority(isPlayerAiming);
@@ -159,7 +157,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             Debug.LogError("StandartArrow scripti bulunamadý!");
             return;
         }
-        Debug.Log("CurrentBombAmo: " + _currentBombArrowAmount);
+    
         arrowScript.InitOwnerStats(_playerStats); 
         arrowScript.ExecuteShot(ray.direction);
     }
@@ -211,7 +209,6 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
     }
     void OnDrawGizmos()
     {
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
         Gizmos.color = Color.red;

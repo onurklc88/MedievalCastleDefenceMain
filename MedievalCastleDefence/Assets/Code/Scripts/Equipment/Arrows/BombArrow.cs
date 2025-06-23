@@ -51,8 +51,8 @@ public class BombArrow : Arrow
 
     private void TriggerExplosiveArrow(Vector3 explosionPosition)
     {
-        if (_isArrowCollided) return;
-        _isArrowCollided = true;
+        if (IsObjectCollided) return;
+        IsObjectCollided = true;
         DrawExplosionDebug(explosionPosition, 5f);
         _rigidbody.isKinematic = true;
         _bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
