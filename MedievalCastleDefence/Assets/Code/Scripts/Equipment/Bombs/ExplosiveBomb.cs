@@ -15,7 +15,7 @@ public class ExplosiveBomb : Bomb, IThrowable
     }
 
 
-    public void InitOwnerStats(PlayerStatsController ownerStats)
+    public void InitOwnerStats(PlayerStatsController ownerStats, NetworkId ownerID)
     {
         if (ownerStats == null)
         {
@@ -23,16 +23,20 @@ public class ExplosiveBomb : Bomb, IThrowable
             return;
         }
         _playerStatsController = ownerStats;
-      
+        OwnerID = ownerID;
     }
 
 
     public override void FixedUpdateNetwork()
     {
-        /*
-        if(!IsObjectCollided)
-            _interpolationTarget.Rotate(Vector3.forward * 300f * Runner.DeltaTime);
-        */
+        
+        if (!IsObjectCollided)
+        {
+            transform.Rotate(Vector3.forward * 300f * Runner.DeltaTime * 2f);
+            
+        }
+            
+        
     }
     private static void OnArrowStateChange(Changed<ExplosiveBomb> changed)
     {
@@ -58,75 +62,52 @@ public class ExplosiveBomb : Bomb, IThrowable
     private void TriggerExplosiveArrow(Vector3 explosionPosition)
     {
         if (IsObjectCollided) return;
+
         IsObjectCollided = true;
-        //DrawExplosionDebug(explosionPosition, 5f);
         Rigidbody.isKinematic = true;
-        _bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
+
+      
+        _bombEffect.transform.position = explosionPosition + Vector3.up * 1.2f;
         IsBombReadyToExplode = true;
+
+       
         Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
-        /*
-        for (int i = 0; i < hitColliders.Length; i++)
-        {
-            NetworkObject netObj = hitColliders[i].transform.GetComponentInParent<NetworkObject>();
-            if (netObj == null || !netObj.IsValid)
-                continue;
-            NetworkId damageableId = netObj.Id;
 
-            if (!alreadyDamaged.Contains(damageableId))
-            {
-               alreadyDamaged.Add(damageableId);
-                //CheckAttackCollision(hitColliders[i].transform.gameObject);
-                var collidedObject = hitColliders[i].transform.gameObject.GetComponentInParent<IDamageable>();
-                if(collidedObject != null)
-                    collidedObject.DealDamageRPC(50f, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), CharacterStats.CharacterType.Ranger);
-            }
-           
-        }
-        */
         foreach (var hitCollider in hitColliders)
         {
             NetworkObject netObj = hitCollider.transform.GetComponentInParent<NetworkObject>();
             if (netObj == null || !netObj.IsValid)
                 continue;
 
+          
             NetworkId damageableId = netObj.Id;
-
             if (alreadyDamaged.Contains(damageableId))
                 continue;
 
             alreadyDamaged.Add(damageableId);
-            /*
-            var damageable = hitCollider.transform.GetComponentInParent<CharacterHealth>();
-            if (damageable != null)
-            {
-                Debug.Log("A");
-            }
-            else
-            {
-                Debug.Log("B");
-            }
-           */
-           // DamageToArea(hitCollider.transform.gameObject);
-            
-            
+
+           
             var damageable = hitCollider.transform.GetComponentInParent<IDamageable>();
             if (damageable == null)
                 continue;
-            if (hitCollider.transform.gameObject.GetComponentInParent<CharacterHealth>() == null)
+
+            
+            if (hitCollider.transform.GetComponentInParent<CharacterHealth>() == null)
                 continue;
-            if(hitCollider.transform.GetComponentInParent<NetworkObject>().Id == )
+
            
-            damageable.DealDamageRPC(
-                50f,
-                _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
-                CharacterStats.CharacterType.Ranger
-            );
-            
-            
+            if (netObj.Id == OwnerID ||
+                hitCollider.transform.GetComponentInParent<PlayerStatsController>()?.PlayerTeam !=
+                _playerStatsController.PlayerNetworkStats.PlayerTeam)
+            {
+                damageable.DealDamageRPC(
+                    50f,
+                    _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
+                    CharacterStats.CharacterType.Ranger
+                );
+            }
         }
-            
-        
     }
     private void DamageToArea(GameObject opponent)
     {

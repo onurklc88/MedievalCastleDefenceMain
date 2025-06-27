@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-public class Arrow : CharacterAttackBehaviour, IThrowable
+public class Arrow : CharacterAttackBehaviour
 {
     public bool IsArrowReleased { get; set; }
     public bool IsObjectCollided { get; set; }

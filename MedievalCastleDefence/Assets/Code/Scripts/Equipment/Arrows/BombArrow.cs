@@ -7,6 +7,7 @@ public class BombArrow : Arrow
 {
 
     [SerializeField] private ParticleSystem _bombEffect;
+  
     [Networked(OnChanged = nameof(OnArrowStateChange))] public NetworkBool IsBombReadyToExplode { get; set; }
     public override void Spawned()
     {
@@ -55,7 +56,7 @@ public class BombArrow : Arrow
         IsObjectCollided = true;
         DrawExplosionDebug(explosionPosition, 5f);
         _rigidbody.isKinematic = true;
-        _bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
+        //_bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
         IsBombReadyToExplode = true;
         Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
@@ -108,6 +109,7 @@ public class BombArrow : Arrow
     }
     private static void OnArrowStateChange(Changed<BombArrow> changed)
     {
+       
         changed.Behaviour._bombEffect.Play();
     }
 

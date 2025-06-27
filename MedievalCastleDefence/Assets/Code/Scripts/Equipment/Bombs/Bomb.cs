@@ -6,8 +6,9 @@ using Fusion;
 public class Bomb : CharacterAttackBehaviour
 {
     public bool IsBombThrown { get; set; }
-    
-    public bool IsObjectCollided { get; set; }
+
+    [Networked]
+    public NetworkBool IsObjectCollided { get; set; }
     public NetworkId OwnerID { get; set; }
     public Rigidbody Rigidbody;
     [SerializeField] protected WeaponStats _weapon;

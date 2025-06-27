@@ -5,8 +5,9 @@ using Fusion;
 
 public interface IThrowable 
 {
-    public bool IsObjectCollided { get; set; }
-    public void InitOwnerStats(PlayerStatsController ownerInfo);
+    [Networked]
+    public NetworkBool IsObjectCollided { get; set; }
+    public void InitOwnerStats(PlayerStatsController ownerInfo, NetworkId ownerID);
 
 
 }
