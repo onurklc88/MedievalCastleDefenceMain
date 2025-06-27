@@ -12,5 +12,6 @@ public class CharacterAnimationController : CharacterRegistry
     public virtual void UpdateDamageAnimationState() { }
     public virtual void UpdateStunAnimationState(int stunDuration) { }
     public virtual void PlayBlockAnimation() { }
+    public virtual void UpdateThrowingAnimation(bool state) { }
     public virtual void TestUpdateLowerBodyStunAnimation() { }
 }

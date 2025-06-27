@@ -21,6 +21,8 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedAbilityAnimationStateChange))] public NetworkBool IsPlayerUseAbility { get; set; }
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
+
+    [Networked(OnChanged = nameof(NetworkedThrowingBombAnimationStateChange))] public NetworkBool IsPlayerHoldingBomb { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
     public Animator BloodHandAnimator { get; private set; }
@@ -112,6 +114,11 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         changed.Behaviour._animationController.SetInteger("BlockIndex", changed.Behaviour.BlockIndex);
     }
+
+    private static void NetworkedThrowingBombAnimationStateChange(Changed<GallowglassAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetBool("IsPlayerHoldingBomb", changed.Behaviour.IsPlayerHoldingBomb);
+    }
     private static void NetworkAttackAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
        
@@ -128,7 +135,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
 
     private static void NetworkedDamageAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
-        if (changed.Behaviour.IsPlayerGetDamage == true) return;
+        if (changed.Behaviour.IsPlayerGetDamage == true && changed.Behaviour.IsPlayerHoldingBomb) return;
         {
             changed.Behaviour._animationController.Play("Gallowglass-Damage");
         }
@@ -153,27 +160,6 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         
         changed.Behaviour._animationController.Play("Gallowglass-Stun", 1);
         changed.Behaviour._animationController.Play("Gallowglass_Stun_Backwards");
-        /*
-        switch (changed.Behaviour.AttackDirection)
-        {
-            case CharacterAttackBehaviour.AttackDirection.Forward:
-                changed.Behaviour._animationController.Play("Gallowglass_Stun_Backwards");
-                
-                break;
-            case CharacterAttackBehaviour.AttackDirection.FromLeft:
-                changed.Behaviour._animationController.Play("Gallowglass_Stun_Left");
-               
-                break;
-            case CharacterAttackBehaviour.AttackDirection.FromRight:
-                changed.Behaviour._animationController.Play("Gallowglass_Stun_Right");
-                
-                break;
-            case CharacterAttackBehaviour.AttackDirection.Backward:
-                changed.Behaviour._animationController.Play("Gallowglass_Stun_Forward");
-              break;
-
-        }
-      */
     }
   
 
@@ -184,6 +170,10 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour._animationController.Play("Gallowglass-RightParry");
         else
             changed.Behaviour._animationController.Play("Gallowglass-LeftParry");
+    }
+    public override void UpdateThrowingAnimation(bool state)
+    {
+        IsPlayerHoldingBomb = state;
     }
 
     public override void UpdateJumpAnimationState(bool state)

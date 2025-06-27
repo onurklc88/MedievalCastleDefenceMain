@@ -1,22 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
-public class Bomb : CharacterAttackBehaviour, IThrowable
+public class Bomb : CharacterAttackBehaviour
 {
     public bool IsBombThrown { get; set; }
-    public Rigidbody ComponentRigidbody { get; set; }
+    
     public bool IsObjectCollided { get; set; }
-
-    //[SerializeField] protected Rigidbody _rigidbody;
+    public NetworkId OwnerID { get; set; }
+    public Rigidbody Rigidbody;
     [SerializeField] protected WeaponStats _weapon;
     protected bool _isArrowCollided = false;
     protected Transform _parentTransform;
     [SerializeField] protected Transform _interpolationTarget;
-    [SerializeField] protected BoxCollider _collison;
-
-    public void InitOwnerStats(PlayerStatsController ownerInfo)
-    {
-       
-    }
+    [SerializeField] protected Collider _collison;
+   
+   
 }

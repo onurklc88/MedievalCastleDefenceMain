@@ -160,6 +160,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
     
         arrowScript.InitOwnerStats(_playerStats); 
         arrowScript.ExecuteShot(ray.direction);
+       
     }
 
    

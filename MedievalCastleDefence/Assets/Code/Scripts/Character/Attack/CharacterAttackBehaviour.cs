@@ -10,6 +10,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     [Networked] public NetworkButtons PreviousButton { get; set; }
     [Networked(OnChanged = nameof(OnNetworkBlockChanged))] public NetworkBool IsPlayerBlockingLocal { get; set; }
     [Networked(OnChanged = nameof(OnNetworkBlockPositionChanged))] public SwordPosition PlayerSwordPositionLocal { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkDummyBombStateChange))] public NetworkBool IsDummyBombActivated { get; set; }
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
     [Networked] public SwordPosition PlayerSwordPosition { get; set; }
     [Networked] public LevelManager.GamePhase CurrentGamePhase { get; set; }
@@ -31,6 +32,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
+    [SerializeField] protected GameObject _dummyBomb;
     protected CharacterController _characterController;
     public PlayerStatsController _playerStatsController { get; set; }
     protected CharacterHealth _characterHealth;
@@ -41,13 +43,18 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     protected CharacterCollision _characterCollision;
     private SwordPosition _lastSwordPosition;
     private float _movementTreshold = 0.25f;
+    #region Throwable
+    protected float _throwDuration;
+    protected float _defaultThrowDuration;
+    protected bool _isBombThrown;
+    private bool _wasHoldingLastFrame;
+    #endregion
 
-  
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
-    protected virtual void AttackCollision() { }
-    protected virtual void SwingSword() { }
-    protected virtual void ThrowBomb(bool state) { }
-    protected virtual void BlockWeapon() { }
+    protected virtual void AttackCollision() {}
+    protected virtual void SwingSword() {}
+    protected virtual void BlockWeapon() {}
+    protected virtual void ThrowBomb() {}
     private void OnEnable()
     {
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
@@ -67,6 +74,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     private static void OnNetworkBlockPositionChanged(Changed<CharacterAttackBehaviour> changed)
     {
         changed.Behaviour.PlayerSwordPosition = changed.Behaviour.PlayerSwordPositionLocal;
+    }
+
+    private static void OnNetworkDummyBombStateChange(Changed<CharacterAttackBehaviour> changed)
+    {
+        changed.Behaviour._dummyBomb.SetActive(changed.Behaviour.IsDummyBombActivated);
     }
 
     protected void CheckAttackCollision(GameObject collidedObject)
@@ -209,6 +221,60 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         }
     }
 
+    /*
+    protected void DamageToArea(GameObject opponent)
+    {
+        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        if (opponentHealth == null) return;
+
+        // 1. Kendine mi vuruyor? (Hasar VERÝLSÝN)
+        bool isSelf = opponent.transform.GetComponentInParent<NetworkObject>().Id ==
+                      transform.GetComponentInParent<NetworkObject>().Id;
+
+        // 2. Takým arkadaþý mý? (Hasar VERÝLMEYECEK)
+        bool isTeammate = opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam ==
+                          _playerStatsController.PlayerTeam;
+
+        // 3. Düþman mý? (Hasar VERÝLSÝN)
+        bool isEnemy = !isTeammate && !isSelf;
+
+        // Hasar verme koþullarý:
+        if (isSelf || isEnemy)
+        {
+            opponentHealth.DealDamageRPC(
+                _weaponStats.Damage,
+                _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
+                _playerStatsController.PlayerLocalStats.PlayerWarrior
+            );
+        }
+        // Takým arkadaþýna ise hiçbir þey yapma (return)
+    }
+    */
+
+
+    protected bool HandleThrowDuration(bool isHolding)
+    {
+        if (!Object.HasStateAuthority) return false;
+
+        
+        if (isHolding)
+        {
+            _throwDuration -= Time.deltaTime;
+            _wasHoldingLastFrame = true;
+            return false;
+        }
+
+        
+        if (_wasHoldingLastFrame)
+        {
+            _wasHoldingLastFrame = false;
+            bool ready = _throwDuration <= 0f;
+            _throwDuration = _defaultThrowDuration;
+            return ready;
+        }
+
+        return false;
+    }
     private bool IsOpponentDead(float opponentHealth)
     {
         return (opponentHealth - _weaponStats.Damage) <= 0;

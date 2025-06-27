@@ -59,25 +59,7 @@ public class BombArrow : Arrow
         IsBombReadyToExplode = true;
         Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
-        /*
-        for (int i = 0; i < hitColliders.Length; i++)
-        {
-            NetworkObject netObj = hitColliders[i].transform.GetComponentInParent<NetworkObject>();
-            if (netObj == null || !netObj.IsValid)
-                continue;
-            NetworkId damageableId = netObj.Id;
-
-            if (!alreadyDamaged.Contains(damageableId))
-            {
-               alreadyDamaged.Add(damageableId);
-                //CheckAttackCollision(hitColliders[i].transform.gameObject);
-                var collidedObject = hitColliders[i].transform.gameObject.GetComponentInParent<IDamageable>();
-                if(collidedObject != null)
-                    collidedObject.DealDamageRPC(50f, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), CharacterStats.CharacterType.Ranger);
-            }
-           
-        }
-        */
+       
         foreach (var hitCollider in hitColliders)
         {
             NetworkObject netObj = hitCollider.transform.GetComponentInParent<NetworkObject>();
