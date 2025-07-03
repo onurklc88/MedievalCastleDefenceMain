@@ -19,7 +19,8 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
-  
+    [Networked(OnChanged = nameof(NetworkedThrowingBombAnimationStateChange))] public NetworkBool IsPlayerHoldingBomb { get; set; }
+    
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
     //Bunu networked yapmak lazým
@@ -44,7 +45,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
             ReadPlayerInputs(input);
         }
     }
-
+   
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
@@ -84,8 +85,6 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour._animationController.speed = 0.9f;
         else
             changed.Behaviour._animationController.speed = 1f;
-
-
     }
     private static void NetworkJumpAnimationChanged(Changed<KnightCommanderAnimation> changed)
     {
@@ -127,7 +126,10 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         changed.Behaviour._animationController.Play("KnightCommander-StunUpperBody", 1);
         changed.Behaviour._animationController.Play("KnightCommander-StunBackwards", 0);
     }
-
+    private static void NetworkedThrowingBombAnimationStateChange(Changed<KnightCommanderAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetBool("IsPlayerHoldingBomb", changed.Behaviour.IsPlayerHoldingBomb);
+    }
 
     private static void NetworkParryAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
@@ -139,6 +141,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour._animationController.Play("KnightCommander-LeftParry");
     }
 
+   
     private static void NetworkStunExitTransitionChange(Changed<KnightCommanderAnimation> changed)
     {
         changed.Behaviour._animationController.SetBool("CanStunExit", changed.Behaviour.CanStunExit);
@@ -164,8 +167,11 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         CanStunExit = false;
        StartCoroutine(WaitStunnedAnimation());
     }
+    public override void UpdateThrowingAnimation(bool state)
+    {
+        IsPlayerHoldingBomb = state;
+    }
 
-   
     public void UpdateParryAnimation()
     {
         //IsPlayerParry = true;

@@ -78,7 +78,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         }
         else
         {
-            if(_characterMovement != null)
+            if(_characterMovement != null && !_characterMovement.IsPlayerSlowed)
             {
                 _characterMovement.CurrentMoveSpeed = _characterStats.SprintSpeed;
             }

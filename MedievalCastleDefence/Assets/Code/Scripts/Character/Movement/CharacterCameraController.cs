@@ -5,6 +5,7 @@ using Cinemachine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+
 using static BehaviourRegistry;
 
 public class CharacterCameraController : CharacterRegistry, IReadInput
@@ -17,11 +18,15 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     private Camera _playerCamera;
     private List<PlayerRef> _playerTeamMates = new List<PlayerRef>();
     private PlayerStatsController _playerStatsController;
+   
+   
     [SerializeField] private RectTransform targetUIElement;
     private int _currentFollowingPlayerIndex = 0;
     private CharacterHealth _characterHealth;
     private CharacterMovement _characterMovement;
     public NetworkButtons PreviousButton { get; set; }
+    private float _defaultMouseSpeed = 500f;
+    private float _currentMouseSpeed;
 
     public override void Spawned()
     {
@@ -37,6 +42,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
             _uiCamera.enabled = true;
             _cinemachineCamera.Follow = _cameraTargetPoint;
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
+            _currentMouseSpeed = _defaultMouseSpeed;
             InitScript(this);
         }
     }
@@ -98,7 +104,20 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     
         PreviousButton = currentButtons;
     }
-
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public async void RPC_ReduceMouseSpeedTemporarily()
+    {
+        Debug.Log("RPC_ReduceMouseSpeedTemporarily");
+        if (!HasStateAuthority) return;
+        var defaultXSpeed = _cinemachineCamera.m_XAxis.m_MaxSpeed;
+        var defaultYSpeed = _cinemachineCamera.m_YAxis.m_MaxSpeed;
+        _cinemachineCamera.m_XAxis.m_MaxSpeed = _cinemachineCamera.m_XAxis.m_MaxSpeed / 5;
+        _cinemachineCamera.m_YAxis.m_MaxSpeed = _cinemachineCamera.m_YAxis.m_MaxSpeed / 5;
+       await UniTask.Delay(5000);
+        _cinemachineCamera.m_XAxis.m_MaxSpeed = defaultXSpeed;
+        _cinemachineCamera.m_YAxis.m_MaxSpeed = defaultYSpeed;
+        //_currentMouseSpeed = _defaultMouseSpeed;
+    }
     public async void FollowTeamPlayerCams()
     {
        _playerTeamMates = _playerStatsController.GetAliveTeamPlayers();
@@ -152,7 +171,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
       
         dirToCombatLookAt.y = 0;
         Quaternion targetRotation = Quaternion.LookRotation(dirToCombatLookAt);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 500f);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _currentMouseSpeed);
         //transform.forward = dirToCombatLookAt.normalized;
     }
 

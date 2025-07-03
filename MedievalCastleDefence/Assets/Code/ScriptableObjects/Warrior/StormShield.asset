@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: StormShield
   m_EditorClassIdentifier: 
   WarriorType: 1
-  MoveSpeed: 3.9
+  MoveSpeed: 3.8
   SprintSpeed: 5
   TotalHealth: 150
   AttackStamina: 100

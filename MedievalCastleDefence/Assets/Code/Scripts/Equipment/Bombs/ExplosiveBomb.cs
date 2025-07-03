@@ -4,14 +4,12 @@ using UnityEngine;
 using Fusion;
 public class ExplosiveBomb : Bomb, IThrowable
 {
-    [SerializeField] private ParticleSystem _bombEffect;
     
     
-    [Networked(OnChanged = nameof(OnArrowStateChange))] public NetworkBool IsBombReadyToExplode { get; set; }
+  
     public override void Spawned()
     {
         StartCoroutine(DestroyObject(13f));
-    
     }
 
 
@@ -38,15 +36,12 @@ public class ExplosiveBomb : Bomb, IThrowable
             
         
     }
-    private static void OnArrowStateChange(Changed<ExplosiveBomb> changed)
-    {
-        changed.Behaviour._bombEffect.Play();
-    }
+   
     private void OnTriggerEnter(Collider other)
     {
         if (Object == null || !Object.HasStateAuthority)
             return;
-        TriggerExplosiveArrow(transform.position);
+        TriggerExplosiveBomb(transform.position);
         if (other.gameObject.GetComponentInParent<IDamageable>() != null)
         {
             Runner.Despawn(Object);
@@ -59,7 +54,7 @@ public class ExplosiveBomb : Bomb, IThrowable
 
     }
 
-    private void TriggerExplosiveArrow(Vector3 explosionPosition)
+    private void TriggerExplosiveBomb(Vector3 explosionPosition)
     {
         if (IsObjectCollided) return;
 
@@ -68,6 +63,7 @@ public class ExplosiveBomb : Bomb, IThrowable
 
       
         _bombEffect.transform.position = explosionPosition + Vector3.up * 1.2f;
+        RPC_SetEffectPosition(explosionPosition + Vector3.up * 1.2f);
         IsBombReadyToExplode = true;
 
        
@@ -158,6 +154,7 @@ public class ExplosiveBomb : Bomb, IThrowable
             _playerStatsController.PlayerLocalStats.PlayerWarrior
         );
     }
+  
     private IEnumerator DestroyObject(float delayDuration)
     {
         yield return new WaitForSeconds(delayDuration);

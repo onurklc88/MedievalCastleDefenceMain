@@ -57,6 +57,7 @@ public class BombArrow : Arrow
         DrawExplosionDebug(explosionPosition, 5f);
         _rigidbody.isKinematic = true;
         //_bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
+        RPC_SetEffectPosition(new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z));
         IsBombReadyToExplode = true;
         Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
@@ -112,6 +113,10 @@ public class BombArrow : Arrow
        
         changed.Behaviour._bombEffect.Play();
     }
-
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_SetEffectPosition(Vector3 pos)
+    {
+        _bombEffect.transform.position = pos; 
+    }
 
 }

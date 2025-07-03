@@ -14,7 +14,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
    
     private int _lockedBlockDirection = 0;
     private int _lastBlockDirection = 0;
-
+    [SerializeField] private GameObject _explosiveBomb;
+    [SerializeField] private GameObject _explosiveBombPos;
     [SerializeField] private RPCDebugger _debugger;
     [SerializeField] private GameObject test;
 
@@ -39,6 +40,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
         _characterCollision = GetScript<CharacterCollision>();
+        _defaultThrowDuration = 0.1f;
+        _throwDuration = _defaultThrowDuration;
     }
     public override void FixedUpdateNetwork()
     {
@@ -59,6 +62,12 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             return; 
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
+        _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
+        UpdateBombVisuals();
+        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal)
+        {
+            ThrowBomb();
+        }
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
        
        // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
@@ -68,12 +77,16 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         if (_knightCommanderAnimation != null) BlockWeapon();
         //if (!IsPlayerBlocking && _knightCommanderAnimation != null) BlockWeapon();
 
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_characterHealth.IsPlayerGotHit)
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_characterHealth.IsPlayerGotHit && !_isPlayerHoldingBomb && _characterStamina.CurrentAttackStamina > 30)
         {
 
             if (_characterStamina.CurrentAttackStamina > 30)
             {
                 SwingSword();
+            }
+            else
+            {
+                //not enough stamina
             }
         }
 
@@ -91,9 +104,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     protected override void SwingSword()
     {
-        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded) return;
+        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded || _isPlayerHoldingBomb) return;
+        Debug.Log("test");
+        if (_characterMovement.IsPlayerSlowed)
+        {
+            if (_knightCommanderAnimation.GetCurrentAnimationState("UpperBody") == "Slowed1") return;
+        }
         //_playerVFXSystem.EnableWeaponParticles();
-        if(_knightCommanderAnimation == null)
+        if (_knightCommanderAnimation == null)
         {
             Debug.Log("is null? :");
         }
@@ -102,6 +120,36 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);
         _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
          StartCoroutine(PerformAttack());
+    }
+
+    protected override void ThrowBomb()
+    {
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Vector3 endPoint = ray.origin + ray.direction * 10f;
+        IThrowable bombInterface = null;
+
+        var bomb = Runner.Spawn(_explosiveBomb, _explosiveBombPos.transform.position, Quaternion.identity, Runner.LocalPlayer);
+        bombInterface = bomb.GetComponent<IThrowable>();
+        if (bombInterface == null)
+        {
+            Debug.LogError("Bomb scripti bulunamadý!");
+            return;
+        }
+
+        bombInterface.InitOwnerStats(_playerStatsController, transform.GetComponentInParent<NetworkObject>().Id);
+        Vector3 initialForce = ray.direction * 20f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
+        transform.rotation = Quaternion.LookRotation(initialForce);
+        bomb.GetComponent<Rigidbody>().AddForce(initialForce, ForceMode.Impulse);
+        _isBombThrown = true;
+    }
+    private void UpdateBombVisuals()
+    {
+        if (!IsPlayerBlockingLocal)
+        {
+            IsDummyBombActivated = _isPlayerHoldingBomb;
+            _knightCommanderAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
+        }
     }
     private IEnumerator PerformAttack()
     {

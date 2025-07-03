@@ -6,7 +6,7 @@ using static BehaviourRegistry;
 [RequireComponent(typeof(Rigidbody))]
 public class CharacterMovement : CharacterRegistry, IReadInput
 {
-    
+    public bool IsPlayerSlowed { get; set; }   
     [SerializeField] private float _jumpForce = 5f;
     [SerializeField] private float _groundCheckDistance = 0.3f;
     [SerializeField] private float _accelerationTime = 2f;
@@ -98,6 +98,7 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     
     private void CalculateCurrentSpeed(PlayerInputData input)
     {
+        if (IsPlayerSlowed) return;
         float targetSpeed = (input.VerticalInput > 0 || input.HorizontalInput != 0) ? _characterStats.SprintSpeed : _characterStats.MoveSpeed;
 
         if (targetSpeed == _characterStats.SprintSpeed)
@@ -155,11 +156,26 @@ public class CharacterMovement : CharacterRegistry, IReadInput
 
     public void ThrowCharacter()
     {
-        float force = 150f; // Daha yumuşak ve kontrollü
+        float force = 150f; 
         Vector3 direction = (Vector3.forward * 1f + Vector3.up * 0.5f).normalized;
 
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.AddForce(Vector3.up + transform.forward * force, ForceMode.Impulse);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public async void RPC_SlowPlayerSpeed()
+    {
+       
+        if (!HasStateAuthority || _isInputDisabled) return;
+      
+        IsPlayerSlowed = true;
+        CurrentMoveSpeed = CurrentMoveSpeed / 2;
+        _animController.ChangeAnimationSpeed(true);
+        await UniTask.Delay(5000);
+        CurrentMoveSpeed = _characterStats.MoveSpeed;
+        IsPlayerSlowed = false;
+        _animController.ChangeAnimationSpeed(false);
     }
 
     public void ReadPlayerInputs(PlayerInputData input) { }

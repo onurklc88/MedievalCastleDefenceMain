@@ -122,6 +122,9 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var isOpponentUseAbility = opponent.transform.GetComponentInParent<StormShieldSkill>().IsPlayerUseAbilityLocal;
+        if (isOpponentUseAbility) return;
+
         if (opponent.gameObject.layer == 11 && isOpponentParrying)
         {
             opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
@@ -182,8 +185,9 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-       
+        var isOpponentUseAbility = opponent.transform.GetComponentInParent<BloodhandSkill>().IsPlayerUseAbilityLocal;
         //Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
+        if (isOpponentUseAbility) return;
 
 
         if (opponent.gameObject.layer == 10 && isOpponentBlocking)
@@ -208,8 +212,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
     protected void DamageToRanger(GameObject opponent)
     {
+        var isOpponentUseAbility = opponent.transform.GetComponentInParent<TheSaxonMarkSkill>().IsPlayerUseAbilityLocal;
+        if (isOpponentUseAbility) return;
         var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
         opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
+
         if (IsOpponentDead(opponentHealth.NetworkedHealth))
         {
             if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)

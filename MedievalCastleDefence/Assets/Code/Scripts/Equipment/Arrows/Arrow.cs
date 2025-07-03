@@ -16,6 +16,7 @@ public class Arrow : CharacterAttackBehaviour
     [SerializeField] protected BoxCollider _collison;
 
     public virtual void InitOwnerStats(PlayerStatsController ownerInfo) { } 
+  
     public override void FixedUpdateNetwork()
     {
         if (!IsArrowReleased) return;
