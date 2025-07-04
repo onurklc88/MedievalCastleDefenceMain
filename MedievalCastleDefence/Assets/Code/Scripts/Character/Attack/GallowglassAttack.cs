@@ -138,6 +138,10 @@ public class GallowglassAttack : CharacterAttackBehaviour
     protected override void SwingSword()
     {
         if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded) return;
+        if (_characterMovement.IsPlayerSlowed)
+        {
+            if (_gallowGlassAnimation.GetCurrentAnimationState("UpperBody") == "Slowed1") return;
+        }
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
         _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));

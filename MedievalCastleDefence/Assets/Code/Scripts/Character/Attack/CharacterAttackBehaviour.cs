@@ -29,7 +29,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         FromLeft,
         Backward
     }
-    
+    public virtual TrajectoryPrediction TrajectoryPrediction { get; set; }
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
     [SerializeField] protected GameObject _dummyBomb;

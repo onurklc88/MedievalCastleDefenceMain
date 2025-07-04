@@ -40,6 +40,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
         _characterCollision = GetScript<CharacterCollision>();
+        TrajectoryPrediction = GetComponentInChildren<TrajectoryPrediction>();
         _defaultThrowDuration = 0.1f;
         _throwDuration = _defaultThrowDuration;
     }
@@ -63,7 +64,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
-        UpdateBombVisuals();
+        //UpdateBombVisuals();
         if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal)
         {
             ThrowBomb();
@@ -102,10 +103,15 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         //Debug.Log("IsplayerBlocking: " + IsPlayerBlocking);
         PreviousButton = input.NetworkButtons;
     }
+
+    private void LateUpdate()
+    {
+        UpdateBombVisuals();
+    }
     protected override void SwingSword()
     {
         if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded || _isPlayerHoldingBomb) return;
-        Debug.Log("test");
+      
         if (_characterMovement.IsPlayerSlowed)
         {
             if (_knightCommanderAnimation.GetCurrentAnimationState("UpperBody") == "Slowed1") return;
@@ -124,9 +130,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
     protected override void ThrowBomb()
     {
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Vector3 endPoint = ray.origin + ray.direction * 10f;
+       // Vector3 endPoint = ray.origin + ray.direction * 10f;
         IThrowable bombInterface = null;
 
         var bomb = Runner.Spawn(_explosiveBomb, _explosiveBombPos.transform.position, Quaternion.identity, Runner.LocalPlayer);
@@ -148,6 +153,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         if (!IsPlayerBlockingLocal)
         {
             IsDummyBombActivated = _isPlayerHoldingBomb;
+            ProjectileProperties test = new ProjectileProperties();
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            test.direction = ray.direction * 20f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
+            test.drag = 0f;
+            test.initialPosition = _dummyBomb.transform.localPosition;
+            test.initialSpeed = 1f;
+            test.mass = 1f;
+            TrajectoryPrediction.PredictTrajectory(test);
             _knightCommanderAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
         }
     }

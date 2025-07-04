@@ -167,12 +167,12 @@ public class CharacterMovement : CharacterRegistry, IReadInput
     public async void RPC_SlowPlayerSpeed()
     {
        
-        if (!HasStateAuthority || _isInputDisabled) return;
+        if (!HasStateAuthority || _isInputDisabled || IsPlayerSlowed) return;
       
         IsPlayerSlowed = true;
         CurrentMoveSpeed = CurrentMoveSpeed / 2;
         _animController.ChangeAnimationSpeed(true);
-        await UniTask.Delay(5000);
+        await UniTask.Delay(2500);
         CurrentMoveSpeed = _characterStats.MoveSpeed;
         IsPlayerSlowed = false;
         _animController.ChangeAnimationSpeed(false);

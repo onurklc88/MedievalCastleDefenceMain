@@ -107,13 +107,13 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     [Rpc(RpcSources.All, RpcTargets.All)]
     public async void RPC_ReduceMouseSpeedTemporarily()
     {
-        Debug.Log("RPC_ReduceMouseSpeedTemporarily");
-        if (!HasStateAuthority) return;
+      
+        if (!HasStateAuthority || _characterMovement.IsInputDisabled || _characterMovement.IsPlayerSlowed) return;
         var defaultXSpeed = _cinemachineCamera.m_XAxis.m_MaxSpeed;
         var defaultYSpeed = _cinemachineCamera.m_YAxis.m_MaxSpeed;
-        _cinemachineCamera.m_XAxis.m_MaxSpeed = _cinemachineCamera.m_XAxis.m_MaxSpeed / 5;
-        _cinemachineCamera.m_YAxis.m_MaxSpeed = _cinemachineCamera.m_YAxis.m_MaxSpeed / 5;
-       await UniTask.Delay(5000);
+        _cinemachineCamera.m_XAxis.m_MaxSpeed = _cinemachineCamera.m_XAxis.m_MaxSpeed / 4;
+        _cinemachineCamera.m_YAxis.m_MaxSpeed = _cinemachineCamera.m_YAxis.m_MaxSpeed / 4;
+       await UniTask.Delay(2500);
         _cinemachineCamera.m_XAxis.m_MaxSpeed = defaultXSpeed;
         _cinemachineCamera.m_YAxis.m_MaxSpeed = defaultYSpeed;
         //_currentMouseSpeed = _defaultMouseSpeed;

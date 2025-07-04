@@ -103,6 +103,10 @@ public class FootKnightAttack : CharacterAttackBehaviour
     {
         if (!Object.HasStateAuthority) return;
         if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded) return;
+        if (_characterMovement.IsPlayerSlowed)
+        {
+            if (_animation.GetCurrentAnimationState("UpperBody") == "Slowed1") return;
+        }
         //_playerVFX.EnableWeaponParticles();
         _animation.UpdateSwingAnimationState(true);
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, _weaponStats.TimeBetweenSwings);

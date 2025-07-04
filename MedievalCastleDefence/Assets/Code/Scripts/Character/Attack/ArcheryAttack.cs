@@ -88,6 +88,10 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
        
         if (_characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterHealth.IsPlayerDead && _characterStamina.CurrentAttackStamina > 30)
         {
+            if (_characterMovement.IsPlayerSlowed)
+            {
+                if (_rangerAnimation.GetCurrentAnimationState("UpperBody") == "Slowed1") return;
+            }
             UpdateTargetPosition();
             _camController.UpdateCameraPriority(isPlayerAiming);
             // UpdateTargetPosition();
