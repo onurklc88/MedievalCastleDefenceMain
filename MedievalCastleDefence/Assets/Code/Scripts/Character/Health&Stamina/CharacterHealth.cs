@@ -9,7 +9,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     public NetworkBool IsPlayerDead { get; set; }
     public bool IsPlayerGotHit { get; private set; }
     private PlayerHUD _playerHUD;
-   [Networked] public float NetworkedHealth { get; set; }
+  // [Networked] public float NetworkedHealth { get; set; }
    [Networked]  public LevelManager.GamePhase CurrentGamePhase { get; set; }
 
     private CharacterAnimationController _characterAnim;
@@ -19,7 +19,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     private BloodDecals _characterDecals;
     private PlayerStatsController _playerStatsController;
     private CharacterCameraController _characterCameraController;
-
+    [Networked(OnChanged = nameof(OnPlayerNetworkHealthChange))] public float NetworkedHealth { get; set; }
     private void OnEnable()
     {
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
@@ -134,6 +134,11 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     private static void OnPlayerDead(Changed<CharacterHealth> changed)
     {
         //Debug.Log("IsplayerDead: " + changed.Behaviour.IsPlayerDead);
+    }
+
+    private static void OnPlayerNetworkHealthChange(Changed<CharacterHealth> changed)
+    {
+
     }
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)

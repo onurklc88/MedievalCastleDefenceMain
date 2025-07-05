@@ -34,7 +34,7 @@ public class BloodDecals : CharacterRegistry
         _usedIndices.Add(newIndex);
      
         BloodDecalIndex = newIndex;
-        Debug.Log("BloodDecalIndex: " + BloodDecalIndex);
+      
     }
 
     public void DisableBloodDecals()

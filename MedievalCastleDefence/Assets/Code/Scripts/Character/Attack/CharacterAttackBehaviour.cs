@@ -29,7 +29,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         FromLeft,
         Backward
     }
-    public virtual TrajectoryPrediction TrajectoryPrediction { get; set; }
+   
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
     [SerializeField] protected GameObject _dummyBomb;
@@ -136,13 +136,18 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
             if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
-              
+                Debug.Log("ADAM ÖLDÜ Footknight");
                 if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
                 {
                    _playerStatsController.UpdatePlayerKillCountRpc();
                 }
                
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+                EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
+            }
+            else
+            {
+                Debug.Log("ADAMI bulamadýk aq: " +opponentHealth.NetworkedHealth);
             }
         }
     }
@@ -166,6 +171,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
             if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
+                Debug.Log("ADAM ÖLDÜ KnightCommander");
                 if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
                 {
                     if (!Object.HasStateAuthority) return; // 
@@ -200,12 +206,14 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
             if (IsOpponentDead(opponentHealth.NetworkedHealth))
             {
-                if(CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
+                Debug.Log("ADAM ÖLDÜ GallowGlass");
+                if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
                 {
                     _playerStatsController.UpdatePlayerKillCountRpc();
                 }
                
                 EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+                EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
             }
         }
     }
@@ -219,12 +227,14 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
         if (IsOpponentDead(opponentHealth.NetworkedHealth))
         {
+            Debug.Log("ADAM ÖLDÜ Ranger");
             if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
             {
                 _playerStatsController.UpdatePlayerKillCountRpc();
             }
 
             EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
         }
     }
 

@@ -93,6 +93,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
     [Rpc(RpcSources.All, RpcTargets.All)]
     private void ShowKillFeedRpc(CharacterStats.CharacterType warriorType, string killerPlayer, string deadPlayer)
     {
+        Debug.Log("Warrior: " + warriorType + " Killer: " + killerPlayer + " DeadPlayer: " + deadPlayer);
         var killFeed = GameObject.Instantiate(_killfeed, _killfeedContext);
         TextMeshProUGUI[] playerNames = killFeed.GetComponentsInChildren<TextMeshProUGUI>();
         playerNames[0].text = killerPlayer;

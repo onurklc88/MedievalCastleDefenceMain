@@ -104,7 +104,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
     }
     private void UpdateBombVisuals()
     {
-        if(!IsPlayerBlockingLocal && !_isBombThrown)
+        if(!IsPlayerBlockingLocal && !_isBombThrown && _gallowGlassAnimation != null)
         {
             IsDummyBombActivated = _isPlayerHoldingBomb;
             _gallowGlassAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
@@ -164,7 +164,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
        }
 
         bombInterface.InitOwnerStats(_playerStatsController, transform.GetComponentInParent<NetworkObject>().Id);
-        Vector3 initialForce = ray.direction * 20f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
+        Vector3 initialForce = ray.direction * 25f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
         transform.rotation = Quaternion.LookRotation(initialForce);
         bomb.GetComponent<Rigidbody>().AddForce(initialForce, ForceMode.Impulse);
         _isBombThrown = true;

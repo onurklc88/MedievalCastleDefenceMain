@@ -40,7 +40,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
         _characterCollision = GetScript<CharacterCollision>();
-        TrajectoryPrediction = GetComponentInChildren<TrajectoryPrediction>();
         _defaultThrowDuration = 0.1f;
         _throwDuration = _defaultThrowDuration;
     }
@@ -143,24 +142,17 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         }
 
         bombInterface.InitOwnerStats(_playerStatsController, transform.GetComponentInParent<NetworkObject>().Id);
-        Vector3 initialForce = ray.direction * 20f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
+        Vector3 initialForce = ray.direction * 30f + _dummyBomb.transform.forward + Vector3.up * 1.75f;
         transform.rotation = Quaternion.LookRotation(initialForce);
         bomb.GetComponent<Rigidbody>().AddForce(initialForce, ForceMode.Impulse);
         _isBombThrown = true;
     }
     private void UpdateBombVisuals()
     {
-        if (!IsPlayerBlockingLocal)
+        
+        if (!IsPlayerBlockingLocal && _knightCommanderAnimation != null)
         {
             IsDummyBombActivated = _isPlayerHoldingBomb;
-            ProjectileProperties test = new ProjectileProperties();
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            test.direction = ray.direction * 20f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
-            test.drag = 0f;
-            test.initialPosition = _dummyBomb.transform.localPosition;
-            test.initialSpeed = 1f;
-            test.mass = 1f;
-            TrajectoryPrediction.PredictTrajectory(test);
             _knightCommanderAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
         }
     }
