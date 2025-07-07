@@ -9,9 +9,9 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     public NetworkBool IsPlayerDead { get; set; }
     public bool IsPlayerGotHit { get; private set; }
     private PlayerHUD _playerHUD;
-  // [Networked] public float NetworkedHealth { get; set; }
+     [Networked] public float NetworkedHealth { get; set; }
    [Networked]  public LevelManager.GamePhase CurrentGamePhase { get; set; }
-
+    
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _activeRagdoll;
@@ -19,7 +19,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     private BloodDecals _characterDecals;
     private PlayerStatsController _playerStatsController;
     private CharacterCameraController _characterCameraController;
-    [Networked(OnChanged = nameof(OnPlayerNetworkHealthChange))] public float NetworkedHealth { get; set; }
+    [Networked(OnChanged = nameof(OnPlayerNetworkHealthChange))] public float _localHealth { get; set; }
     private void OnEnable()
     {
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
@@ -34,7 +34,8 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     {
         if (!Object.HasStateAuthority) return;
         InitScript(this);
-        NetworkedHealth = _characterStats.TotalHealth;
+        _localHealth = _characterStats.TotalHealth;
+       // NetworkedHealth = _localHealth;
         
     }
     private void Start()
@@ -42,7 +43,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
        if (!Object.HasStateAuthority) return;
         _playerHUD = GetScript<PlayerHUD>();
         if(_playerHUD != null)
-            _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
+            _playerHUD.UpdatePlayerHealthUI(_localHealth);
         _activeRagdoll = GetScript<ActiveRagdoll>();
         _playerVFX = GetScript<PlayerVFXSytem>();
         _characterDecals = GetScript<BloodDecals>();
@@ -76,7 +77,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     public void DealDamageRPC(float givenDamage, string opponentName, CharacterStats.CharacterType opponentWarrior)
     {
        
-        NetworkedHealth -= givenDamage;
+        _localHealth -= givenDamage;
         IsPlayerGotHit = true;
         _characterAnim.UpdateDamageAnimationState();
         if(_playerVFX != null)
@@ -86,7 +87,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
        
         EventLibrary.OnPlayerTakeDamage.Invoke();
         ResetHitStatus().Forget();
-        if (NetworkedHealth <= 0)
+        if (_localHealth <= 0)
         {
             _playerHUD.UpdatePlayerHealthUI(-1);
             _characterMovement.IsInputDisabled = true;
@@ -100,7 +101,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
         else
         {
             _characterDecals.EnableRandomBloodDecal();
-            _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
+            _playerHUD.UpdatePlayerHealthUI(_localHealth);
         }
     }
 
@@ -108,10 +109,10 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     public void ApplyHealingRpc(float healingValue)
     {
         //Debug.Log("HealingValue: " + healingValue + " TotalHealth: " + _characterStats.TotalHealth);
-        if(NetworkedHealth < _characterStats.TotalHealth)
+        if(_localHealth < _characterStats.TotalHealth)
         {
-            NetworkedHealth = Mathf.Min(NetworkedHealth + healingValue, _characterStats.TotalHealth);
-            _playerHUD.UpdatePlayerHealthUI(NetworkedHealth);
+            _localHealth = Mathf.Min(NetworkedHealth + healingValue, _characterStats.TotalHealth);
+            _playerHUD.UpdatePlayerHealthUI(_localHealth);
         }
        
     }
@@ -138,7 +139,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
 
     private static void OnPlayerNetworkHealthChange(Changed<CharacterHealth> changed)
     {
-
+        changed.Behaviour.NetworkedHealth = changed.Behaviour._localHealth;
     }
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)

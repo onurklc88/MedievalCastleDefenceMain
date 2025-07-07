@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
@@ -48,6 +47,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     protected float _defaultThrowDuration;
     protected bool _isBombThrown;
     private bool _wasHoldingLastFrame;
+    private GameObject _opponent;
     #endregion
 
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
@@ -83,8 +83,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
     protected void CheckAttackCollision(GameObject collidedObject)
     {
-      
-       if (CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
+        _opponent = null;
+        if (CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
         var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam;
@@ -93,180 +93,124 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
             Debug.Log("StatsNullDöndü1");
         }
         if (opponentTeam == _playerStatsController.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
-      
+        
        
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
-          
-           var opponentType = GetCharacterType(collidedObject);
+            _opponent = collidedObject;
+             var opponentType = GetCharacterType(collidedObject);
             switch (opponentType)
             {
                 case CharacterStats.CharacterType.FootKnight:
-                    DamageToFootknight(collidedObject);
+                   DamageToFootknight();
                     break;
                 case CharacterStats.CharacterType.Gallowglass:
-                    DamageToGallowGlass(collidedObject);
+                    DamageToGallowGlass();
                     break;
                 case CharacterStats.CharacterType.KnightCommander:
-                    DamageToKnightCommander(collidedObject);
+                    DamageToKnightCommander();
                     break;
                 case CharacterStats.CharacterType.Ranger:
-                    DamageToRanger(collidedObject);
+                    DamageToRanger();
                     break;
             }
         }
     }
 
-    protected void DamageToFootknight(GameObject opponent)
+    protected void DamageToFootknight()
     {
-        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
-        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
-        var isOpponentParrying = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentUseAbility = opponent.transform.GetComponentInParent<StormShieldSkill>().IsPlayerUseAbilityLocal;
+        var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentParrying = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<StormShieldSkill>().IsPlayerUseAbilityLocal;
+
         if (isOpponentUseAbility) return;
 
-        if (opponent.gameObject.layer == 11 && isOpponentParrying)
+        if (_opponent.gameObject.layer == 11 && isOpponentParrying)
         {
-            opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
+            _opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-           // opponent.transform.GetComponentInParent<PlayerVFXSytem>().UpdateParryVFXRpc();
         }
         else
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
-            if (IsOpponentDead(opponentHealth.NetworkedHealth))
-            {
-                Debug.Log("ADAM ÖLDÜ Footknight");
-                if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
-                {
-                   _playerStatsController.UpdatePlayerKillCountRpc();
-                }
-               
-                EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
-                EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
-            }
-            else
-            {
-                Debug.Log("ADAMI bulamadýk aq: " +opponentHealth.NetworkedHealth);
-            }
+            StartCoroutine(VerifyOpponentDeath(opponentHealth));
+           
         }
     }
-
-    protected void DamageToKnightCommander(GameObject opponent)
+    protected void DamageToKnightCommander()
     {
-        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
-        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
-        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentDash = opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsPlayerUseAbilityLocal;
+        var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var isOpponentDash = _opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsPlayerUseAbilityLocal;
         Debug.Log("IsOpponentDash: " + isOpponentDash);
         if (isOpponentDash) return;
 
-        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        if (_opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
            opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
-           opponent.transform.GetComponentInParent<IronheartVFXController>().UpdateParryVFXRpc();
+           _opponent.transform.GetComponentInParent<IronheartVFXController>().UpdateParryVFXRpc();
         }
         else
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
-            if (IsOpponentDead(opponentHealth.NetworkedHealth))
-            {
-                Debug.Log("ADAM ÖLDÜ KnightCommander");
-                if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
-                {
-                    if (!Object.HasStateAuthority) return; // 
-                    //Debug.LogError("CurrentGamepHase: " +CurrentGamePhase);
-                    _playerStatsController.UpdatePlayerKillCountRpc();
-                }
-                if (!Object.HasStateAuthority) return;
-                EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
-                EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
-            }
+            StartCoroutine(VerifyOpponentDeath(opponentHealth));
         }
     }
 
-    protected void DamageToGallowGlass(GameObject opponent)
+    protected void DamageToGallowGlass()
     {
        
-        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
-        var opponentStamina = opponent.transform.GetComponentInParent<CharacterStamina>();
-        var isOpponentBlocking = opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentUseAbility = opponent.transform.GetComponentInParent<BloodhandSkill>().IsPlayerUseAbilityLocal;
+        var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
+        var isOpponentBlocking = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
+        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<BloodhandSkill>().IsPlayerUseAbilityLocal;
         //Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
         if (isOpponentUseAbility) return;
 
 
-        if (opponent.gameObject.layer == 10 && isOpponentBlocking)
+        if (_opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
-            opponent.transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
+            _opponent.transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
         else
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
-            if (IsOpponentDead(opponentHealth.NetworkedHealth))
-            {
-                Debug.Log("ADAM ÖLDÜ GallowGlass");
-                if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
-                {
-                    _playerStatsController.UpdatePlayerKillCountRpc();
-                }
-               
-                EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
-                EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
-            }
+            StartCoroutine(VerifyOpponentDeath(opponentHealth));
         }
     }
 
-    protected void DamageToRanger(GameObject opponent)
+    protected void DamageToRanger()
     {
-        var isOpponentUseAbility = opponent.transform.GetComponentInParent<TheSaxonMarkSkill>().IsPlayerUseAbilityLocal;
+        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<TheSaxonMarkSkill>().IsPlayerUseAbilityLocal;
         if (isOpponentUseAbility) return;
-        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
+        var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
         opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
+        StartCoroutine(VerifyOpponentDeath(opponentHealth));
+    }
+    private IEnumerator VerifyOpponentDeath(CharacterHealth opponentHealth)
+    {
+        yield return new WaitForSeconds(0.2f);
+        Debug.Log("OpponentHealth: " + opponentHealth.NetworkedHealth);
 
-        if (IsOpponentDead(opponentHealth.NetworkedHealth))
+
+        if (opponentHealth.NetworkedHealth <= 0)
         {
-            Debug.Log("ADAM ÖLDÜ Ranger");
+
             if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
             {
                 _playerStatsController.UpdatePlayerKillCountRpc();
             }
 
-            EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
             EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
         }
+
+        _opponent = null;
     }
 
-    /*
-    protected void DamageToArea(GameObject opponent)
-    {
-        var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
-        if (opponentHealth == null) return;
-
-        // 1. Kendine mi vuruyor? (Hasar VERÝLSÝN)
-        bool isSelf = opponent.transform.GetComponentInParent<NetworkObject>().Id ==
-                      transform.GetComponentInParent<NetworkObject>().Id;
-
-        // 2. Takým arkadaþý mý? (Hasar VERÝLMEYECEK)
-        bool isTeammate = opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam ==
-                          _playerStatsController.PlayerTeam;
-
-        // 3. Düþman mý? (Hasar VERÝLSÝN)
-        bool isEnemy = !isTeammate && !isSelf;
-
-        // Hasar verme koþullarý:
-        if (isSelf || isEnemy)
-        {
-            opponentHealth.DealDamageRPC(
-                _weaponStats.Damage,
-                _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
-                _playerStatsController.PlayerLocalStats.PlayerWarrior
-            );
-        }
-        // Takým arkadaþýna ise hiçbir þey yapma (return)
-    }
-    */
 
 
     protected bool HandleThrowDuration(bool isHolding)
@@ -291,10 +235,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         }
 
         return false;
-    }
-    private bool IsOpponentDead(float opponentHealth)
-    {
-        return (opponentHealth - _weaponStats.Damage) <= 0;
     }
 
     protected SwordPosition GetSwordPosition() 
@@ -345,4 +285,30 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         CurrentGamePhase = currentGameState;
         //Debug.LogError("CurrentGamePhaseUpdated: " + CurrentGamePhase);
     }
+
+
+    #region Legacy
+    /*
+     * if (IsOpponentDead(opponentHealth.NetworkedHealth))
+        {
+            Debug.Log("ADAM ÖLDÜ Ranger");
+            if (CurrentGamePhase != LevelManager.GamePhase.Preparation && CurrentGamePhase != LevelManager.GamePhase.Warmup)
+            {
+                _playerStatsController.UpdatePlayerKillCountRpc();
+            }
+
+            EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
+        }
+        else
+        {
+            Debug.Log("OpponentHealth: " + opponentHealth.NetworkedHealth);
+        }
+     private bool IsOpponentDead(float opponentHealth)
+    {
+        Debug.Log("Test: " + opponentHealth);
+        return (opponentHealth - _weaponStats.Damage) <= 0;
+    }
+    */
+    #endregion
 }

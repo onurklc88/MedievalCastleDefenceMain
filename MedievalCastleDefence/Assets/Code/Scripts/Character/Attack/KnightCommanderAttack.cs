@@ -34,7 +34,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
         _characterMovement = GetScript<CharacterMovement>();
-        //_ragdollManager = GetScript<ActiveRagdoll>();
         _bloodDecals = GetScript<BloodDecals>();
         _playerVFXSystem = GetScript<IronheartVFXController>();
         _playerStatsController = GetScript<PlayerStatsController>();
@@ -137,7 +136,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         bombInterface = bomb.GetComponent<IThrowable>();
         if (bombInterface == null)
         {
-            Debug.LogError("Bomb scripti bulunamadý!");
+            Debug.LogError("Bomb cannot find!");
             return;
         }
 
@@ -149,7 +148,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     private void UpdateBombVisuals()
     {
-        
         if (!IsPlayerBlockingLocal && _knightCommanderAnimation != null)
         {
             IsDummyBombActivated = _isPlayerHoldingBomb;

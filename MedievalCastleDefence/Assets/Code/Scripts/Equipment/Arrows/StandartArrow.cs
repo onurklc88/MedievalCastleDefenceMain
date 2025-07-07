@@ -1,19 +1,22 @@
+using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
-public class StandartArrow : Arrow
+public class StandartArrow : Arrow , IThrowable
 {
-    
-  
+    NetworkBool IThrowable.IsObjectCollided { get; set; }
 
     public override void Spawned()
     {
         StartCoroutine(DestroyArrow(13f));
     }
 
+    public void InitOwnerStats(PlayerStatsController ownerInfo, NetworkId ownerID)
+    {
 
+    }
     public override void InitOwnerStats(PlayerStatsController ownerStats)
     {
         if (ownerStats == null)
@@ -37,7 +40,7 @@ public class StandartArrow : Arrow
         ArrowCollision(other);
         if(other.gameObject.GetComponentInParent<IDamageable>() != null)
         {
-            Runner.Despawn(Object);
+            //Runner.Despawn(Object);
         }
         else
         {
@@ -83,4 +86,6 @@ public class StandartArrow : Arrow
             Runner.Despawn(Object);
 
     }
+
+   
 }
