@@ -5188,7 +5188,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2
+      scalar: 4
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -29031,10 +29031,10 @@ MonoBehaviour:
   _blockArea: {fileID: 0}
   _dummyBomb: {fileID: 0}
   _characterType: 4
+  _IsObjectCollided:
+    _value: 0
   _rigidbody: {fileID: 3154435040767007159}
   _weapon: {fileID: 11400000, guid: 18a73990dea2edc44a6ce931f21b823c, type: 2}
-  _interpolationTarget: {fileID: 8016456241696588803}
-  _collison: {fileID: 2554954926652878852}
   _bombEffect: {fileID: 448128877209870588}
-  _IsBombReadyToExplode:
-    _value: 0
+  _interpolationTarget: {fileID: 7209133624748777145}
+  _collison: {fileID: 2554954926652878852}

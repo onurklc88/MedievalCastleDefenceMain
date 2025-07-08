@@ -110,11 +110,10 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
              
                 stats.PlayerTeam = selectedTeam;
                 Runner.SetPlayerObject(playerRef, _currentPlayerObject);
-               
                 _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
-               
-                _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
-                _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
+               _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
+               _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
+               Debug.Log("SPAWNER ___________PlayerName: " + stats.PlayerNickName.ToString() + " PlayerWarrior: " + stats.PlayerWarrior);
 
                 if (_currentPlayerObject != null)
                 {

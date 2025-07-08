@@ -163,7 +163,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
             return;
        }
 
-        bombInterface.InitOwnerStats(_playerStatsController, transform.GetComponentInParent<NetworkObject>().Id);
+        bombInterface.SetOwner(_playerStatsController.PlayerNetworkStats);
         Vector3 initialForce = ray.direction * 25f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
         transform.rotation = Quaternion.LookRotation(initialForce);
         bomb.GetComponent<Rigidbody>().AddForce(initialForce, ForceMode.Impulse);

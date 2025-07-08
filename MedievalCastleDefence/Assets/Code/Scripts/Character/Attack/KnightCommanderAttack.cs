@@ -140,7 +140,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             return;
         }
 
-        bombInterface.InitOwnerStats(_playerStatsController, transform.GetComponentInParent<NetworkObject>().Id);
+        bombInterface.SetOwner(_playerStatsController.PlayerNetworkStats);
         Vector3 initialForce = ray.direction * 30f + _dummyBomb.transform.forward + Vector3.up * 1.75f;
         transform.rotation = Quaternion.LookRotation(initialForce);
         bomb.GetComponent<Rigidbody>().AddForce(initialForce, ForceMode.Impulse);

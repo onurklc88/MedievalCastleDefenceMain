@@ -87,11 +87,9 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         if (CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerTeam;
-        if (_playerStatsController == null)
-        {
-            Debug.Log("StatsNullDöndü1");
-        }
+        var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+        Debug.Log("OpponentTeam: " + collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam);
+      
         if (opponentTeam == _playerStatsController.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
         
        
@@ -192,7 +190,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     }
     private IEnumerator VerifyOpponentDeath(CharacterHealth opponentHealth)
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
         Debug.Log("OpponentHealth: " + opponentHealth.NetworkedHealth);
 
 
@@ -204,7 +202,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
                 _playerStatsController.UpdatePlayerKillCountRpc();
             }
 
-            EventLibrary.OnPlayerKill.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            EventLibrary.OnKillFeedReady.Invoke(_playerStatsController.PlayerLocalStats.PlayerWarrior, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
             EventLibrary.OnPlayerKillRegistryUpdated.Invoke(_playerStatsController.PlayerLocalStats.PlayerTeam);
         }
 

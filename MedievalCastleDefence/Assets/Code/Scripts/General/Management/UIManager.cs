@@ -46,7 +46,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     private void OnEnable()
     {
-        EventLibrary.OnPlayerKill.AddListener(ShowKillFeedRpc);
+        EventLibrary.OnKillFeedReady.AddListener(ShowKillFeedRpc);
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameState);
         EventLibrary.OnPlayerRespawn.AddListener(UpdatePlayerTeamButton);
         EventLibrary.OnLevelFinish.AddListener(ShowWinnerTeamRpc);
@@ -56,7 +56,7 @@ public class UIManager : ManagerRegistry, IReadInput, IGameStateListener
 
     private void OnDisable()
     {
-        EventLibrary.OnPlayerKill.RemoveListener(ShowKillFeedRpc);
+        EventLibrary.OnKillFeedReady.RemoveListener(ShowKillFeedRpc);
         EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameState);
         EventLibrary.OnPlayerRespawn.RemoveListener(UpdatePlayerTeamButton);
         EventLibrary.OnLevelFinish.RemoveListener(ShowWinnerTeamRpc);

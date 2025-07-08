@@ -5,27 +5,10 @@ using Fusion;
 using System.Linq;
 public class BombArrow : Arrow
 {
-
-    [SerializeField] private ParticleSystem _bombEffect;
-  
-    [Networked(OnChanged = nameof(OnArrowStateChange))] public NetworkBool IsBombReadyToExplode { get; set; }
     public override void Spawned()
     {
-        StartCoroutine(DestroyArrow(13f));
+        StartCoroutine(DestroyObject(13f));
     }
-
-
-    public override void InitOwnerStats(PlayerStatsController ownerStats)
-    {
-        if (ownerStats == null)
-        {
-            Debug.LogError("OwnerStats null verildi!");
-            return;
-        }
-        _playerStatsController = ownerStats;
-    }
-
-
     public override void FixedUpdateNetwork()
     {
         if (!IsArrowReleased) return;
@@ -38,28 +21,20 @@ public class BombArrow : Arrow
         if (Object == null || !Object.HasStateAuthority)
             return;
         TriggerExplosiveArrow(transform.position);
-        if (other.gameObject.GetComponentInParent<IDamageable>() != null)
-        {
-            Runner.Despawn(Object);
-        }
-        else
-        {
-            StartCoroutine(DestroyArrow(1f));
-        }
-
-
+        StartCoroutine(DestroyObject(2f));
     }
 
     private void TriggerExplosiveArrow(Vector3 explosionPosition)
     {
         if (IsObjectCollided) return;
         IsObjectCollided = true;
-        DrawExplosionDebug(explosionPosition, 5f);
+       
         _rigidbody.isKinematic = true;
         //_bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
         RPC_SetEffectPosition(new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z));
-        IsBombReadyToExplode = true;
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
+        
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 4f);
+        DrawSphere(explosionPosition, 4f, Color.red, 2f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
        
         foreach (var hitCollider in hitColliders)
@@ -81,42 +56,76 @@ public class BombArrow : Arrow
 
             damageable.DealDamageRPC(
                 50f,
-                _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
+                OwnerProperties.PlayerNickName.ToString(),
                 CharacterStats.CharacterType.Ranger
             );
+
+            StartCoroutine(VerifyOpponentDeath(hitCollider.gameObject));
         }
     }
-    private IEnumerator DestroyArrow(float delayDuration)
+    private IEnumerator VerifyOpponentDeath(GameObject opponent)
     {
-        yield return new WaitForSeconds(delayDuration);
+        yield return new WaitForSeconds(0.3f);
+        Debug.Log("OpponentHealth: " + opponent.GetComponentInParent<CharacterHealth>().NetworkedHealth);
 
-        if (Runner != null && Object != null && Object.IsValid)
-            Runner.Despawn(Object);
 
-    }
-    private void DrawExplosionDebug(Vector3 position, float radius)
-    {
-        int segments = 32;
-        float angleStep = 360f / segments;
-        Vector3 prevPoint = position + new Vector3(Mathf.Cos(0), 0, Mathf.Sin(0)) * radius;
-
-        for (int i = 1; i <= segments; i++)
+        if (opponent.GetComponentInParent<CharacterHealth>().NetworkedHealth <= 0)
         {
-            float angle = i * angleStep * Mathf.Deg2Rad;
-            Vector3 nextPoint = position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
-            Debug.DrawLine(prevPoint, nextPoint, Color.red, 0.5f); // 0.5 saniye sahnede kalýr
-            prevPoint = nextPoint;
+             EventLibrary.OnKillFeedReady.Invoke(OwnerProperties.PlayerWarrior, OwnerProperties.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            Debug.Log("KillerName: " + OwnerProperties.PlayerNickName.ToString() + " PlayerWarrior: " + OwnerProperties.PlayerWarrior + " OppnentName: " + opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            EventLibrary.OnPlayerKillRegistryUpdated.Invoke(OwnerProperties.PlayerTeam);
+            if (!Object.HasStateAuthority)
+            {
+                EventLibrary.OnPlayerGotKill.Invoke();
+            }
+
+
+            NetworkObject obj = Runner.FindObject(OwnerProperties.PlayerID);
+            Debug.Log("objID: " + obj.Id);
+            obj.gameObject.GetComponentInParent<PlayerStatsController>().UpdatePlayerKillCountRpc();
+            if (obj.gameObject.GetComponentInParent<PlayerStatsController>() != null)
+            {
+                Debug.Log("null deðil");
+            }
+            else
+            {
+                Debug.Log(null);
+            }
         }
-    }
-    private static void OnArrowStateChange(Changed<BombArrow> changed)
-    {
-       
-        changed.Behaviour._bombEffect.Play();
-    }
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    void RPC_SetEffectPosition(Vector3 pos)
-    {
-        _bombEffect.transform.position = pos; 
+
+
     }
 
+
+
+    public static void DrawSphere(Vector3 center, float radius, Color color, float duration = 0.1f)
+    {
+        // Unity'de built-in Debug.DrawSphere yok, o yüzden kendimiz çiziyoruz
+        Vector3 prevPos = center + new Vector3(radius, 0, 0);
+        for (int i = 0; i < 30; i++)
+        {
+            float angle = (float)(i + 1) / 30f * Mathf.PI * 2f;
+            Vector3 newPos = center + new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
+            Debug.DrawLine(prevPos, newPos, color, duration);
+            prevPos = newPos;
+        }
+
+        prevPos = center + new Vector3(0, radius, 0);
+        for (int i = 0; i < 30; i++)
+        {
+            float angle = (float)(i + 1) / 30f * Mathf.PI * 2f;
+            Vector3 newPos = center + new Vector3(0, Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
+            Debug.DrawLine(prevPos, newPos, color, duration);
+            prevPos = newPos;
+        }
+
+        prevPos = center + new Vector3(radius, 0, 0);
+        for (int i = 0; i < 30; i++)
+        {
+            float angle = (float)(i + 1) / 30f * Mathf.PI * 2f;
+            Vector3 newPos = center + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
+            Debug.DrawLine(prevPos, newPos, color, duration);
+            prevPos = newPos;
+        }
+    }
 }

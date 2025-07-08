@@ -153,16 +153,12 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             var arrow = Runner.Spawn(_standartArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
             arrowScript = arrow.GetComponent<StandartArrow>();
         }
-
-
-       
         if (arrowScript == null)
         {
             Debug.LogError("StandartArrow scripti bulunamadý!");
             return;
         }
-    
-        arrowScript.InitOwnerStats(_playerStats); 
+        arrowScript.SetOwner(_playerStats.PlayerNetworkStats); 
         arrowScript.ExecuteShot(ray.direction);
        
     }

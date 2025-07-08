@@ -2,29 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-public class ExplosiveBomb : Bomb, IThrowable
+public class ExplosiveBomb : Bomb
 {
-    
-    
-  
-    public override void Spawned()
+   public override void Spawned()
     {
         StartCoroutine(DestroyObject(13f));
     }
-
-
-    public void InitOwnerStats(PlayerStatsController ownerStats, NetworkId ownerID)
-    {
-        if (ownerStats == null)
-        {
-            Debug.LogError("OwnerStats null verildi!");
-            return;
-        }
-        _playerStatsController = ownerStats;
-        OwnerID = ownerID;
-    }
-
-
     public override void FixedUpdateNetwork()
     {
         
@@ -42,16 +25,7 @@ public class ExplosiveBomb : Bomb, IThrowable
         if (Object == null || !Object.HasStateAuthority)
             return;
         TriggerExplosiveBomb(transform.position);
-        if (other.gameObject.GetComponentInParent<IDamageable>() != null)
-        {
-            Runner.Despawn(Object);
-        }
-        else
-        {
-            StartCoroutine(DestroyObject(2f));
-        }
-
-
+        StartCoroutine(DestroyObject(2f));
     }
 
     private void TriggerExplosiveBomb(Vector3 explosionPosition)
@@ -67,7 +41,7 @@ public class ExplosiveBomb : Bomb, IThrowable
         IsBombReadyToExplode = true;
 
        
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 3f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
 
         foreach (var hitCollider in hitColliders)
@@ -93,75 +67,42 @@ public class ExplosiveBomb : Bomb, IThrowable
                 continue;
 
            
-            if (netObj.Id == OwnerID ||
+            if (netObj.Id == OwnerProperties.PlayerID ||
                 hitCollider.transform.GetComponentInParent<PlayerStatsController>()?.PlayerTeam !=
-                _playerStatsController.PlayerNetworkStats.PlayerTeam)
+                OwnerProperties.PlayerTeam)
             {
                 damageable.DealDamageRPC(
                     50f,
-                    _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
+                    OwnerProperties.PlayerNickName.ToString(),
                     CharacterStats.CharacterType.Ranger
                 );
+
+                StartCoroutine(VerifyOpponentDeath(hitCollider.transform.gameObject));
             }
         }
     }
-    private void DamageToArea(GameObject opponent)
+ 
+    private IEnumerator VerifyOpponentDeath(GameObject opponent)
     {
-        var opponentNetObj = opponent.GetComponentInParent<NetworkObject>();
-        var selfNetObj = GetComponentInParent<NetworkObject>();
+        yield return new WaitForSeconds(0.3f);
+        Debug.Log("OpponentHealth: " + opponent.GetComponentInParent<CharacterHealth>().NetworkedHealth);
 
 
-        if (opponentNetObj.Id == selfNetObj.Id)
+        if (opponent.GetComponentInParent<CharacterHealth>().NetworkedHealth <= 0)
         {
-            Debug.Log("ID'Ler eþleþti");
-            var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
-            if (opponentHealth == null)
+
+            EventLibrary.OnPlayerGotKill.Invoke();
+            EventLibrary.OnKillFeedReady.Invoke(OwnerProperties.PlayerWarrior, OwnerProperties.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            Debug.Log("KillerName: " + OwnerProperties.PlayerNickName.ToString() + " PlayerWarrior: " + OwnerProperties.PlayerWarrior + " OppnentName: " + opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
+            EventLibrary.OnPlayerKillRegistryUpdated.Invoke(OwnerProperties.PlayerTeam);
+
+            if (!Object.HasStateAuthority)
             {
-                Debug.Log("Opponent health  bulunmadý");
-                return;
-            }
-            else
-            {
-                Debug.Log("Opponent health  bulundu");
+                EventLibrary.OnPlayerGotKill.Invoke();
             }
 
-            opponentHealth.DealDamageRPC(
-                _weaponStats.Damage,
-                _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
-                _playerStatsController.PlayerLocalStats.PlayerWarrior
-            );
-            return;
-        }
-        else
-        {
-            Debug.Log("Test");
         }
 
-
-        var opponentStats = opponent.GetComponentInParent<PlayerStatsController>();
-        if (opponentStats == null) return;
-
-        var opponentTeam = opponentStats.PlayerTeam;
-        if (opponentTeam == _playerStatsController.PlayerTeam)
-            return;
-
-
-        var targetHealth = opponent.GetComponentInParent<CharacterHealth>();
-        Debug.Log("Name: " + opponent.gameObject.name);
-        targetHealth.DealDamageRPC(
-            _weaponStats.Damage,
-            _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
-            _playerStatsController.PlayerLocalStats.PlayerWarrior
-        );
+        
     }
-  
-    private IEnumerator DestroyObject(float delayDuration)
-    {
-        yield return new WaitForSeconds(delayDuration);
-
-        if (Runner != null && Object != null && Object.IsValid)
-            Runner.Despawn(Object);
-
-    }
-  
 }

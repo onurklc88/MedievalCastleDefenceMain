@@ -34,7 +34,8 @@ public static class EventLibrary
 
     //Stats Events
     public static readonly GameEvent<PlayerInfo> OnPlayerStatsUpdated = new GameEvent<PlayerInfo>();
-    public static readonly GameEvent<CharacterStats.CharacterType, string, string> OnPlayerKill = new GameEvent<CharacterStats.CharacterType, string, string>();
+    public static readonly GameEvent OnPlayerGotKill = new GameEvent();
+    public static readonly GameEvent<CharacterStats.CharacterType, string, string> OnKillFeedReady = new GameEvent<CharacterStats.CharacterType, string, string>();
     public static readonly GameEvent<TeamManager.Teams> OnPlayerKillRegistryUpdated = new GameEvent<TeamManager.Teams>();
 
     //Debug

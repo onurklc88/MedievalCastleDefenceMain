@@ -51,7 +51,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             return;
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
         if (_animation != null)
             _animation.IsPlayerParry = IsPlayerBlockingLocal;
@@ -90,7 +90,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         {
             //_characterStamina.DecreaseDefenceStaminaRPC(50f);
             //transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
-            //IsPlayerBlockingLocal = true;
+            IsPlayerBlockingLocal = true;
             //_activeRagdoll.RPCActivateRagdoll();
         }
 

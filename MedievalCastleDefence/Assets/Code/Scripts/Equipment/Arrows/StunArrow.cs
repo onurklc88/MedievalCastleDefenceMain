@@ -7,18 +7,7 @@ public class StunArrow : Arrow
 {
     public override void Spawned()
     {
-        StartCoroutine(DestroyArrow(13f));
-    }
-
-
-    public override void InitOwnerStats(PlayerStatsController ownerStats)
-    {
-        if (ownerStats == null)
-        {
-            Debug.LogError("OwnerStats null verildi!");
-            return;
-        }
-        _playerStatsController = ownerStats;
+        StartCoroutine(DestroyObject(13f));
     }
 
 
@@ -34,30 +23,14 @@ public class StunArrow : Arrow
         if (Object == null || !Object.HasStateAuthority)
             return;
         TriggerExplosiveArrow(transform.position);
-        if (other.gameObject.GetComponentInParent<IDamageable>() != null)
-        {
-            Runner.Despawn(Object);
-        }
-        else
-        {
-            StartCoroutine(DestroyArrow(1f));
-        }
-
-
+        StartCoroutine(DestroyObject(1f));
     }
 
     private void TriggerExplosiveArrow(Vector3 explosionPosition)
     {
        
     }
-    private IEnumerator DestroyArrow(float delayDuration)
-    {
-        yield return new WaitForSeconds(delayDuration);
-
-        if (Runner != null && Object != null && Object.IsValid)
-            Runner.Despawn(Object);
-
-    }
+    
     private void DrawExplosionDebug(Vector3 position, float radius)
     {
         int segments = 32;

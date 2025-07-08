@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-public class Arrow : CharacterAttackBehaviour
+public class Arrow : CharacterAttackBehaviour, IThrowable
 {
     public bool IsArrowReleased { get; set; }
-    public bool IsObjectCollided { get; set; }
-
+    public PlayerInfo OwnerProperties { get; set; }
+    [Networked(OnChanged = nameof(OnArrowStateChange))] public NetworkBool IsObjectCollided { get; set; }
     [SerializeField] protected Rigidbody _rigidbody;
     [SerializeField] protected WeaponStats _weapon;
-    //protected bool _isArrowCollided = false;
+    [SerializeField] private ParticleSystem _bombEffect;
     protected Transform _parentTransform;
-    [SerializeField] protected Transform _interpolationTarget;
+    [SerializeField] private GameObject _interpolationTarget;
     [SerializeField] protected BoxCollider _collison;
 
-    public virtual void InitOwnerStats(PlayerStatsController ownerInfo) { } 
+  
   
     public override void FixedUpdateNetwork()
     {
@@ -46,7 +46,32 @@ public class Arrow : CharacterAttackBehaviour
         transform.rotation = Quaternion.LookRotation(initialForce);
         _rigidbody.AddForce(initialForce, ForceMode.Impulse);
     }
-    
+
+    private static void OnArrowStateChange(Changed<Arrow> changed)
+    {
+        changed.Behaviour._interpolationTarget.SetActive(false);
+        if(changed.Behaviour._bombEffect != null)
+            changed.Behaviour._bombEffect.Play();
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SetEffectPosition(Vector3 pos)
+    {
+        _bombEffect.transform.position = pos;
+    }
+
+    public void SetOwner(PlayerInfo playerInfo)
+    {
+        OwnerProperties = playerInfo;
+    }
+
+    public IEnumerator DestroyObject(float destroyTime)
+    {
+        yield return new WaitForSeconds(destroyTime);
+
+        if (Runner != null && Object != null && Object.IsValid)
+            Runner.Despawn(Object);
+    }
 }
 
 #region Legacy

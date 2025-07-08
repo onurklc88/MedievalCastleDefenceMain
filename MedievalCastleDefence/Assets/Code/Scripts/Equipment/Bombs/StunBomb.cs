@@ -3,25 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StunBomb : Bomb, IThrowable
+public class StunBomb : Bomb
 {
-   
+    
+
     public override void Spawned()
     {
         StartCoroutine(DestroyObject(13f));
     }
 
-
-    public void InitOwnerStats(PlayerStatsController ownerStats, NetworkId ownerID)
-    {
-        if (ownerStats == null)
-        {
-            Debug.LogError("OwnerStats null verildi!");
-            return;
-        }
-        _playerStatsController = ownerStats;
-        OwnerID = ownerID;
-    }
 
     public override void FixedUpdateNetwork()
     {
@@ -29,27 +19,14 @@ public class StunBomb : Bomb, IThrowable
         if (!IsObjectCollided)
         {
             transform.Rotate(Vector3.forward * 300f * Runner.DeltaTime * 2f);
-
         }
-
-
-    }
+     }
    
     private void OnTriggerEnter(Collider other)
     {
         if (Object == null || !Object.HasStateAuthority)
             return;
         TriggerStunBomb(transform.position);
-        /*
-        if (other.gameObject.GetComponentInParent<IDamageable>() != null)
-        {
-            Runner.Despawn(Object);
-        }
-        else
-        {
-            StartCoroutine(DestroyObject(2f));
-        }
-        */
         StartCoroutine(DestroyObject(2f));
     }
 
@@ -63,7 +40,7 @@ public class StunBomb : Bomb, IThrowable
         IsBombReadyToExplode = true;
 
 
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 5f);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 2.5f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
 
         foreach (var hitCollider in hitColliders)
@@ -90,71 +67,14 @@ public class StunBomb : Bomb, IThrowable
             
 
 
-            if (netObj.Id == OwnerID ||
+            if (netObj.Id == OwnerProperties.PlayerID ||
                 hitCollider.transform.GetComponentInParent<PlayerStatsController>()?.PlayerTeam !=
-                _playerStatsController.PlayerNetworkStats.PlayerTeam)
+                OwnerProperties.PlayerTeam)
             {
                 playerInput.RPC_ReduceMouseSpeedTemporarily();
                 characterMovement.RPC_SlowPlayerSpeed();
-                /*
-                damageable.DealDamageRPC(
-                    50f,
-                    _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
-                    CharacterStats.CharacterType.Ranger
-                );
-                */
             }
         }
-    }
-   
-    private void DamageToArea(GameObject opponent)
-    {
-        var opponentNetObj = opponent.GetComponentInParent<NetworkObject>();
-        var selfNetObj = GetComponentInParent<NetworkObject>();
-
-
-        if (opponentNetObj.Id == selfNetObj.Id)
-        {
-            Debug.Log("ID'Ler eþleþti");
-            var opponentHealth = opponent.transform.GetComponentInParent<CharacterHealth>();
-            if (opponentHealth == null)
-            {
-                Debug.Log("Opponent health  bulunmadý");
-                return;
-            }
-            else
-            {
-                Debug.Log("Opponent health  bulundu");
-            }
-
-            opponentHealth.DealDamageRPC(
-                _weaponStats.Damage,
-                _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
-                _playerStatsController.PlayerLocalStats.PlayerWarrior
-            );
-            return;
-        }
-        else
-        {
-            Debug.Log("Test");
-        }
-
-
-        var opponentStats = opponent.GetComponentInParent<PlayerStatsController>();
-        if (opponentStats == null) return;
-
-        var opponentTeam = opponentStats.PlayerTeam;
-        if (opponentTeam == _playerStatsController.PlayerTeam)
-            return;
-
-
-        var targetHealth = opponent.GetComponentInParent<CharacterHealth>();
-        Debug.Log("Name: " + opponent.gameObject.name);
-        targetHealth.DealDamageRPC(
-            _weaponStats.Damage,
-            _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(),
-            _playerStatsController.PlayerLocalStats.PlayerWarrior
-        );
     }
     private IEnumerator DestroyObject(float delayDuration)
     {
@@ -164,5 +84,4 @@ public class StunBomb : Bomb, IThrowable
             Runner.Despawn(Object);
 
     }
-
 }

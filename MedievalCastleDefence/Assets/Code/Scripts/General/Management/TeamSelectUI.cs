@@ -53,8 +53,8 @@ public class TeamSelectUI : ManagerRegistry
            
 
         }
-        
-       
+        Debug.LogError("TeamSelectUI RedPlayerCount: " + redTeamPlayerCount + " BlueTeamCount: " + blueTeamPlayerCount);
+
         if (redTeamPlayerCount == _levelManager.MaxPlayerCount / 2)
         {
             _redTeamButton.interactable = false;

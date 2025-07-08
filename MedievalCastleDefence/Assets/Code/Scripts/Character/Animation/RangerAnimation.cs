@@ -42,10 +42,9 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
 
     public void ReadPlayerInputs(PlayerInputData input)
     {
-        if (!Object.HasStateAuthority) return;
+        if (!Object.HasStateAuthority || _characterMovement == null) return;
         if (_characterMovement.IsInputDisabled) return;
 
-      
         if (input.VerticalInput != 0)
         {
             PlayerVerticalDirection = input.VerticalInput;
