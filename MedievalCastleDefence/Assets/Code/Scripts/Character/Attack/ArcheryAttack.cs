@@ -7,6 +7,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
 {
     [SerializeField] private GameObject _standartArrow;
     [SerializeField] private GameObject _bombArrow;
+    [SerializeField] private GameObject _stunArrow;
     [SerializeField] private GameObject _lookAtTarget;
     [SerializeField] private GameObject _arrowFirePoint;
     [SerializeField] private GameObject _angle;
@@ -22,17 +23,18 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
     private Vector3 _aimingAnglePosition = new Vector3(0.032f, 0.289f, 0.322f);
     private bool _canDrawArrow = true;
     private float _drawDuration;
- 
-  
     private enum ArrowType
     {
         None,
         Standart,
-        Bomb
+        Bomb,
+        Stun
     }
     private ArrowType _selectedArrowType;
-    private const int DEFAULT_BOMB_ARROW_AMOUNT = 30;
+    private const int DEFAULT_BOMB_ARROW_AMOUNT = 2;
+    private const int DEFAULT_STUN_ARROW_AMOUNT = 2;
     private int _currentBombArrowAmount;
+    private int _currentStunArrowAmount;
    
     public override void Spawned()
     {
@@ -43,6 +45,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _drawDuration = .3f;
         _defaultAnglePosition = _angle.transform.localPosition;
         _currentBombArrowAmount = DEFAULT_BOMB_ARROW_AMOUNT;
+        _currentStunArrowAmount = DEFAULT_STUN_ARROW_AMOUNT;
         _selectedArrowType = ArrowType.Standart;
     }
     private void Start()
@@ -117,17 +120,32 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
 
     private void SwitchArrowType()
     {
-       
 
-        if(_selectedArrowType == ArrowType.Standart && _currentBombArrowAmount > 0)
+        if (_selectedArrowType == ArrowType.Standart)
         {
-        
-            _selectedArrowType = ArrowType.Bomb;
+            if (_currentBombArrowAmount > 0)
+            {
+                _selectedArrowType = ArrowType.Bomb;
+            }
+            else if (_currentStunArrowAmount > 0)
+            {
+                _selectedArrowType = ArrowType.Stun;
+            }
         }
-        else
+        else if (_selectedArrowType == ArrowType.Bomb)
+        {
+            if (_currentStunArrowAmount > 0)
+            {
+                _selectedArrowType = ArrowType.Stun;
+            }
+            else
+            {
+                _selectedArrowType = ArrowType.Standart;
+            }
+        }
+        else if (_selectedArrowType == ArrowType.Stun)
         {
             _selectedArrowType = ArrowType.Standart;
-        
         }
 
         Debug.Log("SelectedArrowType: " + _selectedArrowType);
@@ -147,6 +165,12 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             _currentBombArrowAmount -= 1;
             var arrow = Runner.Spawn(_bombArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
             arrowScript = arrow.GetComponent<BombArrow>();
+        }
+        else if(_currentStunArrowAmount > 0 && _selectedArrowType == ArrowType.Stun)
+        {
+            _currentStunArrowAmount -= 1;
+            var arrow = Runner.Spawn(_stunArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
+            arrowScript = arrow.GetComponent<StunArrow>();
         }
         else
         {

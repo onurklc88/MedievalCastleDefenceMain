@@ -68709,6 +68709,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
+  BombProperties: {fileID: 11400000, guid: 02e8599ac77d5534793cae6dcd777c28, type: 2}
   _bombEffect: {fileID: 7449370089345664732}
   _IsBombReadyToExplode:
     _value: 0

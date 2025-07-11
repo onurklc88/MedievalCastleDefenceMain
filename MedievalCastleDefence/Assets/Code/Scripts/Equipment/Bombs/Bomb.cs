@@ -1,10 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
+
 public class Bomb : NetworkBehaviour, IThrowable
 {
+    [SerializeField] protected ThrowableProperties BombProperties;
     public bool IsBombThrown { get; set; }
     [SerializeField] protected ParticleSystem _bombEffect;
     [Networked(OnChanged = nameof(OnBombStateChange))] public NetworkBool IsBombReadyToExplode { get; set; }

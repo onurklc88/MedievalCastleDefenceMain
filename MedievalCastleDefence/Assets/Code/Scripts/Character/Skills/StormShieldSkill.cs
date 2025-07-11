@@ -8,8 +8,8 @@ using System.Threading;
 
 public class StormShieldSkill : CharacterRegistry, IReadInput, IAbility
 {
-    [Networked(OnChanged = nameof(OnNetworkAbilityStateChange))] public NetworkBool IsPlayerUseAbilityLocal { get; set; }
-    [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkAbilityStateChange))] public NetworkBool IsAbilityInUseLocal { get; set; }
+    [Networked] public NetworkBool IsAbilityInUse { get; set; }
 
     private PlayerStatsController _playerStatsController;
     private CharacterMovement _characterMovement;
@@ -31,7 +31,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput, IAbility
     }
     private static void OnNetworkAbilityStateChange(Changed<StormShieldSkill> changed)
     {
-        changed.Behaviour.IsPlayerUseAbility = changed.Behaviour.IsPlayerUseAbilityLocal;
+        changed.Behaviour.IsAbilityInUse = changed.Behaviour.IsAbilityInUseLocal;
     }
     public override void FixedUpdateNetwork()
     {
@@ -42,6 +42,11 @@ public class StormShieldSkill : CharacterRegistry, IReadInput, IAbility
             ReadPlayerInputs(input);
         }
 
+    }
+
+    private void Update()
+    {
+        Debug.Log("AbilityInUsed: " + IsAbilityInUseLocal);
     }
     public void ReadPlayerInputs(PlayerInputData input)
     {
@@ -84,7 +89,7 @@ public class StormShieldSkill : CharacterRegistry, IReadInput, IAbility
        
         _characterMovement.IsInputDisabled = true;
         _footnightAnimation.UpdateAbilityAnimationState();
-        IsPlayerUseAbilityLocal = true;
+        IsAbilityInUseLocal = true;
        
          Collider[] hitColliders = Physics.OverlapSphere(transform.position, 5f);
         HashSet<NetworkBehaviourId> healedCharacters = new HashSet<NetworkBehaviourId>();
@@ -116,10 +121,8 @@ public class StormShieldSkill : CharacterRegistry, IReadInput, IAbility
         }
         await UniTask.Delay(300);
         _playerVFX.PlayUltimateVFX();
-        IsPlayerUseAbilityLocal = false;
         await UniTask.Delay(1450);
-        
-        
+        IsAbilityInUseLocal = false;
         _characterMovement.IsInputDisabled = false;
 
     }

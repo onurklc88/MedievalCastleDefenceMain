@@ -7,9 +7,9 @@ using static BehaviourRegistry;
 public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
 {
     public NetworkButtons PreviousButton { get; set; }
-    [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
-    public NetworkBool IsPlayerUseAbilityLocal { get; set; }
-   
+    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsAbilityInUseLocal { get; set; }
+    [Networked] public NetworkBool IsAbilityInUse { get; set; }
+
     public int SlideCharges { get; set; }
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
@@ -17,16 +17,12 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
     private CharacterController _characterController;
     private Rigidbody _rigidbody;
     private CharacterMovement _characterMovement;
-   
-
-
-
     private int _slideChargeCount;
     private float _duration = 0.2f;
     private float _distance = 0.35f;
 
     private Vector3 _slideDirection;
-    private const int MAX_SLIDE_CHARGE_COUNT = 1;
+    private const int MAX_SLIDE_CHARGE_COUNT = 10000;
     private bool _isRefilling = false;
 
     public override void Spawned()
@@ -46,6 +42,7 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
         _playerHUD = GetScript<PlayerHUD>();
         _characterVFX = GetScript<PlayerVFXSytem>();
         _slideChargeCount = MAX_SLIDE_CHARGE_COUNT;
+     
         if (_playerHUD != null)
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
 
@@ -65,7 +62,7 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
     }
     private static void OnNetworkDashStateChange(Changed<TheSaxonMarkSkill> changed)
     {
-        changed.Behaviour.IsPlayerUseAbility = changed.Behaviour.IsPlayerUseAbilityLocal;
+        changed.Behaviour.IsAbilityInUse = changed.Behaviour.IsAbilityInUseLocal;
     }
 
     public void ReadPlayerInputs(PlayerInputData input)
@@ -90,10 +87,10 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
         */
         #endregion
         var utilityButton = input.NetworkButtons.GetPressed(PreviousButton);
+      
         if (utilityButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill))
         {
-
-            Vector3 direction = new Vector3(input.HorizontalInput, 0f, input.VerticalInput);
+           Vector3 direction = new Vector3(input.HorizontalInput, 0f, input.VerticalInput);
 
             if (direction.sqrMagnitude < 0.1f)
                 return;
@@ -132,7 +129,7 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
 
         while (_slideChargeCount < 1)
         {
-            await UniTask.Delay(5000);
+            await UniTask.Delay(10000);
             _slideChargeCount += 1;
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
         }
@@ -142,12 +139,12 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
 
     private async UniTaskVoid SlideCharacter(Vector3 direction)
     {
-        if (IsPlayerUseAbilityLocal) return;
+        if (IsAbilityInUseLocal) return;
 
         if (_slideChargeCount < 0) return;
-        IsPlayerUseAbilityLocal = true;
-        _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
+        IsAbilityInUseLocal = true;
+        _characterVFX.ActivateSwordTrail(IsAbilityInUseLocal);
+        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
 
         float elapsedTime = 0f;
         float forceMultiplier = 1700f;
@@ -162,13 +159,13 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
             elapsedTime += Runner.DeltaTime;
             await UniTask.Yield();
         }
-
+        _characterVFX.ActivateSwordTrail(false);
         await UniTask.Delay(200);
-        IsPlayerUseAbilityLocal = false;
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
+        IsAbilityInUseLocal = false;
+        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
         await UniTask.Delay(500);
 
-        _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
+      
 
     }
 }

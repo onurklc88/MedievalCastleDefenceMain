@@ -63,13 +63,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         //UpdateBombVisuals();
-        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal)
+        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal && !_isBombThrown)
         {
             ThrowBomb();
         }
+       
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
        
-       // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+      IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
       
       
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
@@ -94,11 +95,11 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             
             //_characterStamina.DecreaseDefenceStaminaRPC(28f);
             //_bloodDecals.EnableRandomBloodDecal();
-            IsPlayerBlockingLocal = true;
+            //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }
 
-        //Debug.Log("IsplayerBlocking: " + IsPlayerBlocking);
+        Debug.Log("_isBombThrown: " + _isBombThrown);
         PreviousButton = input.NetworkButtons;
     }
 
@@ -145,13 +146,25 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         transform.rotation = Quaternion.LookRotation(initialForce);
         bomb.GetComponent<Rigidbody>().AddForce(initialForce, ForceMode.Impulse);
         _isBombThrown = true;
+        StartCoroutine(ResetBombStateAfterDelay(17f));
     }
+    private bool _hasResetBombAnimation; 
+
     private void UpdateBombVisuals()
     {
-        if (!IsPlayerBlockingLocal && _knightCommanderAnimation != null)
+        if (_isBombThrown && !_hasResetBombAnimation)
+        {
+            IsDummyBombActivated = false;
+            _knightCommanderAnimation.UpdateThrowingAnimation(false);
+            _hasResetBombAnimation = true;
+            return;
+        }
+
+        if (!IsPlayerBlockingLocal && _knightCommanderAnimation != null && !_isBombThrown)
         {
             IsDummyBombActivated = _isPlayerHoldingBomb;
             _knightCommanderAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
+            _hasResetBombAnimation = false; 
         }
     }
     private IEnumerator PerformAttack()

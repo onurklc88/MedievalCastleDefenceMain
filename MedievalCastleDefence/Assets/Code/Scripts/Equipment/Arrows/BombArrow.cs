@@ -33,7 +33,7 @@ public class BombArrow : Arrow
         //_bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
         RPC_SetEffectPosition(new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z));
         
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 4f);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, ArrowProperties.AEOWidth);
         DrawSphere(explosionPosition, 4f, Color.red, 2f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
        
@@ -55,7 +55,7 @@ public class BombArrow : Arrow
                 continue;
 
             damageable.DealDamageRPC(
-                50f,
+                ArrowProperties.Damage,
                 OwnerProperties.PlayerNickName.ToString(),
                 CharacterStats.CharacterType.Ranger
             );
@@ -74,22 +74,10 @@ public class BombArrow : Arrow
              EventLibrary.OnKillFeedReady.Invoke(OwnerProperties.PlayerWarrior, OwnerProperties.PlayerNickName.ToString(), opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
             Debug.Log("KillerName: " + OwnerProperties.PlayerNickName.ToString() + " PlayerWarrior: " + OwnerProperties.PlayerWarrior + " OppnentName: " + opponent.transform.GetComponentInParent<PlayerStatsController>().PlayerLocalStats.PlayerNickName.ToString());
             EventLibrary.OnPlayerKillRegistryUpdated.Invoke(OwnerProperties.PlayerTeam);
-            if (!Object.HasStateAuthority)
-            {
-                EventLibrary.OnPlayerGotKill.Invoke();
-            }
-
-
             NetworkObject obj = Runner.FindObject(OwnerProperties.PlayerID);
-            Debug.Log("objID: " + obj.Id);
-            obj.gameObject.GetComponentInParent<PlayerStatsController>().UpdatePlayerKillCountRpc();
-            if (obj.gameObject.GetComponentInParent<PlayerStatsController>() != null)
+            if(opponent.transform.GetComponentInParent<NetworkObject>() != OwnerProperties.PlayerID)
             {
-                Debug.Log("null deðil");
-            }
-            else
-            {
-                Debug.Log(null);
+                obj.gameObject.GetComponentInParent<PlayerStatsController>().UpdatePlayerKillCountRpc();
             }
         }
 

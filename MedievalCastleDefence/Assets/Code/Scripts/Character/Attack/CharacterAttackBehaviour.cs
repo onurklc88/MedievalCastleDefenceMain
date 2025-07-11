@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using Fusion;
-
 using static BehaviourRegistry;
 public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListener
 {
@@ -13,7 +12,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     [Networked] public NetworkBool IsPlayerBlocking { get; set; }
     [Networked] public SwordPosition PlayerSwordPosition { get; set; }
     [Networked] public LevelManager.GamePhase CurrentGamePhase { get; set; }
-    
     public enum SwordPosition
     {
         None,
@@ -28,7 +26,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         FromLeft,
         Backward
     }
-   
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
     [SerializeField] protected GameObject _dummyBomb;
@@ -49,7 +46,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     private bool _wasHoldingLastFrame;
     private GameObject _opponent;
     #endregion
-
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
     protected virtual void AttackCollision() {}
     protected virtual void SwingSword() {}
@@ -63,6 +59,12 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     private void OnDisable()
     {
         EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
+    {
+        CurrentGamePhase = currentGameState;
+        //Debug.LogError("CurrentGamePhaseUpdated: " + CurrentGamePhase);
     }
     private static void OnNetworkBlockChanged(Changed<CharacterAttackBehaviour> changed)
     {
@@ -84,15 +86,12 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     protected void CheckAttackCollision(GameObject collidedObject)
     {
         _opponent = null;
-        if (CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
+       if (CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>() == null) return;
        if (collidedObject.transform.GetComponentInParent<NetworkObject>().Id == transform.GetComponentInParent<NetworkObject>().Id) return;
-        var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
-        Debug.Log("OpponentTeam: " + collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam);
-      
-        if (opponentTeam == _playerStatsController.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
-        
-       
+       var opponentTeam = collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam;
+       Debug.Log("OpponentTeam: " + collidedObject.transform.GetComponentInParent<PlayerStatsController>().PlayerNetworkStats.PlayerTeam);
+       if (opponentTeam == _playerStatsController.PlayerTeam || CurrentGamePhase == LevelManager.GamePhase.Preparation) return;
         if (collidedObject.transform.GetComponentInParent<IDamageable>() != null)
         {
             _opponent = collidedObject;
@@ -120,7 +119,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<StormShieldSkill>().IsPlayerUseAbilityLocal;
+        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<StormShieldSkill>().IsAbilityInUse;
 
         if (isOpponentUseAbility) return;
 
@@ -133,7 +132,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         {
             opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
             StartCoroutine(VerifyOpponentDeath(opponentHealth));
-           
         }
     }
     protected void DamageToKnightCommander()
@@ -141,7 +139,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentDash = _opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsPlayerUseAbilityLocal;
+        var isOpponentDash = _opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsAbilityInUse;
         Debug.Log("IsOpponentDash: " + isOpponentDash);
         if (isOpponentDash) return;
 
@@ -159,15 +157,12 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
     protected void DamageToGallowGlass()
     {
-       
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
         var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
-        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<BloodhandSkill>().IsPlayerUseAbilityLocal;
+        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<BloodhandSkill>().IsAbilityInUse;
         //Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
         if (isOpponentUseAbility) return;
-
-
         if (_opponent.gameObject.layer == 10 && isOpponentBlocking)
         {
             _opponent.transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
@@ -182,7 +177,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
     protected void DamageToRanger()
     {
-        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<TheSaxonMarkSkill>().IsPlayerUseAbilityLocal;
+        var isOpponentUseAbility = _opponent.transform.GetComponentInParent<TheSaxonMarkSkill>().IsAbilityInUse;
         if (isOpponentUseAbility) return;
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
         opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
@@ -209,8 +204,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         _opponent = null;
     }
 
-
-
     protected bool HandleThrowDuration(bool isHolding)
     {
         if (!Object.HasStateAuthority) return false;
@@ -234,7 +227,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
         return false;
     }
-
     protected SwordPosition GetSwordPosition() 
     {
        float mouseX = Input.GetAxis("Mouse X");
@@ -248,8 +240,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var value = Vector3.Dot(defenderPosition.transform.forward, directionToTarget);
         return value;
     }
-
-
     protected CharacterStats.CharacterType GetCharacterType(GameObject collidedObject)
     {   
         if (collidedObject.transform.GetComponentInParent<PlayerStatsController>() != null)
@@ -277,11 +267,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
        (crossProduct.y < -sideThreshold) ? AttackDirection.FromRight :
        AttackDirection.None;
     }
-    [Rpc(RpcSources.All, RpcTargets.All)]
-    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
+    protected virtual IEnumerator ResetBombStateAfterDelay(float delayDuration)
     {
-        CurrentGamePhase = currentGameState;
-        //Debug.LogError("CurrentGamePhaseUpdated: " + CurrentGamePhase);
+        yield return new WaitForSeconds(delayDuration);
+        Debug.Log("DelayEndaing");
+        _isBombThrown = false;
     }
 
 

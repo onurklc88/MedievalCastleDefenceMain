@@ -6,6 +6,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using System;
 
+
 public class GallowglassAttack : CharacterAttackBehaviour
 {
     [SerializeField] private GameObject _explosiveBomb;
@@ -69,7 +70,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         UpdateBombVisuals();
-        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal)
+        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal && !_isBombThrown)
         {
             ThrowBomb();
         }
@@ -84,7 +85,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         if (_gallowGlassAnimation != null) BlockWeapon();
 
 
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_bloodhandSkill.IsPlayerUseAbilityLocal && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)) && !_characterHealth.IsPlayerGotHit && !_isPlayerHoldingBomb)
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.Mouse0) && AttackCooldown.ExpiredOrNotRunning(Runner) && !_bloodhandSkill.IsAbilityInUseLocal && !IsPlayerBlocking && (_blockReleaseCooldown.ExpiredOrNotRunning(Runner)) && !_characterHealth.IsPlayerGotHit && !_isPlayerHoldingBomb)
         {
             if (_characterStamina.CurrentAttackStamina > 30)
             {
@@ -93,7 +94,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
             }
         }
-        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && !_bloodhandSkill.IsPlayerUseAbilityLocal)
+        else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && !_bloodhandSkill.IsAbilityInUseLocal)
         {
             //IsPlayerBlockingLocal = true;
             // _characterStamina.DecreaseDefenceStaminaRPC(60f);
@@ -101,6 +102,11 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
 
         PreviousButton = input.NetworkButtons;
+    }
+
+    private void LateUpdate()
+    {
+        UpdateBombVisuals();
     }
     private void UpdateBombVisuals()
     {
@@ -150,7 +156,6 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
     protected override void ThrowBomb()
     {
-        
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
         IThrowable bombInterface = null;
@@ -162,12 +167,12 @@ public class GallowglassAttack : CharacterAttackBehaviour
             Debug.LogError("Bomb scripti bulunamadý!");
             return;
        }
-
         bombInterface.SetOwner(_playerStatsController.PlayerNetworkStats);
         Vector3 initialForce = ray.direction * 25f + transform.forward + Vector3.up * 1.75f + Vector3.right * 0.5f;
         transform.rotation = Quaternion.LookRotation(initialForce);
         bomb.GetComponent<Rigidbody>().AddForce(initialForce, ForceMode.Impulse);
-        _isBombThrown = true;
+       _isBombThrown = true;
+        StartCoroutine(ResetBombStateAfterDelay(20f));
     }
     private IEnumerator PerformAttack()
     {
@@ -204,10 +209,6 @@ public class GallowglassAttack : CharacterAttackBehaviour
     }
 
    
-
-
-
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

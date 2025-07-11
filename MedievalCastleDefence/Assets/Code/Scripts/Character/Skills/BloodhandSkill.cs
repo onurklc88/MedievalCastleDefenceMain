@@ -7,19 +7,19 @@ using static BehaviourRegistry;
 
 public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
 {
-    [Networked(OnChanged = nameof(OnNetworkAbilityStateChange))] public NetworkBool IsPlayerUseAbilityLocal { get; set; }
-    [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkAbilityStateChange))] public NetworkBool IsAbilityInUseLocal { get; set; }
+    [Networked] public NetworkBool IsAbilityInUse { get; set; }
     [SerializeField] private LayerMask _obstacleLayer;
     private CharacterMovement _characterMovement;
     private BloodhandVFXController _playerVFX;
-
     public NetworkButtons PreviousButton { get; set; }
     private GallowglassAttack _bloodhandAttack;
     public bool CanUseAbility { get; private set; }
+   
 
     [SerializeField] private float _earthShatterRadius = 8f;
     [SerializeField] private float _earthShatterAngle = 90f;
-    [SerializeField] private float _abilityCooldown = 40f; // 40 saniye cooldown
+    [SerializeField] private float _abilityCooldown = 40f;
     private GallowglassAnimation _gallowAnimation;
     private PlayerStatsController _playerStatsController;
 
@@ -51,9 +51,12 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
 
     private static void OnNetworkAbilityStateChange(Changed<BloodhandSkill> changed)
     {
-        changed.Behaviour.IsPlayerUseAbility = changed.Behaviour.IsPlayerUseAbilityLocal;
+        changed.Behaviour.IsAbilityInUse = changed.Behaviour.IsAbilityInUseLocal;
     }
-
+    private void Update()
+    {
+        Debug.Log("IsplayerUseAbility: " + IsAbilityInUse);
+    }
     public async void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
@@ -67,7 +70,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
         {
             CanUseAbility = false;
             _characterMovement.IsInputDisabled = true;
-            IsPlayerUseAbilityLocal = true;
+            IsAbilityInUseLocal = true;
 
             _gallowAnimation.UpdateUltimateAnimState(true);
             _playerVFX.PlaySpritualVFXRpc();
@@ -77,10 +80,11 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
             await UniTask.Delay(100);
 
             _playerVFX.PlayEarthShatterVFXRpc();
-            IsPlayerUseAbilityLocal = false;
+          
             await UniTask.Delay(400);
 
             _characterMovement.IsInputDisabled = false;
+            IsAbilityInUseLocal = false;
             _gallowAnimation.UpdateUltimateAnimState(false);
 
             // Cooldown baþlat
@@ -92,7 +96,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
 
     private async UniTask StartCooldown()
     {
-        await UniTask.Delay((int)(_abilityCooldown * 1000)); // 40 saniye bekle
+        await UniTask.Delay((int)(_abilityCooldown * 1000)); 
         CanUseAbility = true;
     }
 

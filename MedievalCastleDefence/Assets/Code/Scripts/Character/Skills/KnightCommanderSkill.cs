@@ -5,18 +5,19 @@ using static BehaviourRegistry;
 
 public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
 {
-    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsPlayerUseAbilityLocal { get; set; }
+    [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsAbilityInUseLocal { get; set; }
    
-    [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
+    [Networked] public NetworkBool IsAbilityInUse { get; set; }
     public int SlideCharges { get; set; }
+    public NetworkButtons PreviousButton { get; set; }
+
     private CharacterStamina _characterStamina;
     private PlayerHUD _playerHUD;
     private PlayerVFXSytem _characterVFX;
     private CharacterController _characterController;
     private Rigidbody _rigidbody;
     private CharacterMovement _characterMovement;
-    public NetworkButtons PreviousButton { get; set; }
-   
+    private bool _canPlayerDash;
    
 
     private int _slideChargeCount;
@@ -26,7 +27,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     private Vector3 _slideDirection;
     private const int MAX_SLIDE_CHARGE_COUNT = 3;
     private bool _isRefilling = false;
-
+   
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -44,6 +45,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
         _playerHUD = GetScript<PlayerHUD>();
         _characterVFX = GetScript<PlayerVFXSytem>();
         _slideChargeCount = MAX_SLIDE_CHARGE_COUNT;
+        _canPlayerDash = true;
         if (_playerHUD != null)
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
 
@@ -64,7 +66,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     
     private static void OnNetworkDashStateChange(Changed<KnightCommanderSkill> changed)
     {
-        changed.Behaviour.IsPlayerUseAbility = changed.Behaviour.IsPlayerUseAbilityLocal;
+        changed.Behaviour.IsAbilityInUse = changed.Behaviour.IsAbilityInUseLocal;
     }
     public void ReadPlayerInputs(PlayerInputData input)
     {
@@ -88,7 +90,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
         */
         #endregion
         var utilityButton = input.NetworkButtons.GetPressed(PreviousButton);
-        if (utilityButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill))
+        if (utilityButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && _canPlayerDash)
         {
 
             Vector3 direction = new Vector3(input.HorizontalInput, 0f, input.VerticalInput);
@@ -107,6 +109,7 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     {
         if(_slideChargeCount > 0 && _characterStamina.CurrentAttackStamina > 10)
         {
+            _canPlayerDash = false;
             _slideChargeCount -= 1;
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
             _characterStamina.DecreaseCharacterAttackStamina(10f);
@@ -141,12 +144,12 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
 
     private async UniTaskVoid SlideCharacter(Vector3 direction)
     {
-        if (IsPlayerUseAbilityLocal) return;
+        if (IsAbilityInUseLocal) return;
         
         if (_slideChargeCount < 0) return;
-        IsPlayerUseAbilityLocal = true;
-        _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
+        IsAbilityInUseLocal = true;
+        _characterVFX.ActivateSwordTrail(IsAbilityInUseLocal);
+        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
        
         float elapsedTime = 0f;
         float forceMultiplier = 1700f; 
@@ -163,11 +166,12 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
         }
       
         await UniTask.Delay(200);
-        IsPlayerUseAbilityLocal = false;
-        EventLibrary.OnPlayerDash.Invoke(IsPlayerUseAbilityLocal);
+        IsAbilityInUseLocal = false;
+        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
+        _canPlayerDash = true;
         await UniTask.Delay(500);
-        
-        _characterVFX.ActivateSwordTrail(IsPlayerUseAbilityLocal);
+       
+        _characterVFX.ActivateSwordTrail(IsAbilityInUseLocal);
 
     }
 

@@ -20,7 +20,6 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
     private void OnDisable()
     {
         EventLibrary.OnGamePhaseChange.RemoveListener(UpdateGameStateRpc);
-        EventLibrary.OnPlayerGotKill.RemoveListener(UpdatePlayerKillCountRpc);
     }
 
 
@@ -28,7 +27,6 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
     {
         if (!Object.HasStateAuthority) return;
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
-        EventLibrary.OnPlayerGotKill.AddListener(UpdatePlayerKillCountRpc);
         InitScript(this);
     }
 

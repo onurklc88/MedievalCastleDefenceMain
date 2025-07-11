@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-public class Arrow : CharacterAttackBehaviour, IThrowable
+public class Arrow : NetworkBehaviour, IThrowable, IRPCListener
 {
+    [SerializeField] protected ThrowableProperties ArrowProperties;
     public bool IsArrowReleased { get; set; }
     public PlayerInfo OwnerProperties { get; set; }
     [Networked(OnChanged = nameof(OnArrowStateChange))] public NetworkBool IsObjectCollided { get; set; }
+    public LevelManager.GamePhase CurrentGamePhase { get; set; }
+
     [SerializeField] protected Rigidbody _rigidbody;
     [SerializeField] protected WeaponStats _weapon;
     [SerializeField] private ParticleSystem _bombEffect;
@@ -71,6 +74,11 @@ public class Arrow : CharacterAttackBehaviour, IThrowable
 
         if (Runner != null && Object != null && Object.IsValid)
             Runner.Despawn(Object);
+    }
+
+    public void UpdateGameStateRpc(LevelManager.GamePhase currentGameState)
+    {
+      
     }
 }
 

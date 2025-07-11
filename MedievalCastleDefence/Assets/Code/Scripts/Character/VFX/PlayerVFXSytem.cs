@@ -69,19 +69,22 @@ public class PlayerVFXSytem : CharacterRegistry
 
     private static void OnSwordTrailStateChange(Changed<PlayerVFXSytem> changed)
     {
-       
-        if (changed.Behaviour.IsTrailActive)
-        {
-           
-            changed.Behaviour._swordTrail.Play();
-        }
-        else
-        {
-            changed.Behaviour._swordTrail.Stop();
-        }
         if (changed.Behaviour._trailRenderer != null)
             changed.Behaviour._trailRenderer.enabled = changed.Behaviour.IsTrailActive;
-    }
+        if(changed.Behaviour._swordTrail != null)
+        {
+            if (changed.Behaviour.IsTrailActive)
+            {
+
+                changed.Behaviour._swordTrail.Play();
+            }
+            else
+            {
+                changed.Behaviour._swordTrail.Stop();
+            }
+
+        }
+   }
 
     [Rpc(RpcSources.All, RpcTargets.All)]
     public async void UpdateParryVFXRpc()

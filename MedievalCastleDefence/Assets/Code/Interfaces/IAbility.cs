@@ -5,6 +5,6 @@ using Fusion;
 
 public interface IAbility
 {
-    [Networked] public NetworkBool IsPlayerUseAbility { get; set; }
-    public NetworkBool IsPlayerUseAbilityLocal { get; set; }
+    [Networked] public NetworkBool IsAbilityInUse { get; set; }
+    public NetworkBool IsAbilityInUseLocal { get; set; }
 }

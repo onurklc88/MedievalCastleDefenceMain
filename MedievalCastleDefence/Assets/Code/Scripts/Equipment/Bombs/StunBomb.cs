@@ -11,8 +11,6 @@ public class StunBomb : Bomb
     {
         StartCoroutine(DestroyObject(13f));
     }
-
-
     public override void FixedUpdateNetwork()
     {
 
@@ -40,7 +38,7 @@ public class StunBomb : Bomb
         IsBombReadyToExplode = true;
 
 
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, 2.5f);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, BombProperties.AEOWidth);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
 
         foreach (var hitCollider in hitColliders)
@@ -63,10 +61,6 @@ public class StunBomb : Bomb
             if (damageable == null)
                 continue;
 
-
-            
-
-
             if (netObj.Id == OwnerProperties.PlayerID ||
                 hitCollider.transform.GetComponentInParent<PlayerStatsController>()?.PlayerTeam !=
                 OwnerProperties.PlayerTeam)
@@ -76,12 +70,5 @@ public class StunBomb : Bomb
             }
         }
     }
-    private IEnumerator DestroyObject(float delayDuration)
-    {
-        yield return new WaitForSeconds(delayDuration);
-
-        if (Runner != null && Object != null && Object.IsValid)
-            Runner.Despawn(Object);
-
-    }
+   
 }
