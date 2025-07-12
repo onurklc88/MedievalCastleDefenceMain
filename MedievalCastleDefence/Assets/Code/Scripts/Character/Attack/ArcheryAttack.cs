@@ -8,6 +8,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
     [SerializeField] private GameObject _standartArrow;
     [SerializeField] private GameObject _bombArrow;
     [SerializeField] private GameObject _stunArrow;
+    [SerializeField] private GameObject _smokeArrow;
     [SerializeField] private GameObject _lookAtTarget;
     [SerializeField] private GameObject _arrowFirePoint;
     [SerializeField] private GameObject _angle;
@@ -28,13 +29,16 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         None,
         Standart,
         Bomb,
-        Stun
+        Stun,
+        Smoke
     }
     private ArrowType _selectedArrowType;
     private const int DEFAULT_BOMB_ARROW_AMOUNT = 2;
     private const int DEFAULT_STUN_ARROW_AMOUNT = 2;
+    private const int DEFAULT_SMOKE_ARROW_AMOUNT = 2;
     private int _currentBombArrowAmount;
     private int _currentStunArrowAmount;
+    private int _currentSmokeArrowAmount;
    
     public override void Spawned()
     {
@@ -46,6 +50,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _defaultAnglePosition = _angle.transform.localPosition;
         _currentBombArrowAmount = DEFAULT_BOMB_ARROW_AMOUNT;
         _currentStunArrowAmount = DEFAULT_STUN_ARROW_AMOUNT;
+        _currentSmokeArrowAmount = DEFAULT_SMOKE_ARROW_AMOUNT;
         _selectedArrowType = ArrowType.Standart;
     }
     private void Start()
@@ -61,6 +66,8 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _playerStats = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
     }
+  
+
     public override void FixedUpdateNetwork()
     {
 
@@ -120,7 +127,6 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
 
     private void SwitchArrowType()
     {
-
         if (_selectedArrowType == ArrowType.Standart)
         {
             if (_currentBombArrowAmount > 0)
@@ -131,12 +137,20 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             {
                 _selectedArrowType = ArrowType.Stun;
             }
+            else if (_currentSmokeArrowAmount > 0)
+            {
+                _selectedArrowType = ArrowType.Smoke;
+            }
         }
         else if (_selectedArrowType == ArrowType.Bomb)
         {
             if (_currentStunArrowAmount > 0)
             {
                 _selectedArrowType = ArrowType.Stun;
+            }
+            else if (_currentSmokeArrowAmount > 0)
+            {
+                _selectedArrowType = ArrowType.Smoke;
             }
             else
             {
@@ -145,11 +159,21 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         }
         else if (_selectedArrowType == ArrowType.Stun)
         {
+            if (_currentSmokeArrowAmount > 0)
+            {
+                _selectedArrowType = ArrowType.Smoke;
+            }
+            else
+            {
+                _selectedArrowType = ArrowType.Standart;
+            }
+        }
+        else if (_selectedArrowType == ArrowType.Smoke)
+        {
             _selectedArrowType = ArrowType.Standart;
         }
 
         Debug.Log("SelectedArrowType: " + _selectedArrowType);
-
     }
 
     private void RelaseArrow()
@@ -171,6 +195,12 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             _currentStunArrowAmount -= 1;
             var arrow = Runner.Spawn(_stunArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
             arrowScript = arrow.GetComponent<StunArrow>();
+        }
+        else if(_currentSmokeArrowAmount > 0 && _selectedArrowType == ArrowType.Smoke)
+        {
+            _currentSmokeArrowAmount -= 1;
+            var arrow = Runner.Spawn(_smokeArrow, _arrowFirePoint.transform.position, _lookAtTarget.transform.rotation, Runner.LocalPlayer);
+            arrowScript = arrow.GetComponent<SmokeArrow>();
         }
         else
         {

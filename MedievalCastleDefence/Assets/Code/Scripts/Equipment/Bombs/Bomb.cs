@@ -14,7 +14,6 @@ public class Bomb : NetworkBehaviour, IThrowable
     public NetworkBool IsObjectCollided { get; set; }
     public PlayerInfo OwnerProperties { get; set; }
     public Rigidbody Rigidbody;
-    [SerializeField] protected WeaponStats _weapon;
     [SerializeField] private GameObject _interpolationTarget;
     [SerializeField] protected Collider _collison;
 

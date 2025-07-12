@@ -22,7 +22,7 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
     private float _distance = 0.35f;
 
     private Vector3 _slideDirection;
-    private const int MAX_SLIDE_CHARGE_COUNT = 10000;
+    private const int MAX_SLIDE_CHARGE_COUNT = 1;
     private bool _isRefilling = false;
 
     public override void Spawned()

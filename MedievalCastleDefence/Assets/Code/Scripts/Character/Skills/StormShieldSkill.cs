@@ -44,10 +44,6 @@ public class StormShieldSkill : CharacterRegistry, IReadInput, IAbility
 
     }
 
-    private void Update()
-    {
-        Debug.Log("AbilityInUsed: " + IsAbilityInUseLocal);
-    }
     public void ReadPlayerInputs(PlayerInputData input)
     {
         

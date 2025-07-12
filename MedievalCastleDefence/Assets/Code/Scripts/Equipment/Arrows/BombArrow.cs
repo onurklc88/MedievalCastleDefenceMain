@@ -13,7 +13,6 @@ public class BombArrow : Arrow
     {
         if (!IsArrowReleased) return;
         UpdateArrowRotation();
-
     }
 
     private void OnTriggerEnter(Collider other)

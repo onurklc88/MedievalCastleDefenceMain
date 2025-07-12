@@ -112,7 +112,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
 
     private static void NetworkedDamageAnimationStateChange(Changed<KnightCommanderAnimation> changed)
     {
-        if (changed.Behaviour.IsPlayerGetDamage == true) return;
+        if (changed.Behaviour.IsPlayerGetDamage == true && changed.Behaviour.IsPlayerHoldingBomb) return;
         {
             changed.Behaviour._animationController.Play("KnightCommander-Damage");
         }

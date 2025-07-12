@@ -16,6 +16,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkedAbilityAnimationStateChange))] public NetworkBool IsPlayerUseAbility { get; set; }
     [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
+    [Networked(OnChanged = nameof(NetworkedThrowingBombAnimationStateChange))] public NetworkBool IsPlayerHoldingBomb { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     [SerializeField] private string[] _triggerAnimations;
     [Networked] private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection { get; set; }
@@ -106,7 +107,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
 
     private static void NetworkedDamageAnimationStateChange(Changed<FootknightAnimation> changed)
     {
-       if(changed.Behaviour.IsPlayerGetDamage == true)
+       if(changed.Behaviour.IsPlayerGetDamage == true && changed.Behaviour.IsPlayerHoldingBomb)
        {
             changed.Behaviour.PlayDamageAnimation();
        }
@@ -123,6 +124,10 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour._animationController.Play("Footknight-Skill", 0);
             changed.Behaviour._animationController.Play("Footknight-Skill", 1);
         }
+    }
+    private static void NetworkedThrowingBombAnimationStateChange(Changed<FootknightAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetBool("IsPlayerHoldingBomb", changed.Behaviour.IsPlayerHoldingBomb);
     }
     private static void NetworkedStunnedAnimationStateChange(Changed<FootknightAnimation> changed)
     {
@@ -198,8 +203,12 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
     {
         _animationController.Play("foot-knight-jump");
     }
+    public override void UpdateThrowingAnimation(bool state)
+    {
+        IsPlayerHoldingBomb = state;
+    }
 
-   private void PlayDamageAnimation()
+    private void PlayDamageAnimation()
    {
         _animationController.Play("foot-kinght-Damage");
    }
