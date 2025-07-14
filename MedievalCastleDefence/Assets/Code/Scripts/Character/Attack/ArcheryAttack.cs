@@ -91,7 +91,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             SwitchArrowType();
         }
 
-        if (isPlayerAiming != _previousAimingInput && _characterCollision.IsPlayerGrounded && _canDrawArrow)
+        if (isPlayerAiming != _previousAimingInput && _characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterMovement.IsInputDisabled)
         {
             _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
         }

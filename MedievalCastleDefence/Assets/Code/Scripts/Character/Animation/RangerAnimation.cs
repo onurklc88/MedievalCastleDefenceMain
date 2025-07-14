@@ -14,8 +14,8 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkedDamageAnimationStateChange))] public NetworkBool IsPlayerGetDamage { get; set; }
     [Networked(OnChanged = nameof(NetworkedStunnedAnimationStateChange))] public NetworkBool IsPlayerStunned { get; set; }
     [Networked(OnChanged = nameof(NetworkDrawAnimationStateChange))] public NetworkBool IsPlayerDrawingBow { get; set; }
-  
-    
+
+    [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
    
@@ -110,7 +110,10 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
         changed.Behaviour._animationController.Play("StunV2_Saxon", 1);
     }
 
-
+    private static void NetworkStunExitTransitionChange(Changed<RangerAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetBool("CanStunExit", changed.Behaviour.CanStunExit);
+    }
     public string GetCurrentPlayingAnimationClipName()
     {
         AnimatorClipInfo[] clipInfo = _animationController.GetCurrentAnimatorClipInfo(1);
@@ -142,13 +145,16 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
         StartCoroutine(WaitDamageAnimation());
     }
 
-    public override void UpdateStunAnimationState(int stunDuration)
+    public async override void UpdateStunAnimationState(int stunDuration)
     {
         IsPlayerStunned = true;
-        //_opponentAttackDirection = attackDirection;
+        await UniTask.Delay(stunDuration);
+        CanStunExit = true;
+        await UniTask.Delay(50);
+        CanStunExit = false;
         StartCoroutine(WaitStunnedAnimation());
     }
-
+   
     public void UpdateDrawAnimState(bool isDraw)
     {
         IsPlayerDrawingBow = isDraw;

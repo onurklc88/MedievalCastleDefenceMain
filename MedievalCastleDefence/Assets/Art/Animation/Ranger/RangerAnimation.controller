@@ -945,6 +945,12 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
+  - m_Name: CanStunExit
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: LowerBody
@@ -1989,7 +1995,7 @@ AnimatorStateMachine:
     m_Position: {x: 520, y: -240, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5434890329916003846}
-    m_Position: {x: 590, y: 330, z: 0}
+    m_Position: {x: 540, y: 290, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2670764544292995677}
     m_Position: {x: 410, y: 190, z: 0}
