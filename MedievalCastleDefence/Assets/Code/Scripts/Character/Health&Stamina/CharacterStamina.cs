@@ -21,6 +21,8 @@ public class CharacterStamina : CharacterRegistry
     private CharacterAnimationController _characterAnim;
     private CharacterMovement _characterMovement;
     private PlayerVFXSytem _playerVFX;
+    private CharacterAttackBehaviour _characterAttack;
+    private CharacterCameraController _characterCameraController;
     private bool _isRegenerating = false;
     public override void Spawned()
     {
@@ -47,21 +49,26 @@ public class CharacterStamina : CharacterRegistry
             case CharacterStats.CharacterType.FootKnight:
                 _characterAnim = GetScript<FootknightAnimation>();
                 _playerVFX = GetScript<StormshieldVFXController>();
+                _characterAttack = GetScript<FootKnightAttack>();
                 break;
             case CharacterStats.CharacterType.Gallowglass:
                 _characterAnim = GetScript<GallowglassAnimation>();
                 _playerVFX = GetScript<BloodhandVFXController>();
+                _characterAttack = GetScript<GallowglassAttack>();
                 break;
             case CharacterStats.CharacterType.KnightCommander:
                 _playerVFX = GetScript<IronheartVFXController>();
                 _characterAnim = GetScript<KnightCommanderAnimation>();
+                _characterAttack = GetScript<KnightCommanderAttack>();
                 break;
             case CharacterStats.CharacterType.Ranger:
                 _playerVFX = GetScript<RangerVFXController>();
                 _characterAnim = GetScript<RangerAnimation>();
+                _characterAttack = GetScript<ArcheryAttack>();
                 break;
                 
         }
+        _characterCameraController = GetScript<CharacterCameraController>();
     }
 
     private void Update()
@@ -143,7 +150,9 @@ public class CharacterStamina : CharacterRegistry
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public async void StunPlayerRpc(int stunDuration)
     {
-        Debug.Log("Stun Yedi ");
+        if (_characterMovement.IsInputDisabled) return;
+        _characterCameraController.ImpulseSource.GenerateImpulseWithForce(0.2f);
+        _characterAttack.InterruptBombAction();
         _characterMovement.IsInputDisabled = true;
         _playerVFX.PlayDisabledVFXRpc();
         _characterAnim.UpdateStunAnimationState(stunDuration * 1000);

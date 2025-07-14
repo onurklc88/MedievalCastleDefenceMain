@@ -208,7 +208,17 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _bloodhandVFX.ActivateAxeTrail(false);
     }
 
-   
+    public override void InterruptBombAction()
+    {
+        if (!_characterMovement.IsInputDisabled) return;
+        _isPlayerHoldingBomb = false;
+      
+        _isBombThrown = false;
+        _gallowGlassAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
+        IsDummyBombActivated = false;
+
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

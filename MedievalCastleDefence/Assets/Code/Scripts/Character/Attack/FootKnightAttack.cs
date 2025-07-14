@@ -101,7 +101,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         }
         else
         {
-            if(_characterMovement != null && !_characterMovement.IsPlayerSlowed)
+            if(_characterMovement != null && _characterMovement.IsPlayerSlowed)
             {
                 _characterMovement.CurrentMoveSpeed = _characterStats.SprintSpeed;
             }
@@ -141,6 +141,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     }
     protected override void ThrowBomb()
     {
+        if (_characterMovement.IsInputDisabled) return;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         // Vector3 endPoint = ray.origin + ray.direction * 10f;
         IThrowable bombInterface = null;
@@ -160,8 +161,16 @@ public class FootKnightAttack : CharacterAttackBehaviour
         _isBombThrown = true;
         StartCoroutine(ResetBombStateAfterDelay(30));
     }
-   
 
+    public override void InterruptBombAction()
+    {
+        _isPlayerHoldingBomb = false;
+        _swordInput = false;
+        _isBombThrown = false;
+        _animation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
+        IsDummyBombActivated = false;
+
+    }
     private void UpdateBombVisuals()
     {
         if (_isBombThrown && !_hasResetBombAnimation)

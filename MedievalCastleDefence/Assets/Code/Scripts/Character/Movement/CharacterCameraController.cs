@@ -5,11 +5,11 @@ using Cinemachine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-
 using static BehaviourRegistry;
 
 public class CharacterCameraController : CharacterRegistry, IReadInput
 {
+    public CinemachineImpulseSource ImpulseSource { get; private set; }
     [SerializeField] private Transform _orientation;
     [SerializeField] private Transform _cameraTargetPoint;
     [SerializeField] private Transform _cameraLookAtTarget;
@@ -27,7 +27,15 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     public NetworkButtons PreviousButton { get; set; }
     private float _defaultMouseSpeed = 500f;
     private float _currentMouseSpeed;
+   
 
+  
+
+    public void TriggerEarthshatter()
+    {
+        
+        ImpulseSource.GenerateImpulseWithForce(0.15f);
+    }
     public override void Spawned()
     {
         if (HasStateAuthority)
@@ -35,6 +43,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             _cinemachineCamera = FindObjectOfType<CinemachineFreeLook>();
+            ImpulseSource = _cinemachineCamera.GetComponent<CinemachineImpulseSource>();
             _playerCamera = Camera.main;
             _uiCamera = GameObject.Find("PlayerUICamera").transform.GetComponent<Camera>();
             var cameraData = _playerCamera.GetUniversalAdditionalCameraData();
@@ -44,6 +53,15 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
             _currentMouseSpeed = _defaultMouseSpeed;
             InitScript(this);
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            Debug.Log("tessssssssssst");
+            TriggerEarthshatter();
         }
     }
 
@@ -107,8 +125,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     [Rpc(RpcSources.All, RpcTargets.All)]
     public async void RPC_ReduceMouseSpeedTemporarily()
     {
-      
-        if (!HasStateAuthority || _characterMovement.IsInputDisabled || _characterMovement.IsPlayerSlowed) return;
+       if (!HasStateAuthority || _characterMovement.IsInputDisabled || _characterMovement.IsPlayerSlowed) return;
         var defaultXSpeed = _cinemachineCamera.m_XAxis.m_MaxSpeed;
         var defaultYSpeed = _cinemachineCamera.m_YAxis.m_MaxSpeed;
         _cinemachineCamera.m_XAxis.m_MaxSpeed = _cinemachineCamera.m_XAxis.m_MaxSpeed / 4;

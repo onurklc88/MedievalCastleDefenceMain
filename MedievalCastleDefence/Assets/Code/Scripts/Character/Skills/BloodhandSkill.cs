@@ -22,6 +22,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
     [SerializeField] private float _abilityCooldown = 40f;
     private GallowglassAnimation _gallowAnimation;
     private PlayerStatsController _playerStatsController;
+    private CharacterCameraController _characterCameraController;
 
     public override void Spawned()
     {
@@ -47,6 +48,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
         _playerVFX = GetScript<BloodhandVFXController>();
         _gallowAnimation = GetScript<GallowglassAnimation>();
         _playerStatsController = GetScript<PlayerStatsController>();
+        _characterCameraController = GetScript<CharacterCameraController>();
     }
 
     private static void OnNetworkAbilityStateChange(Changed<BloodhandSkill> changed)
@@ -66,7 +68,8 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
         }
 
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && CanUseAbility)
+         //&& CanUseAbility
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill))
         {
             CanUseAbility = false;
             _characterMovement.IsInputDisabled = true;
@@ -80,7 +83,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
             await UniTask.Delay(100);
 
             _playerVFX.PlayEarthShatterVFXRpc();
-          
+            _characterCameraController.ImpulseSource.GenerateImpulseWithForce(0.15f);
             await UniTask.Delay(400);
 
             _characterMovement.IsInputDisabled = false;

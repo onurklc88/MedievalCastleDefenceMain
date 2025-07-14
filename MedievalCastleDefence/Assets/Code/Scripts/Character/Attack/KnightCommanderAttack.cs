@@ -61,7 +61,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             return; 
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
+       _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         //UpdateBombVisuals();
         if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal && !_isBombThrown)
         {
@@ -92,14 +92,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
-            
+            //_isPlayerHoldingBomb = true;
             //_characterStamina.DecreaseDefenceStaminaRPC(28f);
             //_bloodDecals.EnableRandomBloodDecal();
             //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
         }
 
-        Debug.Log("_isBombThrown: " + _isBombThrown);
+       
         PreviousButton = input.NetworkButtons;
     }
 
@@ -129,6 +129,8 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
     protected override void ThrowBomb()
     {
+        if (_characterMovement.IsInputDisabled) return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
        // Vector3 endPoint = ray.origin + ray.direction * 10f;
         IThrowable bombInterface = null;
@@ -166,6 +168,15 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             _knightCommanderAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
             _hasResetBombAnimation = false; 
         }
+    }
+
+    public override void InterruptBombAction()
+    {
+        _isPlayerHoldingBomb = false;
+        _isBombThrown = false;
+        _knightCommanderAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
+        IsDummyBombActivated = false;
+
     }
     private IEnumerator PerformAttack()
     {

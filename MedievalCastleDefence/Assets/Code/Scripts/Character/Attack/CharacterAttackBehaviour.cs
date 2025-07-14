@@ -47,10 +47,12 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     private GameObject _opponent;
     #endregion
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
+    public virtual void InterruptBombAction() { }
     protected virtual void AttackCollision() {}
     protected virtual void SwingSword() {}
     protected virtual void BlockWeapon() {}
     protected virtual void ThrowBomb() {}
+  
     private void OnEnable()
     {
         EventLibrary.OnGamePhaseChange.AddListener(UpdateGameStateRpc);
@@ -274,7 +276,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         _isBombThrown = false;
     }
 
+ 
+        
+    
 
+   
     #region Legacy
     /*
      * if (IsOpponentDead(opponentHealth.NetworkedHealth))

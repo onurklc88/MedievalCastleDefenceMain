@@ -96,7 +96,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
         }
        
-        if (_characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterHealth.IsPlayerDead && _characterStamina.CurrentAttackStamina > 30)
+        if (_characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterHealth.IsPlayerDead && _characterStamina.CurrentAttackStamina > 30 && !_characterMovement.IsInputDisabled)
         {
             if (_characterMovement.IsPlayerSlowed)
             {
@@ -178,6 +178,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
 
     private void RelaseArrow()
     {
+        if (_characterMovement.IsInputDisabled) return;
         StartDrawCooldown().Forget();
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Vector3 endPoint = ray.origin + ray.direction * 10f;
@@ -216,8 +217,16 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         arrowScript.ExecuteShot(ray.direction);
        
     }
+    public override void InterruptBombAction()
+    {
+        _isPlayerHoldingBomb = false;
+       
+        _isBombThrown = false;
+        _rangerAnimation.UpdateThrowingAnimation(false);
+        IsDummyBombActivated = false;
 
-   
+    }
+
     private void CalculateDrawDuration(bool condition)
     {
         if (!Object.HasStateAuthority) return;
