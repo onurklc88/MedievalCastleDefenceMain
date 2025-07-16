@@ -46,7 +46,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _characterController = GetComponent<CharacterController>();
         _characterType = CharacterStats.CharacterType.Ranger;
         InitScript(this);
-        _drawDuration = .3f;
+        _drawDuration = 0.02f;
         _defaultAnglePosition = _angle.transform.localPosition;
         _currentBombArrowAmount = DEFAULT_BOMB_ARROW_AMOUNT;
         _currentStunArrowAmount = DEFAULT_STUN_ARROW_AMOUNT;
@@ -115,6 +115,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         }
        
         _previousAimingInput = isPlayerAiming;
+        
       
     }
 
@@ -235,7 +236,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             _rangerAnimation.UpdateDrawAnimState(true);
             if (_drawDuration > 0)
             {
-                _drawDuration -= Time.deltaTime;
+                _drawDuration -= Runner.DeltaTime;
               
             }
         }

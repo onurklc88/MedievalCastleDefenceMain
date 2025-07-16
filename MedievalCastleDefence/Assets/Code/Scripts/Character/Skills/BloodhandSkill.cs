@@ -55,10 +55,6 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
     {
         changed.Behaviour.IsAbilityInUse = changed.Behaviour.IsAbilityInUseLocal;
     }
-    private void Update()
-    {
-        Debug.Log("IsplayerUseAbility: " + IsAbilityInUse);
-    }
     public async void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
@@ -83,7 +79,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
             await UniTask.Delay(100);
 
             _playerVFX.PlayEarthShatterVFXRpc();
-            _characterCameraController.ImpulseSource.GenerateImpulseWithForce(0.15f);
+            EventLibrary.OnImpulseRequested?.Invoke(1, 0.2f);
             await UniTask.Delay(400);
 
             _characterMovement.IsInputDisabled = false;

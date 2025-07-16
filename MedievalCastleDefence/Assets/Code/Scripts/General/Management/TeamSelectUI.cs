@@ -21,7 +21,8 @@ public class TeamSelectUI : ManagerRegistry
  
     private void CheckTeamPlayerCount()
     {
-      
+        _redTeamButton.interactable = true;
+        _blueTeamButton.interactable = true;
         var playerList = Runner.ActivePlayers.ToList();
         var redTeamPlayerCount = 0;
         var blueTeamPlayerCount = 0;
@@ -53,8 +54,9 @@ public class TeamSelectUI : ManagerRegistry
            
 
         }
+        Debug.LogError("MaxPlayerCount: " + _levelManager.MaxPlayerCount + " seats: " + _levelManager.MaxPlayerCount / 2);
         Debug.LogError("TeamSelectUI RedPlayerCount: " + redTeamPlayerCount + " BlueTeamCount: " + blueTeamPlayerCount);
-
+       
         if (redTeamPlayerCount == _levelManager.MaxPlayerCount / 2)
         {
             _redTeamButton.interactable = false;

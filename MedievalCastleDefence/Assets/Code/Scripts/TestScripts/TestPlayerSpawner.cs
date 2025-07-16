@@ -113,7 +113,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(stats);
                _currentPlayerObject.transform.GetComponentInParent<PlayerHUD>().CurrentGamePhase = _levelManager.CurrentGamePhase;
                _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
-               Debug.Log("SPAWNER ___________PlayerName: " + stats.PlayerNickName.ToString() + " PlayerWarrior: " + stats.PlayerWarrior);
+               //Debug.Log("SPAWNER ___________PlayerName: " + stats.PlayerNickName.ToString() + " PlayerWarrior: " + stats.PlayerWarrior);
 
                 if (_currentPlayerObject != null)
                 {
@@ -122,7 +122,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
                 }
                 else
                 {
-                    Debug.LogError("Failed to spawn player: " + playerRef.PlayerId);
+                    //Debug.LogError("Failed to spawn player: " + playerRef.PlayerId);
                 }
 
                 _levelManager.UpdatePlayerCountRpc(stats.PlayerTeam, true);
@@ -152,7 +152,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         //await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.RoundStart);
         if (playerRef != Runner.LocalPlayer) return;
             var isPlayerAlreadySpawned = Runner.GetPlayerObject(playerRef);
-            Debug.Log("isPlayerAlreadySpawned: " + isPlayerAlreadySpawned);
+         //   Debug.Log("isPlayerAlreadySpawned: " + isPlayerAlreadySpawned);
             if (isPlayerAlreadySpawned)
             {
                 if (Runner.TryGetPlayerObject(playerRef, out var playerNetworkObject))
@@ -171,7 +171,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     private async void SpawnDelay(PlayerRef playerRef, CharacterStats.CharacterType selectedWarrirorType)
     {
         //yield return new WaitForSeconds(0.05f);
-        Debug.LogError("EventGeldi: " + CurrentGamePhase);
+       Debug.LogError("EventGeldi: " + CurrentGamePhase);
         if (CurrentGamePhase != LevelManager.GamePhase.Warmup)
         {
             await UniTask.WaitUntil(() => CurrentGamePhase == LevelManager.GamePhase.RoundStart);
@@ -183,7 +183,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
         
         if (playerRef == Runner.LocalPlayer)
         {
-            Debug.LogError("POS BELÝRLENMESÝ ÝÇÝN GÝRDÝ");
+           // Debug.LogError("POS BELÝRLENMESÝ ÝÇÝN GÝRDÝ");
             Vector3 spawnPosition = GetRandomSpawnPosition(_oldPlayerInfo.PlayerTeam);
             switch (selectedWarrirorType)
             {
@@ -206,7 +206,7 @@ public class TestPlayerSpawner : SimulationBehaviour, IPlayerJoined, IPlayerLeft
               _oldPlayerInfo.PlayerWarrior = selectedWarrirorType;
               Runner.SetPlayerObject(playerRef, _currentPlayerObject);
               _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().SetPlayerInfo(_oldPlayerInfo);
-                Debug.LogError("SpawnerPhase: " + CurrentGamePhase);
+               // Debug.LogError("SpawnerPhase: " + CurrentGamePhase);
             _currentPlayerObject.transform.GetComponentInParent<PlayerStatsController>().UpdateGameStateRpc(CurrentGamePhase);
             if (CurrentGamePhase != LevelManager.GamePhase.Warmup)
             {

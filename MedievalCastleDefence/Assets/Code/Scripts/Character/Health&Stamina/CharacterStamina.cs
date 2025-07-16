@@ -151,8 +151,8 @@ public class CharacterStamina : CharacterRegistry
     public async void StunPlayerRpc(int stunDuration)
     {
         if (_characterMovement.IsInputDisabled) return;
-        _characterCameraController.ImpulseSource.GenerateImpulseWithForce(0.2f);
-        _characterAttack.InterruptBombAction();
+        EventLibrary.OnImpulseRequested?.Invoke(1, 0.2f);
+       _characterAttack.InterruptBombAction();
         _characterMovement.IsInputDisabled = true;
         _playerVFX.PlayDisabledVFXRpc();
         _characterAnim.UpdateStunAnimationState(stunDuration * 1000);

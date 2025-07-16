@@ -9,7 +9,6 @@ using static BehaviourRegistry;
 
 public class CharacterCameraController : CharacterRegistry, IReadInput
 {
-    public CinemachineImpulseSource ImpulseSource { get; private set; }
     [SerializeField] private Transform _orientation;
     [SerializeField] private Transform _cameraTargetPoint;
     [SerializeField] private Transform _cameraLookAtTarget;
@@ -28,14 +27,6 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
     private float _defaultMouseSpeed = 500f;
     private float _currentMouseSpeed;
    
-
-  
-
-    public void TriggerEarthshatter()
-    {
-        
-        ImpulseSource.GenerateImpulseWithForce(0.15f);
-    }
     public override void Spawned()
     {
         if (HasStateAuthority)
@@ -43,7 +34,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             _cinemachineCamera = FindObjectOfType<CinemachineFreeLook>();
-            ImpulseSource = _cinemachineCamera.GetComponent<CinemachineImpulseSource>();
+           
             _playerCamera = Camera.main;
             _uiCamera = GameObject.Find("PlayerUICamera").transform.GetComponent<Camera>();
             var cameraData = _playerCamera.GetUniversalAdditionalCameraData();
@@ -53,15 +44,6 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
             _currentMouseSpeed = _defaultMouseSpeed;
             InitScript(this);
-        }
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            Debug.Log("tessssssssssst");
-            TriggerEarthshatter();
         }
     }
 

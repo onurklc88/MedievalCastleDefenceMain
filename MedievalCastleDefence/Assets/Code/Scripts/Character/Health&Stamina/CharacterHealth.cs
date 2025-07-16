@@ -84,7 +84,7 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
         {
             _playerVFX.PlayBloodVFX();
         }
-       
+      
         EventLibrary.OnPlayerTakeDamage.Invoke();
         ResetHitStatus().Forget();
         if (_localHealth <= 0)
@@ -118,7 +118,10 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     }
     private async UniTaskVoid ResetHitStatus()
     {
-        await UniTask.Delay(500);
+        await UniTask.Delay(100);
+        EventLibrary.OnImpulseRequested.Invoke(0, 0.17f);
+        await UniTask.Delay(400);
+    
         IsPlayerGotHit = false;
     }
     public void DestroyObject() { }
