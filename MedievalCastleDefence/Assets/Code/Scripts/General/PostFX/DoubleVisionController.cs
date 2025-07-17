@@ -36,10 +36,7 @@ public class DoubleVisionController : MonoBehaviour
         }
 
 
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            ActivateEffect();
-        }
+       
     }
 
     public void ActivateEffect()
@@ -55,12 +52,5 @@ public class DoubleVisionController : MonoBehaviour
         }
     }
 
-    // Test için
-    private void OnGUI()
-    {
-        if (GUI.Button(new Rect(10, 10, 150, 30), "Stun Effect"))
-        {
-            ActivateEffect();
-        }
-    }
+    
 }
