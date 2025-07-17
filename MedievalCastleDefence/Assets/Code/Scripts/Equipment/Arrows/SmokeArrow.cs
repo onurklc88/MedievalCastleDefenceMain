@@ -23,7 +23,7 @@ public class SmokeArrow : Arrow
         _rigidbody.isKinematic = true;
         transform.rotation = Quaternion.identity;
 
-        RPC_SetEffectPosition(new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z));
+        RPC_SetEffectPosition(new Vector3(transform.position.x, transform.position.y, transform.position.z));
         
     }
 }

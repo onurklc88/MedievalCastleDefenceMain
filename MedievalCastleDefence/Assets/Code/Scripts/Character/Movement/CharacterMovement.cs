@@ -170,6 +170,8 @@ public class CharacterMovement : CharacterRegistry, IReadInput
         if (!HasStateAuthority || _isInputDisabled || IsPlayerSlowed) return;
       
         IsPlayerSlowed = true;
+        EventLibrary.OnplayerStunned.Invoke();
+        EventLibrary.OnImpulseRequested.Invoke(2, 0.4f);
         CurrentMoveSpeed = CurrentMoveSpeed / 2;
         _animController.ChangeAnimationSpeed(true);
         await UniTask.Delay(2500);

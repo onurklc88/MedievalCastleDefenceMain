@@ -47,14 +47,16 @@ public class FootKnightAttack : CharacterAttackBehaviour
     }
     private static void OnSwordStateChangedNetwork(Changed<FootKnightAttack> changed)
     {
-        
-        if (!changed.Behaviour._swordInput)
+        var behaviour = changed.Behaviour;
+
+        // Eðer bomba ATILDIYSA kýlýcý ZORLA AÇ (true döndür)
+        if (behaviour._isBombThrown)
         {
-            changed.Behaviour._sword.SetActive(true);
+            behaviour._sword.SetActive(true);
         }
-        else
+        else // Normal durumda _swordInput'a göre hareket et
         {
-            changed.Behaviour._sword.SetActive(false);
+            behaviour._sword.SetActive(!behaviour._swordInput);
         }
     }
     public override void ReadPlayerInputs(PlayerInputData input)
@@ -67,7 +69,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             return;
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         //IsPlayerBlockingLocal = true;
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         _swordInput = _isPlayerHoldingBomb;
@@ -113,7 +115,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         {
             //_characterStamina.DecreaseDefenceStaminaRPC(50f);
             //transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
-            IsPlayerBlockingLocal = true;
+            //IsPlayerBlockingLocal = true;
             //_activeRagdoll.RPCActivateRagdoll();
         }
 

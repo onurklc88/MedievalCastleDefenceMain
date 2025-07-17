@@ -11,6 +11,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private CharacterMovement _characterMovement;
     private ActiveRagdoll _ragdollManager;
     private PlayerVFXSytem _playerVFXSystem;
+    private KnightCommanderSkill _kcSkill;
    
     private int _lockedBlockDirection = 0;
     private int _lastBlockDirection = 0;
@@ -39,6 +40,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
         _characterCollision = GetScript<CharacterCollision>();
+        _kcSkill = GetScript<KnightCommanderSkill>();
         _defaultThrowDuration = 0.1f;
         _throwDuration = _defaultThrowDuration;
     }
@@ -109,7 +111,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     protected override void SwingSword()
     {
-        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded || _isPlayerHoldingBomb) return;
+        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded || _isPlayerHoldingBomb || _kcSkill.IsAbilityInUseLocal) return;
       
         if (_characterMovement.IsPlayerSlowed)
         {

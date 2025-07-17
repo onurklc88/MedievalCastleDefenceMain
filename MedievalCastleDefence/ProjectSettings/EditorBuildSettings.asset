@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/VersusMode 1.unity
     guid: 262f8fce1a407624db53fe6ae69f5cc1
   - enabled: 0
-    path: Assets/Scenes/Prototype.unity
+    path: Assets/Scenes/Test/Prototype.unity
     guid: 967022ef3909eb147a192fb374d6c727
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
