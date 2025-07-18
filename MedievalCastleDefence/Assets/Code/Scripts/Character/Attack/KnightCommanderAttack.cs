@@ -185,7 +185,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerVFXSystem.ActivateSwordTrail(true);
         yield return new WaitForSeconds(0.27f);
         float elapsedTime = 0f;
-        while (elapsedTime < 0.5f)
+        while (elapsedTime < 0.4f)
         {
            
             Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
@@ -201,7 +201,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
                 CheckAttackCollision(target.transform.gameObject);
                 break;
             }
-
+          
             elapsedTime += Time.deltaTime;
             yield return null; 
         }

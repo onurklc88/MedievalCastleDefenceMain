@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sword-Falshion 1
   m_EditorClassIdentifier: 
   TimeBetweenSwings: 1
-  Damage: 25
+  Damage: 30
   StaminaWaste: 25
   WeaponStaminaReductionOnParry: 30
   SkillCooldown: 0

@@ -112,11 +112,12 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     }
     private static void NetworkedUpperbodyBlockAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
-        changed.Behaviour._animationController.SetInteger("BlockIndex", changed.Behaviour.BlockIndex);
+       changed.Behaviour._animationController.SetInteger("BlockIndex", changed.Behaviour.BlockIndex);
     }
 
     private static void NetworkedThrowingBombAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
+       
         changed.Behaviour._animationController.SetBool("IsPlayerHoldingBomb", changed.Behaviour.IsPlayerHoldingBomb);
     }
     private static void NetworkAttackAnimationStateChange(Changed<GallowglassAnimation> changed)
