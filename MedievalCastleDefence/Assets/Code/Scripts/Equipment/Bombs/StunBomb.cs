@@ -9,6 +9,7 @@ public class StunBomb : Bomb
 
     public override void Spawned()
     {
+        Invoke("EnableCollision", 0.2f);
         StartCoroutine(DestroyObject(13f));
     }
     public override void FixedUpdateNetwork()

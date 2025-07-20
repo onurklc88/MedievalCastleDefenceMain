@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sword-Executioner
   m_EditorClassIdentifier: 
   TimeBetweenSwings: 1
-  Damage: 40
+  Damage: 45
   StaminaWaste: 20
   WeaponStaminaReductionOnParry: 30
   SkillCooldown: 0

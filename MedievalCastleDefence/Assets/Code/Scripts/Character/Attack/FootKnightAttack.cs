@@ -33,8 +33,6 @@ public class FootKnightAttack : CharacterAttackBehaviour
        _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
         _characterCollision = GetScript<CharacterCollision>();
-        _defaultThrowDuration = 0.1f;
-        _throwDuration = _defaultThrowDuration;
     }
     public override void FixedUpdateNetwork()
     {
@@ -49,12 +47,12 @@ public class FootKnightAttack : CharacterAttackBehaviour
     {
         var behaviour = changed.Behaviour;
 
-        // Eðer bomba ATILDIYSA kýlýcý ZORLA AÇ (true döndür)
+       
         if (behaviour._isBombThrown)
         {
             behaviour._sword.SetActive(true);
         }
-        else // Normal durumda _swordInput'a göre hareket et
+        else 
         {
             behaviour._sword.SetActive(!behaviour._swordInput);
         }
@@ -74,10 +72,11 @@ public class FootKnightAttack : CharacterAttackBehaviour
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         _swordInput = _isPlayerHoldingBomb;
         //UpdateBombVisuals();
-        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal && !_isBombThrown)
+        if (!_isPlayerHoldingBomb && !IsPlayerBlockingLocal && !_isBombThrown && _wasHoldingLastFrame)
         {
             ThrowBomb();
         }
+        _wasHoldingLastFrame = _isPlayerHoldingBomb;
         if (_animation != null)
             _animation.IsPlayerParry = IsPlayerBlockingLocal;
 
@@ -115,7 +114,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         {
             //_characterStamina.DecreaseDefenceStaminaRPC(50f);
             //transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
-            //IsPlayerBlockingLocal = true;
+           // IsPlayerBlockingLocal = true;
             //_activeRagdoll.RPCActivateRagdoll();
         }
 

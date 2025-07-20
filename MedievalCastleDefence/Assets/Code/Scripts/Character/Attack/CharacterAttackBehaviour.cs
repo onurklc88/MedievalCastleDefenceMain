@@ -40,10 +40,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     private SwordPosition _lastSwordPosition;
     private float _movementTreshold = 0.25f;
     #region Throwable
-    protected float _throwDuration;
-    protected float _defaultThrowDuration;
     protected bool _isBombThrown;
-    private bool _wasHoldingLastFrame;
+    protected bool _wasHoldingLastFrame;
     private GameObject _opponent;
     #endregion
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
@@ -205,30 +203,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
         _opponent = null;
     }
-
-    protected bool HandleThrowDuration(bool isHolding)
-    {
-        if (!Object.HasStateAuthority) return false;
-
-        
-        if (isHolding)
-        {
-            _throwDuration -= Time.deltaTime;
-            _wasHoldingLastFrame = true;
-            return false;
-        }
-
-        
-        if (_wasHoldingLastFrame)
-        {
-            _wasHoldingLastFrame = false;
-            bool ready = _throwDuration <= 0f;
-            _throwDuration = _defaultThrowDuration;
-            return ready;
-        }
-
-        return false;
-    }
     protected SwordPosition GetSwordPosition() 
     {
        float mouseX = Input.GetAxis("Mouse X");
@@ -276,11 +250,11 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         _isBombThrown = false;
     }
 
- 
-        
-    
 
-   
+
+
+
+
     #region Legacy
     /*
      * if (IsOpponentDead(opponentHealth.NetworkedHealth))
@@ -303,6 +277,31 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         Debug.Log("Test: " + opponentHealth);
         return (opponentHealth - _weaponStats.Damage) <= 0;
     }
-    */
+   
+
+    protected bool HandleThrowDuration(bool isHolding)
+    {
+        if (!Object.HasStateAuthority) return false;
+
+
+        if (isHolding)
+        {
+            _throwDuration -= Time.deltaTime;
+            _wasHoldingLastFrame = true;
+            return false;
+        }
+
+
+        if (_wasHoldingLastFrame)
+        {
+            _wasHoldingLastFrame = false;
+            bool ready = _throwDuration <= 0f;
+            _throwDuration = _defaultThrowDuration;
+            return ready;
+        }
+
+        return false;
+    }
+     */
     #endregion
 }

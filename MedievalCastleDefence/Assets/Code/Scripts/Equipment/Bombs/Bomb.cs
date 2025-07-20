@@ -42,4 +42,8 @@ public class Bomb : NetworkBehaviour, IThrowable
         if (Runner != null && Object != null && Object.IsValid)
             Runner.Despawn(Object);
     }
+    protected void EnableCollision()
+    {
+        _collison.isTrigger = true;
+    }
 }

@@ -84,7 +84,7 @@ public class CharacterStamina : CharacterRegistry
         {
             IncreaseCharacterDefenceStamina();
         }
-     }
+    }
     public void DecreaseCharacterAttackStamina(float value)
     {
         if (!Object.HasStateAuthority) return;
@@ -153,6 +153,7 @@ public class CharacterStamina : CharacterRegistry
         if (_characterMovement.IsInputDisabled) return;
         EventLibrary.OnImpulseRequested?.Invoke(1, 0.2f);
        _characterAttack.InterruptBombAction();
+        _characterAttack.IsPlayerBlockingLocal = false;
         _characterMovement.IsInputDisabled = true;
         _playerVFX.PlayDisabledVFXRpc();
         _characterAnim.UpdateStunAnimationState(stunDuration * 1000);

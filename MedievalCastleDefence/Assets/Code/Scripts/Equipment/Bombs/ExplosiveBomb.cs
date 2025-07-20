@@ -6,6 +6,7 @@ public class ExplosiveBomb : Bomb
 {
     public override void Spawned()
     {
+        Invoke("EnableCollision", 0.2f);
         StartCoroutine(DestroyObject(13f));
     }
     public override void FixedUpdateNetwork()
@@ -29,6 +30,7 @@ public class ExplosiveBomb : Bomb
     private void TriggerExplosiveBomb(Vector3 explosionPosition)
     {
         if (IsObjectCollided) return;
+        
 
         IsObjectCollided = true;
         Rigidbody.isKinematic = true;

@@ -9,10 +9,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private PlayerHUD _playerHUD;
     private KnightCommanderAnimation _knightCommanderAnimation;
     private CharacterMovement _characterMovement;
-    private ActiveRagdoll _ragdollManager;
     private PlayerVFXSytem _playerVFXSystem;
-    private KnightCommanderSkill _kcSkill;
-   
     private int _lockedBlockDirection = 0;
     private int _lastBlockDirection = 0;
     [SerializeField] private GameObject _explosiveBomb;
@@ -40,9 +37,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
         _characterCollision = GetScript<CharacterCollision>();
-        _kcSkill = GetScript<KnightCommanderSkill>();
-        _defaultThrowDuration = 0.1f;
-        _throwDuration = _defaultThrowDuration;
     }
     public override void FixedUpdateNetwork()
     {
@@ -65,14 +59,15 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
        _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         //UpdateBombVisuals();
-        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal && !_isBombThrown)
+        if (!_isPlayerHoldingBomb && !IsPlayerBlockingLocal && !_isBombThrown && _wasHoldingLastFrame)
         {
             ThrowBomb();
         }
-       
+        _wasHoldingLastFrame = _isPlayerHoldingBomb;
+
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
        
-      IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
       
       
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
@@ -111,7 +106,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     }
     protected override void SwingSword()
     {
-        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded || _isPlayerHoldingBomb || _kcSkill.IsAbilityInUseLocal) return;
+        if (IsPlayerBlockingLocal || !_characterCollision.IsPlayerGrounded || _isPlayerHoldingBomb) return;
       
         if (_characterMovement.IsPlayerSlowed)
         {

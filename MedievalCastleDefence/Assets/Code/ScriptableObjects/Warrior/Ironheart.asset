@@ -15,7 +15,7 @@ MonoBehaviour:
   WarriorType: 2
   MoveSpeed: 4
   SprintSpeed: 5.5
-  TotalHealth: 90
+  TotalHealth: 110
   AttackStamina: 100
   DefenceStamina: 90
   KnockbackStaminaLimit: 30

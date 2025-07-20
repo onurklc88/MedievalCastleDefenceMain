@@ -40,9 +40,6 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _bloodhandSkill = GetScript<BloodhandSkill>();
         _characterHealth = GetScript<CharacterHealth>();
         _characterCollision = GetScript<CharacterCollision>();
-        _defaultThrowDuration = 0.1f;
-        _throwDuration = _defaultThrowDuration;
-
     }
     public override void FixedUpdateNetwork()
     {
@@ -53,7 +50,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
             ReadPlayerInputs(input);
         }
     }
-
+  
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
@@ -70,10 +67,12 @@ public class GallowglassAttack : CharacterAttackBehaviour
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         UpdateBombVisuals();
-        if (HandleThrowDuration(_isPlayerHoldingBomb) && !IsPlayerBlockingLocal && !_isBombThrown)
+        if (!_isPlayerHoldingBomb && !IsPlayerBlockingLocal && !_isBombThrown && _wasHoldingLastFrame)
         {
             ThrowBomb();
         }
+        _wasHoldingLastFrame = _isPlayerHoldingBomb;
+
         //Debug.Log("_isPlayerHoldingBomb: " + _isPlayerHoldingBomb);
 
         if (wasBlocking && !IsPlayerBlockingLocal)
@@ -107,10 +106,14 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private void LateUpdate()
     {
         UpdateBombVisuals();
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            _gallowGlassAnimation.UpdateDamageAnimationState();
+        }
     }
     private void UpdateBombVisuals()
     {
-        if(!IsPlayerBlockingLocal && !_isBombThrown && _gallowGlassAnimation != null)
+        if(!IsPlayerBlockingLocal && _gallowGlassAnimation != null && !_isBombThrown)
         {
             IsDummyBombActivated = _isPlayerHoldingBomb;
             _gallowGlassAnimation.UpdateThrowingAnimation(_isPlayerHoldingBomb);
@@ -119,7 +122,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
     protected override void BlockWeapon()
     {
-        if (IsPlayerBlocking)
+        if (IsPlayerBlocking && !_isPlayerHoldingBomb)
         {
             int currentDirection = (int)GetSwordPosition();
 

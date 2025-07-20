@@ -92,10 +92,10 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Intensity: 0.010374391
+    - _Intensity: 0.011361802
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _Offset: 0.00017290651
+    - _Offset: 0.00018936336
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
