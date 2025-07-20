@@ -42,8 +42,7 @@ public class PlayerStatsController : CharacterRegistry, IRPCListener
   
     public void SetPlayerInfo(PlayerInfo playerInfo)
     {
-       
-        if (!Object.HasStateAuthority) return;
+       if (!Object.HasStateAuthority) return;
         PlayerLocalStats = playerInfo;
         PlayerTeam = playerInfo.PlayerTeam;
         _playerTeam = PlayerTeam;

@@ -90,6 +90,7 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
       
         if (utilityButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill))
         {
+            if (_characterMovement.IsInputDisabled) return;
            Vector3 direction = new Vector3(input.HorizontalInput, 0f, input.VerticalInput);
 
             if (direction.sqrMagnitude < 0.1f)

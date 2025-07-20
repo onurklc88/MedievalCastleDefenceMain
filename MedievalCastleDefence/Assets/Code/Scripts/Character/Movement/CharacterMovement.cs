@@ -95,11 +95,14 @@ public class CharacterMovement : CharacterRegistry, IReadInput
       
     }
 
-    
+
     private void CalculateCurrentSpeed(PlayerInputData input)
     {
         if (IsPlayerSlowed) return;
-        float targetSpeed = (input.VerticalInput > 0 || input.HorizontalInput != 0) ? _characterStats.SprintSpeed : _characterStats.MoveSpeed;
+
+        // Sadece ileri giderken sprint hızını hedefle
+        bool canSprint = input.VerticalInput >= 0 && (input.VerticalInput > 0 || input.HorizontalInput != 0);
+        float targetSpeed = canSprint ? _characterStats.SprintSpeed : _characterStats.MoveSpeed;
 
         if (targetSpeed == _characterStats.SprintSpeed)
         {
@@ -111,6 +114,9 @@ public class CharacterMovement : CharacterRegistry, IReadInput
             _elapsedTime = 0f;
             CurrentMoveSpeed = _characterStats.MoveSpeed;
         }
+
+
+       
     }
 
     private void HandleMovement(PlayerInputData input)
