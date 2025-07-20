@@ -163,7 +163,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         StartCoroutine(ResetBombStateAfterDelay(30));
     }
 
-    public override void InterruptBombAction()
+    public override void InterruptEnemyAction()
     {
         _isPlayerHoldingBomb = false;
         _swordInput = false;

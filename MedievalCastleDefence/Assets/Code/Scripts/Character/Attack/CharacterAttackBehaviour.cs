@@ -45,7 +45,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     private GameObject _opponent;
     #endregion
     public virtual void ReadPlayerInputs(PlayerInputData input) { }
-    public virtual void InterruptBombAction() { }
+    public virtual void InterruptEnemyAction() { }
     protected virtual void AttackCollision() {}
     protected virtual void SwingSword() {}
     protected virtual void BlockWeapon() {}

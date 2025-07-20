@@ -36,7 +36,7 @@ public class StunArrow : Arrow
         IsObjectCollided = true;
 
 
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, ArrowProperties.AEOWidth);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, ArrowProperties.AOEWidth);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
 
         foreach (var hitCollider in hitColliders)

@@ -6,7 +6,7 @@ using static BehaviourRegistry;
 public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
 {
     [Networked(OnChanged = nameof(OnNetworkDashStateChange))] public NetworkBool IsAbilityInUseLocal { get; set; }
-   
+
     [Networked] public NetworkBool IsAbilityInUse { get; set; }
     public int SlideCharges { get; set; }
     public NetworkButtons PreviousButton { get; set; }
@@ -18,24 +18,24 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     private Rigidbody _rigidbody;
     private CharacterMovement _characterMovement;
     private bool _canPlayerDash;
-   
+
 
     private int _slideChargeCount;
     private float _duration = 0.2f;
     private float _distance = 0.35f;
-  
+
     private Vector3 _slideDirection;
     private const int MAX_SLIDE_CHARGE_COUNT = 3;
     private bool _isRefilling = false;
-   
+
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
         _rigidbody = GetComponent<Rigidbody>();
         InitScript(this);
         if (!Runner.IsSharedModeMasterClient)
-             _distance = 0.17f;
-        
+            _distance = 0.17f;
+
     }
 
     private void Start()
@@ -55,15 +55,21 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
-        
-            if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
-            {
-               ReadPlayerInputs(input);
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            _characterStamina.StunPlayerRpc(3);
+        }
+
+
+        if (Runner.TryGetInputForPlayer<PlayerInputData>(Runner.LocalPlayer, out var input) && !_characterMovement.IsInputDisabled)
+        {
+            ReadPlayerInputs(input);
             //Debug.Log("IsplayerDashLocal: " + IsPlayerUseAbility);
-            }
-        
+        }
+
     }
-    
+
     private static void OnNetworkDashStateChange(Changed<KnightCommanderSkill> changed)
     {
         changed.Behaviour.IsAbilityInUse = changed.Behaviour.IsAbilityInUseLocal;
@@ -100,14 +106,14 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
 
             _slideDirection = transform.TransformDirection(direction.normalized);
             ActivateUtilitySkill();
-           
+
         }
         PreviousButton = input.NetworkButtons;
 
     }
     private void ActivateUtilitySkill()
     {
-        if(_slideChargeCount > 0 && _characterStamina.CurrentAttackStamina > 10)
+        if (_slideChargeCount > 0 && _characterStamina.CurrentAttackStamina > 10)
         {
             _canPlayerDash = false;
             _slideChargeCount -= 1;
@@ -122,18 +128,18 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
         }
         else
         {
-           // Debug.Log("No slide charges left! Waiting for recharge...");
+            // Debug.Log("No slide charges left! Waiting for recharge...");
         }
     }
-   
+
     private async UniTaskVoid RechargeSlideAsync()
     {
-        _isRefilling = true; 
+        _isRefilling = true;
 
-        while (_slideChargeCount < 3) 
+        while (_slideChargeCount < 3)
         {
             await UniTask.Delay(5000);
-            _slideChargeCount += 1; 
+            _slideChargeCount += 1;
             _playerHUD.UpdateSlideChargeCount(_slideChargeCount);
         }
 
@@ -145,35 +151,53 @@ public class KnightCommanderSkill : CharacterRegistry, IReadInput, IAbility
     private async UniTaskVoid SlideCharacter(Vector3 direction)
     {
         if (IsAbilityInUseLocal) return;
-        
+
         if (_slideChargeCount < 0) return;
+
         IsAbilityInUseLocal = true;
-        _characterVFX.ActivateSwordTrail(IsAbilityInUseLocal);
-        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
-       
+        _characterVFX.ActivateSwordTrail(true);
+        EventLibrary.OnPlayerDash.Invoke(true);
+
         float elapsedTime = 0f;
-        float forceMultiplier = 1700f; 
-        float duration = 0.3f; 
+        float forceMultiplier = 1700f;
+        float duration = 0.3f;
+        bool wasInterrupted = false;
 
-        while (elapsedTime < duration)
+        try
         {
-            // Kuvveti kademeli azalt (elapsedTime ile ters orantýlý)
-            float currentForce = forceMultiplier * (1 - (elapsedTime / duration));
-            _rigidbody.AddForce(direction * currentForce, ForceMode.Acceleration);
+            while (elapsedTime < duration && !wasInterrupted)
+            {
+                if (_characterMovement.IsInputDisabled)
+                {
+                    wasInterrupted = true;
+                   
+                    break;
+                }
 
-            elapsedTime += Runner.DeltaTime;
-            await UniTask.Yield();
+                float currentForce = forceMultiplier * (1 - (elapsedTime / duration));
+                _rigidbody.AddForce(direction * currentForce, ForceMode.Acceleration);
+
+                elapsedTime += Runner.DeltaTime;
+                await UniTask.Yield();
+            }
         }
-      
-        await UniTask.Delay(200);
-        IsAbilityInUseLocal = false;
-        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
-        _canPlayerDash = true;
-        await UniTask.Delay(500);
-       
-        _characterVFX.ActivateSwordTrail(IsAbilityInUseLocal);
+        finally
+        {
+            // Fiziksel kuvvetleri sýfýrla
+            if (wasInterrupted)
+            {
+                _rigidbody.velocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+
+            await UniTask.Delay(200);
+            IsAbilityInUseLocal = false;
+            EventLibrary.OnPlayerDash.Invoke(false);
+            _canPlayerDash = true;
+            await UniTask.Delay(500);
+            _characterVFX.ActivateSwordTrail(false);
+        }
+
 
     }
-
-
 }

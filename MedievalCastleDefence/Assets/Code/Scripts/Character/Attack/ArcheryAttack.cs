@@ -90,8 +90,8 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         {
             SwitchArrowType();
         }
-
-        if (isPlayerAiming != _previousAimingInput && _characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterMovement.IsInputDisabled)
+       // isPlayerAiming != _previousAimingInput &&
+        if (_characterCollision.IsPlayerGrounded && _canDrawArrow && !_characterMovement.IsInputDisabled)
         {
             _rangerAnimationRigging.IsPlayerAiming = isPlayerAiming;
         }
@@ -100,9 +100,11 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         {
             if (_characterMovement.IsPlayerSlowed)
             {
+                
                 if (_rangerAnimation.GetCurrentAnimationState("UpperBody") == "Slowed1") return;
             }
             UpdateTargetPosition();
+            Debug.Log("isPlayerAiming: " + isPlayerAiming);
             _camController.UpdateCameraPriority(isPlayerAiming);
             // UpdateTargetPosition();
             _angle.transform.localPosition = isPlayerAiming ? _aimingAnglePosition : _defaultAnglePosition;
@@ -114,7 +116,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             _activeRagdoll.RPCActivateRagdoll();
         }
        
-        _previousAimingInput = isPlayerAiming;
+       // _previousAimingInput = isPlayerAiming;
         
       
     }
@@ -218,10 +220,12 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         arrowScript.ExecuteShot(ray.direction);
        
     }
-    public override void InterruptBombAction()
+    public override void InterruptEnemyAction()
     {
         _isPlayerHoldingBomb = false;
-       
+        _camController.UpdateCameraPriority(false);
+        _playerHUD.UpdateAimTargetState(false);
+        CalculateDrawDuration(false);
         _isBombThrown = false;
         _rangerAnimation.UpdateThrowingAnimation(false);
         IsDummyBombActivated = false;

@@ -35,6 +35,14 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
 
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            _characterStamina.StunPlayerRpc(3);
+        }
+    }
+
     private void Start()
     {
         _characterMovement = GetScript<CharacterMovement>();
@@ -143,30 +151,50 @@ public class TheSaxonMarkSkill : CharacterRegistry, IReadInput, IAbility
         if (IsAbilityInUseLocal) return;
 
         if (_slideChargeCount < 0) return;
+
         IsAbilityInUseLocal = true;
-        _characterVFX.ActivateSwordTrail(IsAbilityInUseLocal);
-        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
+        _characterVFX.ActivateSwordTrail(true);
+        EventLibrary.OnPlayerDash.Invoke(true);
 
         float elapsedTime = 0f;
         float forceMultiplier = 1700f;
         float duration = 0.3f;
+        bool wasInterrupted = false;
 
-        while (elapsedTime < duration)
+        try
         {
-            // Kuvveti kademeli azalt (elapsedTime ile ters orantýlý)
-            float currentForce = forceMultiplier * (1 - (elapsedTime / duration));
-            _rigidbody.AddForce(direction * currentForce, ForceMode.Acceleration);
+            while (elapsedTime < duration && !wasInterrupted)
+            {
+               
+                if (_characterMovement != null && _characterMovement.IsInputDisabled)
+                {
+                    wasInterrupted = true;
+                    Debug.Log("Slide interrupted by input disable");
+                    break;
+                }
 
-            elapsedTime += Runner.DeltaTime;
-            await UniTask.Yield();
+                float currentForce = forceMultiplier * (1 - (elapsedTime / duration));
+                _rigidbody.AddForce(direction * currentForce, ForceMode.Acceleration);
+
+                elapsedTime += Runner.DeltaTime;
+                await UniTask.Yield();
+            }
         }
-        _characterVFX.ActivateSwordTrail(false);
-        await UniTask.Delay(200);
-        IsAbilityInUseLocal = false;
-        EventLibrary.OnPlayerDash.Invoke(IsAbilityInUseLocal);
-        await UniTask.Delay(500);
+        finally
+        {
+            
+            if (wasInterrupted)
+            {
+                _rigidbody.velocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
 
-      
-
+            // Temizlik iþlemleri
+            _characterVFX.ActivateSwordTrail(false);
+            await UniTask.Delay(200);
+            IsAbilityInUseLocal = false;
+            EventLibrary.OnPlayerDash.Invoke(false);
+            await UniTask.Delay(500);
+        }
     }
 }

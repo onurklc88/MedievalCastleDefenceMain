@@ -101,12 +101,11 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour._animationController.Play("mixamo_com");
         }
     }
-
+   
     private static void NetworkedStunnedAnimationStateChange(Changed<RangerAnimation> changed)
     {
         if (changed.Behaviour.IsPlayerStunned == false) return;
-
-
+        changed.Behaviour._animationController.Play("StunV2_Saxon", 0);
         changed.Behaviour._animationController.Play("StunV2_Saxon", 1);
     }
 
@@ -149,7 +148,7 @@ public class RangerAnimation : CharacterAnimationController, IReadInput
         IsPlayerStunned = true;
         await UniTask.Delay(stunDuration);
         CanStunExit = true;
-        await UniTask.Delay(50);
+        await UniTask.Delay(500);
         CanStunExit = false;
         StartCoroutine(WaitStunnedAnimation());
     }

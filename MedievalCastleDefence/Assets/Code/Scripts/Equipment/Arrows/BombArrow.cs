@@ -32,7 +32,7 @@ public class BombArrow : Arrow
         //_bombEffect.transform.position = new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z);
         RPC_SetEffectPosition(new Vector3(explosionPosition.x, explosionPosition.y + 1.2f, explosionPosition.z));
         
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, ArrowProperties.AEOWidth);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, ArrowProperties.AOEWidth);
         DrawSphere(explosionPosition, 4f, Color.red, 2f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
        

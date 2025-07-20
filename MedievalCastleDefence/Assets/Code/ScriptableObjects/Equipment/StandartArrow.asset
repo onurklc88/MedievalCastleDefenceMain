@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: StandartArrow
   m_EditorClassIdentifier: 
   AEOWidth: 0
-  Damage: 20
+  Damage: 30

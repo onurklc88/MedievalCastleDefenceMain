@@ -42,7 +42,7 @@ public class ExplosiveBomb : Bomb
         IsBombReadyToExplode = true;
 
 
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, BombProperties.AEOWidth);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, BombProperties.AOEWidth);
         DrawSphere(explosionPosition, 3f, Color.red, 2f);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
 

@@ -167,7 +167,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         }
     }
 
-    public override void InterruptBombAction()
+    public override void InterruptEnemyAction()
     {
         _isPlayerHoldingBomb = false;
         _isBombThrown = false;

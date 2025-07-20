@@ -152,7 +152,7 @@ public class CharacterStamina : CharacterRegistry
     {
         if (_characterMovement.IsInputDisabled) return;
         EventLibrary.OnImpulseRequested?.Invoke(1, 0.2f);
-       _characterAttack.InterruptBombAction();
+       _characterAttack.InterruptEnemyAction();
         _characterAttack.IsPlayerBlockingLocal = false;
         _characterMovement.IsInputDisabled = true;
         _playerVFX.PlayDisabledVFXRpc();

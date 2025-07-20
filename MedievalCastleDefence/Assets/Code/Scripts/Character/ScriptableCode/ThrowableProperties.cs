@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class ThrowableProperties : ScriptableObject
 {
-    public float AEOWidth;
+    public float AOEWidth;
     public float Damage;
 }

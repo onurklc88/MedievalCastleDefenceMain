@@ -211,7 +211,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         _bloodhandVFX.ActivateAxeTrail(false);
     }
 
-    public override void InterruptBombAction()
+    public override void InterruptEnemyAction()
     {
         if (!_characterMovement.IsInputDisabled) return;
         _isPlayerHoldingBomb = false;

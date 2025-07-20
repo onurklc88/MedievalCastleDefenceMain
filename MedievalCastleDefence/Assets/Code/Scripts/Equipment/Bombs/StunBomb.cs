@@ -39,7 +39,7 @@ public class StunBomb : Bomb
         IsBombReadyToExplode = true;
 
 
-        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, BombProperties.AEOWidth);
+        Collider[] hitColliders = Physics.OverlapSphere(explosionPosition, BombProperties.AOEWidth);
         HashSet<NetworkId> alreadyDamaged = new HashSet<NetworkId>();
 
         foreach (var hitCollider in hitColliders)
