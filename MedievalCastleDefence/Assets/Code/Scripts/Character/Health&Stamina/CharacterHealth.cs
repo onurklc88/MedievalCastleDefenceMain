@@ -6,10 +6,11 @@ using static BehaviourRegistry;
 using Cysharp.Threading.Tasks;
 public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
 {
-    public NetworkBool IsPlayerDead { get; set; }
+    [Networked] public NetworkBool IsPlayerDead { get; set; }
+    [Networked] public float NetworkedHealth { get; set; }
     public bool IsPlayerGotHit { get; private set; }
     private PlayerHUD _playerHUD;
-     [Networked] public float NetworkedHealth { get; set; }
+ 
    [Networked]  public LevelManager.GamePhase CurrentGamePhase { get; set; }
     
     private CharacterAnimationController _characterAnim;
@@ -143,6 +144,8 @@ public class CharacterHealth : CharacterRegistry, IDamageable, IRPCListener
     private static void OnPlayerNetworkHealthChange(Changed<CharacterHealth> changed)
     {
         changed.Behaviour.NetworkedHealth = changed.Behaviour._localHealth;
+        if (changed.Behaviour.NetworkedHealth <= 0)
+            changed.Behaviour.IsPlayerDead = true;
     }
 
     public void UpdateGameState(LevelManager.GamePhase currentGameState)

@@ -108,7 +108,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     }
     private static void NetworkedUpperbodyWalkAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
-        changed.Behaviour._animationController.SetBool("OnPlayerWalk", changed.Behaviour.OnPlayerWalk);
+        //changed.Behaviour._animationController.SetBool("OnPlayerWalk", changed.Behaviour.OnPlayerWalk);
     }
     private static void NetworkedUpperbodyBlockAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
@@ -152,6 +152,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         {
             changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 0);
             changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 1);
+            changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 2);
         }
     }
 

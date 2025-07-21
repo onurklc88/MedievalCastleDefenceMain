@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfa9c0609e0d35a40a2bdae1e85e6512, type: 3}
   m_Name: ExplosiveBomb
   m_EditorClassIdentifier: 
-  AEOWidth: 3
+  AOEWidth: 4
   Damage: 30

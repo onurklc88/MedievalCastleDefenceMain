@@ -26,9 +26,7 @@ public class BloodhandVFXController : PlayerVFXSytem
         IsPlayerSwing = enable;
        
     }
-
-    [Rpc(RpcSources.All, RpcTargets.All)]
-    public async void PlayEarthShatterVFXRpc()
+    public async void PlayEarthShatterVFX()
     {
         var earthVFX = Runner.Spawn(_earthShatterTest, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), transform.rotation, Runner.LocalPlayer);
         await UniTask.Delay(4000);

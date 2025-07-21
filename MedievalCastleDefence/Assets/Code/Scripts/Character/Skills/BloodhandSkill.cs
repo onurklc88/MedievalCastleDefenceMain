@@ -65,7 +65,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
 
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
          //&& CanUseAbility
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && CanUseAbility)
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill))
         {
             CanUseAbility = false;
             _characterMovement.IsInputDisabled = true;
@@ -77,8 +77,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
 
             CastGroundShatterSkill();
             await UniTask.Delay(100);
-
-            _playerVFX.PlayEarthShatterVFXRpc();
+            _playerVFX.PlayEarthShatterVFX();
             EventLibrary.OnImpulseRequested?.Invoke(1, 0.2f);
             await UniTask.Delay(400);
 

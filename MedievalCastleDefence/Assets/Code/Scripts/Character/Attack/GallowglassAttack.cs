@@ -64,10 +64,11 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
 
         bool wasBlocking = IsPlayerBlockingLocal;
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+       // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         UpdateBombVisuals();
-        if (!_isPlayerHoldingBomb && !IsPlayerBlockingLocal && !_isBombThrown && _wasHoldingLastFrame)
+        // && !_isBombThrown
+        if (!_isPlayerHoldingBomb && !IsPlayerBlockingLocal && _wasHoldingLastFrame && !_isBombThrown)
         {
             ThrowBomb();
         }
@@ -95,7 +96,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
         else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && !_bloodhandSkill.IsAbilityInUseLocal)
         {
-            //IsPlayerBlockingLocal = true;
+            IsPlayerBlockingLocal = true;
             // _characterStamina.DecreaseDefenceStaminaRPC(60f);
             // transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
         }
@@ -197,7 +198,8 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
             if (target != null)
             {
-                CheckAttackCollision(target.transform.gameObject);
+                Debug.Log("Obje›smi: " +target.transform.gameObject.name);
+                //CheckAttackCollision(target.transform.gameObject);
                 break;
             }
 
@@ -225,9 +227,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + -transform.right * 0.3f, 0.6f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + -transform.right * 0.7f, 0.6f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * 0.3f, 0.6f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * 0.7f, 0.6f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
     }

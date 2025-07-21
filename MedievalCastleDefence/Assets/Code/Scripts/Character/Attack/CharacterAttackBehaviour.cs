@@ -117,12 +117,14 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     protected void DamageToFootknight()
     {
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
+        if (opponentHealth.IsPlayerDead) return;
+       
         var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentParrying = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
         var isOpponentUseAbility = _opponent.transform.GetComponentInParent<StormShieldSkill>().IsAbilityInUse;
 
         if (isOpponentUseAbility) return;
-
+       
         if (_opponent.gameObject.layer == 11 && isOpponentParrying)
         {
             _opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
@@ -137,6 +139,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     protected void DamageToKnightCommander()
     {
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
+        if (opponentHealth.IsPlayerDead) return;
         var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
         var isOpponentDash = _opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsAbilityInUse;
@@ -158,6 +161,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     protected void DamageToGallowGlass()
     {
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
+        if (opponentHealth.IsPlayerDead) return;
         var opponentStamina = _opponent.transform.GetComponentInParent<CharacterStamina>();
         var isOpponentBlocking = _opponent.transform.GetComponentInParent<CharacterAttackBehaviour>().IsPlayerBlocking;
         var isOpponentUseAbility = _opponent.transform.GetComponentInParent<BloodhandSkill>().IsAbilityInUse;
@@ -180,6 +184,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var isOpponentUseAbility = _opponent.transform.GetComponentInParent<TheSaxonMarkSkill>().IsAbilityInUse;
         if (isOpponentUseAbility) return;
         var opponentHealth = _opponent.transform.GetComponentInParent<CharacterHealth>();
+        if (opponentHealth.IsPlayerDead) return;
         opponentHealth.DealDamageRPC(_weaponStats.Damage, _playerStatsController.PlayerLocalStats.PlayerNickName.ToString(), _playerStatsController.PlayerLocalStats.PlayerWarrior);
         StartCoroutine(VerifyOpponentDeath(opponentHealth));
     }
