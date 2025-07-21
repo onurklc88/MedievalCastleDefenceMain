@@ -64,7 +64,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
 
         bool wasBlocking = IsPlayerBlockingLocal;
-       // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         UpdateBombVisuals();
         // && !_isBombThrown
@@ -96,7 +96,15 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
         else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && !_bloodhandSkill.IsAbilityInUseLocal)
         {
-            IsPlayerBlockingLocal = true;
+           if(IsPlayerBlockingLocal == true)
+            {
+                IsPlayerBlockingLocal = false;
+            }
+            else
+            {
+                IsPlayerBlockingLocal = true;
+            }
+          
             // _characterStamina.DecreaseDefenceStaminaRPC(60f);
             // transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
         }
@@ -180,7 +188,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
     }
     private IEnumerator PerformAttack()
     {
-        base._blockArea.enabled = false;
+        //base._blockArea.enabled = false;
+        //base._testAreas[0].enabled = false;
+        //base._testAreas[1].enabled = false;
         _bloodhandVFX.ActivateAxeTrail(true);
         yield return new WaitForSeconds(0.24f);
 
@@ -189,9 +199,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         while (elapsedTime < 0.5f)
         {
-            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.7f : -0.7f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
-            Collider[] hitColliders = Physics.OverlapSphere(swingDirection, 0.6f, layerMask);
+            Collider[] hitColliders = Physics.OverlapSphere(swingDirection, 0.7f, layerMask);
 
             var target = hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
                          ?? hitColliders.FirstOrDefault();
@@ -199,7 +209,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
             if (target != null)
             {
                 Debug.Log("Obje›smi: " +target.transform.gameObject.name);
-                //CheckAttackCollision(target.transform.gameObject);
+                CheckAttackCollision(target.transform.gameObject);
                 break;
             }
 
@@ -209,7 +219,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        base._blockArea.enabled = true;
+        //base._blockArea.enabled = true;
         _bloodhandVFX.ActivateAxeTrail(false);
     }
 
@@ -227,9 +237,9 @@ public class GallowglassAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + -transform.right * 0.7f, 0.6f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + -transform.right * 0.7f, 0.7f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * 0.7f, 0.6f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.2f + transform.right * 0.7f, 0.7f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
     }

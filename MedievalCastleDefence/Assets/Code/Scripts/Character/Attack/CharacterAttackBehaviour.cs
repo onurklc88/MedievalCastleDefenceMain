@@ -29,6 +29,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     [SerializeField] protected WeaponStats _weaponStats;
     [SerializeField] protected BoxCollider _blockArea;
     [SerializeField] protected GameObject _dummyBomb;
+    [SerializeField] protected BoxCollider [] _blockColliders;
     protected CharacterController _characterController;
     public PlayerStatsController _playerStatsController { get; set; }
     protected CharacterHealth _characterHealth;
@@ -70,7 +71,24 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
     {
         changed.Behaviour.IsPlayerBlocking = changed.Behaviour.IsPlayerBlockingLocal;
         //if (changed.Behaviour._characterStats.WarriorType == CharacterStats.CharacterType.FootKnight) return;
-        changed.Behaviour._blockArea.enabled = changed.Behaviour.IsPlayerBlockingLocal;
+        if(changed.Behaviour.IsPlayerBlocking == true)
+        {
+            if (changed.Behaviour.PlayerSwordPositionLocal == SwordPosition.Right)
+            {
+                changed.Behaviour._blockColliders[0].enabled = true;
+            }
+            else
+            {
+                changed.Behaviour._blockColliders[1].enabled = true;
+            }
+        }
+        else
+        {
+            changed.Behaviour._blockColliders[0].enabled = false;
+            changed.Behaviour._blockColliders[1].enabled = false;
+        }
+       
+       // changed.Behaviour._blockArea.enabled = changed.Behaviour.IsPlayerBlockingLocal;
     }
 
     private static void OnNetworkBlockPositionChanged(Changed<CharacterAttackBehaviour> changed)
@@ -145,8 +163,15 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var isOpponentDash = _opponent.transform.GetComponentInParent<KnightCommanderSkill>().IsAbilityInUse;
         Debug.Log("IsOpponentDash: " + isOpponentDash);
         if (isOpponentDash) return;
-
-        if (_opponent.gameObject.layer == 10 && isOpponentBlocking)
+        if (CalculateAttackPosition(_opponent.GetComponentInParent<Transform>()) > 0)
+        {
+            Debug.Log("Arkadan");
+        }
+        else
+        {
+            Debug.Log("Önden");
+        }
+        if (_opponent.gameObject.layer == 10 && isOpponentBlocking && CalculateAttackPosition(_opponent.GetComponentInParent<Transform>()) > 0)
         {
            opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
            _opponent.transform.GetComponentInParent<IronheartVFXController>().UpdateParryVFXRpc();
@@ -167,7 +192,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         var isOpponentUseAbility = _opponent.transform.GetComponentInParent<BloodhandSkill>().IsAbilityInUse;
         //Debug.Log("Ýs OpponentBlocking: " + isOpponentBlocking + " oppponent block area active?: " + opponent.transform.GetComponentInParent<CharacterAttackBehaviour>()._blockArea.enabled.ToString() + " oppponent sword position " + opponentSwordPosition);
         if (isOpponentUseAbility) return;
-        if (_opponent.gameObject.layer == 10 && isOpponentBlocking)
+       
+        if (_opponent.gameObject.layer == 10 && isOpponentBlocking && CalculateAttackPosition(_opponent.GetComponentInParent<Transform>()) > 0)
         {
             _opponent.transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);

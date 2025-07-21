@@ -67,7 +67,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
         if (!IsPlayerBlocking && _playerHUD != null) _playerHUD.HandleArrowImages(GetSwordPosition());
        
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
       
       
         if (!IsPlayerBlockingLocal) PlayerSwordPositionLocal = base.GetSwordPosition();
@@ -94,6 +94,14 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
             //_bloodDecals.EnableRandomBloodDecal();
             //IsPlayerBlockingLocal = true;
             //_ragdollManager.RPCActivateRagdoll();
+            if (IsPlayerBlockingLocal == true)
+            {
+                IsPlayerBlockingLocal = false;
+            }
+            else
+            {
+                IsPlayerBlockingLocal = true;
+            }
         }
 
        
@@ -183,9 +191,9 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         while (elapsedTime < 0.4f)
         {
            
-            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.3f : -0.3f);
+            Vector3 swingDirection = transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * (GetSwordPosition() == SwordPosition.Right ? 0.68f : -0.68f);
             int layerMask = ~LayerMask.GetMask("Ragdoll");
-            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.5f, layerMask);
+            Collider[] _hitColliders = Physics.OverlapSphere(swingDirection, 0.6f, layerMask);
 
             var target = _hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
                          ?? _hitColliders.FirstOrDefault();
@@ -233,9 +241,9 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.1f + -transform.right * 0.3f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.1f + -transform.right * 0.68f, 0.6f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * 0.3f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1.2f + transform.forward * 1.1f + transform.right * 0.68f, 0.6f);
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + transform.up * 1.2f, transform.forward * 1.5f);
 
