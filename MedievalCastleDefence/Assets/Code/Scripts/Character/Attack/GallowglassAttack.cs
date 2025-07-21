@@ -96,6 +96,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
         else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && !_bloodhandSkill.IsAbilityInUseLocal)
         {
+            /*
            if(IsPlayerBlockingLocal == true)
             {
                 IsPlayerBlockingLocal = false;
@@ -104,7 +105,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
             {
                 IsPlayerBlockingLocal = true;
             }
-          
+          */
             // _characterStamina.DecreaseDefenceStaminaRPC(60f);
             // transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
         }

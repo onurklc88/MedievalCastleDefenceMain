@@ -260,5 +260,10 @@ public class PlayerHUD : CharacterRegistry, IRPCListener, IReadInput
         if (_playerStatsController.PlayerNetworkStats.PlayerWarrior != CharacterStats.CharacterType.KnightCommander) return;
         _chargeTxt.text = count.ToString();
     }
+
+    public void UpdateArrowType(string arrowType)
+    {
+        _stateTest.text = arrowType;
+    }
 }
 

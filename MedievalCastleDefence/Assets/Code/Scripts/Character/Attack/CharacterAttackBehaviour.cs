@@ -27,7 +27,6 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         Backward
     }
     [SerializeField] protected WeaponStats _weaponStats;
-    [SerializeField] protected BoxCollider _blockArea;
     [SerializeField] protected GameObject _dummyBomb;
     [SerializeField] protected BoxCollider [] _blockColliders;
     protected CharacterController _characterController;
@@ -84,8 +83,8 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         }
         else
         {
-            changed.Behaviour._blockColliders[0].enabled = false;
-            changed.Behaviour._blockColliders[1].enabled = false;
+            for(int i = 0; i < changed.Behaviour._blockColliders.Length; i++)
+                changed.Behaviour._blockColliders[i].enabled = false;
         }
        
        // changed.Behaviour._blockArea.enabled = changed.Behaviour.IsPlayerBlockingLocal;
@@ -143,7 +142,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
 
         if (isOpponentUseAbility) return;
        
-        if (_opponent.gameObject.layer == 11 && isOpponentParrying)
+        if (_opponent.gameObject.layer == 11 && isOpponentParrying && CalculateAttackPosition(_opponent.GetComponentInParent<Transform>()) > 0)
         {
             _opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);

@@ -15,5 +15,5 @@ MonoBehaviour:
   TimeBetweenSwings: 1
   Damage: 45
   StaminaWaste: 20
-  WeaponStaminaReductionOnParry: 30
+  WeaponStaminaReductionOnParry: 12
   SkillCooldown: 0

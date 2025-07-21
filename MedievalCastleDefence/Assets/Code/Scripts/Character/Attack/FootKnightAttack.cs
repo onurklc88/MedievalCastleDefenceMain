@@ -25,6 +25,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         _shieldRigidbody.mass = 0;
         InitScript(this);
        _animation = transform.GetComponent<FootknightAnimation>();
+        base.PlayerSwordPositionLocal = SwordPosition.Right;
     }
     private void Start()
     {
@@ -60,6 +61,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
+        Debug.Log("Test: " + base.PlayerSwordPositionLocal);
         if (_characterMovement != null && _characterMovement.IsInputDisabled)
         {
             IsPlayerBlockingLocal = false;
@@ -68,7 +70,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
         IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
-        //IsPlayerBlockingLocal = true;
+         
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         _swordInput = _isPlayerHoldingBomb;
         //UpdateBombVisuals();
@@ -192,7 +194,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     private IEnumerator PerformAttack()
     {
 
-       _blockArea.enabled = false;
+        _blockColliders[0].enabled = false;
         yield return new WaitForSeconds(0.10f);
         float elapsedTime = 0f;
         while (elapsedTime < 0.4f)
@@ -204,7 +206,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             var target = _hitColliders.FirstOrDefault(c => c.gameObject.layer == 10 || c.gameObject.layer == 11)
                          ?? _hitColliders.FirstOrDefault();
 
-            
+
             if (target != null)
             {
                 Debug.LogError("ATTACKCLASS_________________GameObjectName: " + target.transform.gameObject.name + " GameObjectLayer: " + target.transform.gameObject.layer);
@@ -217,7 +219,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
         }
 
         yield return new WaitForSeconds(0.2f);
-       _blockArea.enabled = true;
+        _blockColliders[0].enabled = true;
     }
 
 

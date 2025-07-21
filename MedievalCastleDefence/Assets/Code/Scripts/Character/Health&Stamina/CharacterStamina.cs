@@ -136,7 +136,7 @@ public class CharacterStamina : CharacterRegistry
             _characterAnim.UpdateDamageAnimationState(); 
        Debug.Log("CurrentDefenceStamina: " + CurrentDefenceStamina);
       
-        if (CurrentDefenceStamina < _characterStats.KnockbackStaminaLimit)
+        if (CurrentDefenceStamina <= _characterStats.KnockbackStaminaLimit)
         {
             //_characterAnim.UpdateStunAnimationState(3);
             StunPlayerRpc(3);
@@ -178,7 +178,7 @@ public class CharacterStamina : CharacterRegistry
         {
             CanDefenceStaminaRegenerating = false;
         }
-        yield return new WaitForSeconds(3.5f);
+        yield return new WaitForSeconds(10f);
         CanDefenceStaminaRegenerating = true;
 
     }

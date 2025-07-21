@@ -138,6 +138,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         if (changed.Behaviour.IsPlayerGetDamage == true && changed.Behaviour.IsPlayerHoldingBomb) return;
         {
+            //changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 2);
             changed.Behaviour._animationController.Play("Gallowglass-Damage");
         }
     }
@@ -168,6 +169,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     private static void NetworkParryAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
         if (changed.Behaviour.IsPlayerParry == false) return;
+           changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 2);
         if (changed.Behaviour.BlockIndex == 1)
             changed.Behaviour._animationController.Play("Gallowglass-RightParry");
         else
