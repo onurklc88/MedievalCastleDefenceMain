@@ -65,7 +65,7 @@ public class BloodhandSkill : CharacterRegistry, IReadInput, IAbility
 
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
          //&& CanUseAbility
-        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill))
+        if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && CanUseAbility)
         {
             CanUseAbility = false;
             _characterMovement.IsInputDisabled = true;

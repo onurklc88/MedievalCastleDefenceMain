@@ -250,9 +250,6 @@ AnimatorStateTransition:
   - m_ConditionMode: 3
     m_ConditionEvent: BlockIndex
     m_EventTreshold: 0
-  - m_ConditionMode: 1
-    m_ConditionEvent: IsPlayerKick
-    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -1189327965697075374}
   m_Solo: 0
@@ -1648,9 +1645,6 @@ AnimatorStateTransition:
   - m_ConditionMode: 3
     m_ConditionEvent: BlockIndex
     m_EventTreshold: 0
-  - m_ConditionMode: 1
-    m_ConditionEvent: IsPlayerKick
-    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -1189327965697075374}
   m_Solo: 0
@@ -1769,9 +1763,6 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 3
     m_ConditionEvent: BlockIndex
-    m_EventTreshold: 0
-  - m_ConditionMode: 1
-    m_ConditionEvent: IsPlayerKick
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -1189327965697075374}
