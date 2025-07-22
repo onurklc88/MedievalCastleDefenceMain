@@ -42,6 +42,7 @@ public class CharacterCameraController : CharacterRegistry, IReadInput
             _uiCamera.enabled = true;
             _cinemachineCamera.Follow = _cameraTargetPoint;
             _cinemachineCamera.LookAt = _cameraLookAtTarget;
+            _cinemachineCamera.m_Lens.FieldOfView = 60f;
             _currentMouseSpeed = _defaultMouseSpeed;
             InitScript(this);
         }

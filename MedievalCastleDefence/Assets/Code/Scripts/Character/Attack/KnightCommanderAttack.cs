@@ -17,7 +17,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
     [SerializeField] private RPCDebugger _debugger;
     [SerializeField] private GameObject test;
 
-    private BloodDecals _bloodDecals;
     public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
@@ -32,7 +31,6 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
         _playerHUD = GetScript<PlayerHUD>();
         _characterStamina = GetScript<CharacterStamina>();
         _characterMovement = GetScript<CharacterMovement>();
-        _bloodDecals = GetScript<BloodDecals>();
         _playerVFXSystem = GetScript<IronheartVFXController>();
         _playerStatsController = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
@@ -89,6 +87,7 @@ public class KnightCommanderAttack : CharacterAttackBehaviour
 
         if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UltimateSkill) && AttackCooldown.ExpiredOrNotRunning(Runner))
         {
+            _knightCommanderAnimation.UpdateDamageAnimationState();
             //_isPlayerHoldingBomb = true;
             //_characterStamina.DecreaseDefenceStaminaRPC(28f);
             //_bloodDecals.EnableRandomBloodDecal();

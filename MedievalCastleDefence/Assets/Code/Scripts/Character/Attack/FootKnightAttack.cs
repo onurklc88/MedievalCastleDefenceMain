@@ -61,7 +61,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
     public override void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority) return;
-        Debug.Log("Test: " + base.PlayerSwordPositionLocal);
+      
         if (_characterMovement != null && _characterMovement.IsInputDisabled)
         {
             IsPlayerBlockingLocal = false;
@@ -69,7 +69,7 @@ public class FootKnightAttack : CharacterAttackBehaviour
             return;
         }
         var attackButton = input.NetworkButtons.GetPressed(PreviousButton);
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+       // IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
          
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         _swordInput = _isPlayerHoldingBomb;
@@ -116,11 +116,22 @@ public class FootKnightAttack : CharacterAttackBehaviour
         {
             //_characterStamina.DecreaseDefenceStaminaRPC(50f);
             //transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
-           // IsPlayerBlockingLocal = true;
+            // IsPlayerBlockingLocal = true;
             //_activeRagdoll.RPCActivateRagdoll();
+            _animation.UpdateDamageAnimationState();
+            /*
+            if (IsPlayerBlockingLocal == true)
+           {
+               IsPlayerBlockingLocal = false;
+           }
+           else
+           {
+               IsPlayerBlockingLocal = true;
+           }
+           */
         }
 
-        
+
 
         PreviousButton = input.NetworkButtons;
     }

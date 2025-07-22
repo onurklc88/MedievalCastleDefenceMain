@@ -168,6 +168,7 @@ public class FootknightAnimation : CharacterAnimationController, IReadInput
 
    public override void UpdateDamageAnimationState()
    {
+        Debug.Log("girdi");
        StartCoroutine(WaitDamageAnimation());
    }
     public override void UpdateSwingAnimationState(bool state)

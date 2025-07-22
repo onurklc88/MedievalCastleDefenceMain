@@ -52,6 +52,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _currentStunArrowAmount = DEFAULT_STUN_ARROW_AMOUNT;
         _currentSmokeArrowAmount = DEFAULT_SMOKE_ARROW_AMOUNT;
         _selectedArrowType = ArrowType.Standart;
+      
     }
     private void Start()
     {
@@ -65,6 +66,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         _characterCollision = GetScript<CharacterCollision>();
         _playerStats = GetScript<PlayerStatsController>();
         _characterHealth = GetScript<CharacterHealth>();
+        _playerHUD.UpdateArrowType(_selectedArrowType.ToString());
     }
   
 
@@ -175,7 +177,7 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
         {
             _selectedArrowType = ArrowType.Standart;
         }
-
+        _playerHUD.UpdateArrowType(_selectedArrowType.ToString());
         Debug.Log("SelectedArrowType: " + _selectedArrowType);
     }
 
@@ -241,7 +243,6 @@ public class ArcheryAttack : CharacterAttackBehaviour, IReadInput
             if (_drawDuration > 0)
             {
                 _drawDuration -= Runner.DeltaTime;
-              
             }
         }
         else
