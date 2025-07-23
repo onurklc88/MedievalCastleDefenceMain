@@ -21,6 +21,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
     [Networked(OnChanged = nameof(NetworkedThrowingBombAnimationStateChange))] public NetworkBool IsPlayerHoldingBomb { get; set; }
     [Networked(OnChanged = nameof(NetworkUpperbodyLeaningStateChange))] public float LeanDirection { get; set; }
+    [Networked(OnChanged = nameof(NetworkUpperbodyVerticalStateChange))] public float VerticalDirection { get; set; }
     
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
@@ -50,18 +51,31 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     }
     [SerializeField] private float _leanSmoothTime = 0.1f; // Inspector'dan ayarla (0.05-0.2 arasý)
     private float _currentLeanVelocity;
-
+    [SerializeField] private float _smoothTime = 0.05f; // Geçiþ süresi (sn)
+    private float _verticalDirectionVelocity; // Ref velocity for SmoothDamp
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
         if (_characterMovement.IsInputDisabled) return;
 
         OnPlayerWalk = input.VerticalInput != 0 || input.HorizontalInput != 0;
-
+       
         if (input.VerticalInput != 0)
             PlayerVerticalDirection = input.VerticalInput;
         else
             PlayerVerticalDirection = 0;
+
+        // 1. Hedef deðeri belirle (-1, 0 veya +1)
+        float targetDirection = input.VerticalInput; 
+
+        // 2. Smooth geçiþ uygula
+        VerticalDirection = Mathf.SmoothDamp(
+            current: VerticalDirection,
+            target: targetDirection,
+            currentVelocity: ref _verticalDirectionVelocity,
+            smoothTime: _smoothTime
+        );
+      
 
         if (Mathf.Abs(input.HorizontalInput) < 0.05f)
             PlayerHorizontalDirection = 0;
@@ -98,6 +112,11 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     private static void NetworkUpperbodyLeaningStateChange(Changed<KnightCommanderAnimation> changed)
     {
         changed.Behaviour._animationController.SetFloat("LeanDirection", changed.Behaviour.LeanDirection);
+    }
+
+    private static void NetworkUpperbodyVerticalStateChange(Changed<KnightCommanderAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetFloat("VerticalDirection", changed.Behaviour.VerticalDirection);
     }
     private static void NetworkVerticalAnimationStateChanged(Changed<KnightCommanderAnimation> changed)
     {
