@@ -27,8 +27,6 @@ public class RangerAnimationRigging : CharacterRegistry
         {
             InitScript(this);
         }
-
-
     }
     public override void FixedUpdateNetwork()
     {

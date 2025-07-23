@@ -20,9 +20,11 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkAttackAnimationStateChange))] public int SwingIndex { get; set; }
     [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
     [Networked(OnChanged = nameof(NetworkedThrowingBombAnimationStateChange))] public NetworkBool IsPlayerHoldingBomb { get; set; }
+    [Networked(OnChanged = nameof(NetworkUpperbodyLeaningStateChange))] public float LeanDirection { get; set; }
     
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
+    private CharacterAttackBehaviour _kcAttack;
     //Bunu networked yapmak lazým
     private CharacterAttackBehaviour.AttackDirection _opponentAttackDirection;
     public override void Spawned()
@@ -36,6 +38,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
     {
         if (!Object.HasStateAuthority) return;
         _characterMovement = GetScript<CharacterMovement>();
+        _kcAttack = GetScript<KnightCommanderAttack>();
     }
 
     public override void FixedUpdateNetwork()
@@ -45,7 +48,9 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
             ReadPlayerInputs(input);
         }
     }
-   
+    [SerializeField] private float _leanSmoothTime = 0.1f; // Inspector'dan ayarla (0.05-0.2 arasý)
+    private float _currentLeanVelocity;
+
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
@@ -63,7 +68,19 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         else
             PlayerHorizontalDirection = input.HorizontalInput;
 
+        UpperBodyLeaning();
+
         PreviousButton = input.NetworkButtons;
+    }
+
+    private void UpperBodyLeaning()
+    {
+        if (_kcAttack.IsPlayerBlockingLocal == true || _characterMovement.IsInputDisabled) return;
+        float target = (_kcAttack.PlayerSwordPositionLocal == CharacterAttackBehaviour.SwordPosition.Right) ? 1f : -1f;
+        float current = _animationController.GetFloat("LeanDirection");
+        float smoothed = Mathf.SmoothDamp(current, target, ref _currentLeanVelocity, _leanSmoothTime);
+        LeanDirection = smoothed;
+        //_animationController.SetFloat("LeanDirection", smoothed);
     }
     private static void NetworkHorizontalWalkAnimationStateChanged(Changed<KnightCommanderAnimation> changed)
     {
@@ -77,6 +94,10 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
             changed.Behaviour._animationController.speed = 1f;
         
 
+    }
+    private static void NetworkUpperbodyLeaningStateChange(Changed<KnightCommanderAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetFloat("LeanDirection", changed.Behaviour.LeanDirection);
     }
     private static void NetworkVerticalAnimationStateChanged(Changed<KnightCommanderAnimation> changed)
     {
