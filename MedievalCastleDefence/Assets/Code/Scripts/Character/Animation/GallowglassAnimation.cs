@@ -23,9 +23,14 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     [Networked(OnChanged = nameof(NetworkStunExitTransitionChange))] public NetworkBool CanStunExit { get; set; }
     [Networked(OnChanged = nameof(NetworkUpperbodyLeaningStateChange))] public float LeanDirection { get; set; }
     [Networked(OnChanged = nameof(NetworkedThrowingBombAnimationStateChange))] public NetworkBool IsPlayerHoldingBomb { get; set; }
+    [Networked(OnChanged = nameof(NetworkUpperbodyVerticalStateChange))] public float VerticalDirection { get; set; }
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
     private GallowglassAttack _gallowAttack;
+    [SerializeField] private float _leanSmoothTime = 0.2f;
+    private float _currentLeanVelocity;
+
+    private float _verticalDirectionVelocity;
     public Animator BloodHandAnimator { get; private set; }
     public override void Spawned()
     {
@@ -39,6 +44,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         if (!Object.HasStateAuthority) return;
         _characterMovement = GetScript<CharacterMovement>();
         _gallowAttack = GetScript<GallowglassAttack>();
+        _animationController.SetLayerWeight(4, 0.35f);
     }
     public override void FixedUpdateNetwork()
     {
@@ -47,17 +53,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
             ReadPlayerInputs(input);
         }
     }
-    [SerializeField] private float _leanSmoothTime = 0.1f; // Inspector'dan ayarla (0.05-0.2 arasý)
-    private float _currentLeanVelocity;
-    private void UpperBodyLeaning()
-    {
-        if (_gallowAttack.IsPlayerBlockingLocal == true || _characterMovement.IsInputDisabled) return;
-        float target = (_gallowAttack.PlayerSwordPositionLocal == CharacterAttackBehaviour.SwordPosition.Right) ? 1f : -1f;
-        float current = _animationController.GetFloat("LeanDirection");
-        float smoothed = Mathf.SmoothDamp(current, target, ref _currentLeanVelocity, _leanSmoothTime);
-        LeanDirection = smoothed;
-        //_animationController.SetFloat("LeanDirection", smoothed);
-    }
+   
     public void ReadPlayerInputs(PlayerInputData input)
     {
         if (!Object.HasStateAuthority || _characterMovement == null) return;
@@ -72,6 +68,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
             OnPlayerWalk = false;
         }
 
+        
         if (input.VerticalInput != 0)
         {
             PlayerVerticalDirection = input.VerticalInput;
@@ -81,7 +78,13 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         {
             PlayerVerticalDirection = 0;
         }
-
+        
+        VerticalDirection = Mathf.SmoothDamp(
+           current: VerticalDirection,
+           target: input.VerticalInput,
+           currentVelocity: ref _verticalDirectionVelocity,
+           smoothTime: 0.2f
+       );
         if (input.HorizontalInput != 0)
         {
             PlayerHorizontalDirection = input.HorizontalInput;
@@ -93,6 +96,19 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         UpperBodyLeaning();
 
         PreviousButton = input.NetworkButtons;
+    }
+    private void UpperBodyLeaning()
+    {
+        if (_gallowAttack.IsPlayerBlockingLocal == true || _characterMovement.IsInputDisabled) return;
+        float target = (_gallowAttack.PlayerSwordPositionLocal == CharacterAttackBehaviour.SwordPosition.Right) ? 1f : -1f;
+        float current = _animationController.GetFloat("LeanDirection");
+        float smoothed = Mathf.SmoothDamp(current, target, ref _currentLeanVelocity, _leanSmoothTime);
+        LeanDirection = smoothed;
+        //_animationController.SetFloat("LeanDirection", smoothed);
+    }
+    private static void NetworkUpperbodyVerticalStateChange(Changed<GallowglassAnimation> changed)
+    {
+        changed.Behaviour._animationController.SetFloat("VerticalDirection", changed.Behaviour.VerticalDirection);
     }
     private static void NetworkUpperbodyLeaningStateChange(Changed<GallowglassAnimation> changed)
     {
