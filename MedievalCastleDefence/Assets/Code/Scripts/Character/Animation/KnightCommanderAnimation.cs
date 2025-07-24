@@ -40,6 +40,7 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         if (!Object.HasStateAuthority) return;
         _characterMovement = GetScript<CharacterMovement>();
         _kcAttack = GetScript<KnightCommanderAttack>();
+        _animationController.SetLayerWeight(3, 0.25f);
     }
 
     public override void FixedUpdateNetwork()
@@ -65,10 +66,10 @@ public class KnightCommanderAnimation : CharacterAnimationController, IReadInput
         else
             PlayerVerticalDirection = 0;
 
-        // 1. Hedef deðeri belirle (-1, 0 veya +1)
+        
         float targetDirection = input.VerticalInput; 
 
-        // 2. Smooth geçiþ uygula
+      
         VerticalDirection = Mathf.SmoothDamp(
             current: VerticalDirection,
             target: targetDirection,
