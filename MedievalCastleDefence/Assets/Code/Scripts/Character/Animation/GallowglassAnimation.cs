@@ -27,7 +27,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     public NetworkButtons PreviousButton { get; set; }
     private CharacterMovement _characterMovement;
     private GallowglassAttack _gallowAttack;
-    [SerializeField] private float _leanSmoothTime = 0.2f;
+    [SerializeField] private float _leanSmoothTime = 0.5f;
     private float _currentLeanVelocity;
 
     private float _verticalDirectionVelocity;
@@ -113,6 +113,13 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     private static void NetworkUpperbodyLeaningStateChange(Changed<GallowglassAnimation> changed)
     {
         changed.Behaviour._animationController.SetFloat("LeanDirection", changed.Behaviour.LeanDirection);
+        /*
+        if(changed.Behaviour.LeanDirection < -0.05f)
+        {
+           
+            changed.Behaviour._animationController.CrossFade("GG_LS", 0.3f);
+        }
+        */
     }
     private static void NetworkHorizontalWalkAnimationStateChanged(Changed<GallowglassAnimation> changed)
     {
@@ -155,18 +162,48 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     }
     private static void NetworkAttackAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
-       
+        changed.Behaviour._animationController.SetInteger("SwingIndex", changed.Behaviour.SwingIndex);
+        
         if (changed.Behaviour.SwingIndex == 1)
         {
             changed.Behaviour._animationController.CrossFade("Gallowglass-RightSwing", 0.1f);
         }
         else if (changed.Behaviour.SwingIndex == 2)
         {
+            changed.Behaviour._animationController.SetLayerWeight(5, 0f);
             changed.Behaviour._animationController.CrossFade("Gallowglass-LeftSwing", 0.2f);
         }
-
+        else
+        {
+          
+            if (changed.Behaviour.HasStateAuthority)
+            {
+                changed.Behaviour.StartCoroutine(DelayedWeightChange(changed.Behaviour, 0.5f));
+            }
+        }
+    }
+    private static IEnumerator DelayedWeightChange(GallowglassAnimation behaviour, float duration)
+    {
+        yield return new WaitForSeconds(duration); 
+        behaviour._animationController.SetLayerWeight(5, 0.47f);
+        behaviour._animationController.Play("CleanState", 5);
+        behaviour.RPC_SyncLayerWeight(5, 0.47f); 
     }
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SyncLayerWeight(int layerIndex, float weight) // ! async YOK
+    {
+        _animationController.SetLayerWeight(layerIndex, weight);
+    }
+    /*
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private async void RPC_SyncLayerWeight(int layerIndex, float weight)
+    {
+        await UniTask.Delay(500);
+        _animationController.SetLayerWeight(layerIndex, weight);
+
+    }
+    */
     private static void NetworkedDamageAnimationStateChange(Changed<GallowglassAnimation> changed)
     {
         if (changed.Behaviour.IsPlayerGetDamage == true && changed.Behaviour.IsPlayerHoldingBomb) return;
@@ -184,9 +221,14 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
     {
         if(changed.Behaviour.IsPlayerUseAbility == true)
         {
+            changed.Behaviour._animationController.SetLayerWeight(5, 0f);
             changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 0);
             changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 1);
             changed.Behaviour._animationController.Play("GallowGlass-Ultimate", 2);
+            if (changed.Behaviour.HasStateAuthority)
+            {
+                changed.Behaviour.StartCoroutine(DelayedWeightChange(changed.Behaviour, 1.2f));
+            }
         }
     }
 
