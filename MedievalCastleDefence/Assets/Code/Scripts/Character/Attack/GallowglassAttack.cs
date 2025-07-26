@@ -64,7 +64,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
 
 
         bool wasBlocking = IsPlayerBlockingLocal;
-        IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
+        //IsPlayerBlockingLocal = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Mouse1);
         _isPlayerHoldingBomb = input.NetworkButtons.IsSet(LocalInputPoller.PlayerInputButtons.Throwable);
         UpdateBombVisuals();
         // && !_isBombThrown
@@ -96,7 +96,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
         }
         else if (attackButton.WasPressed(PreviousButton, LocalInputPoller.PlayerInputButtons.UtilitySkill) && !_bloodhandSkill.IsAbilityInUseLocal)
         {
-            /*
+            
            if(IsPlayerBlockingLocal == true)
             {
                 IsPlayerBlockingLocal = false;
@@ -105,7 +105,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
             {
                 IsPlayerBlockingLocal = true;
             }
-          */
+          
             // _characterStamina.DecreaseDefenceStaminaRPC(60f);
             // transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
         }
@@ -164,7 +164,15 @@ public class GallowglassAttack : CharacterAttackBehaviour
         AttackCooldown = TickTimer.CreateFromSeconds(Runner, 1f);
         _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
         _gallowGlassAnimation.UpdateAttackAnimState(((int)base.GetSwordPosition() == 0 ? 2 : (int)base.GetSwordPosition()));
-        StartCoroutine(PerformAttack());
+        if(base.GetSwordPosition() == SwordPosition.Right)
+        {
+            StartCoroutine(PerformAttack(0.24f));
+        }
+        else
+        {
+            StartCoroutine(PerformAttack(0f));
+        }
+      
     }
 
     protected override void ThrowBomb()
@@ -187,7 +195,7 @@ public class GallowglassAttack : CharacterAttackBehaviour
        _isBombThrown = true;
         StartCoroutine(ResetBombStateAfterDelay(20f));
     }
-    private IEnumerator PerformAttack()
+    private IEnumerator PerformAttack(float duration)
     {
         //base._blockArea.enabled = false;
         //base._testAreas[0].enabled = false;

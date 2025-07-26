@@ -144,6 +144,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
        
         if (_opponent.gameObject.layer == 11 && isOpponentParrying && CalculateAttackPosition(_opponent.GetComponentInParent<Transform>()) > 0)
         {
+            _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
             _opponent.transform.GetComponentInParent<StormshieldVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
@@ -172,6 +173,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
         }
         if (_opponent.gameObject.layer == 10 && isOpponentBlocking && CalculateAttackPosition(_opponent.GetComponentInParent<Transform>()) > 0)
         {
+            _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
            opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
            _opponent.transform.GetComponentInParent<IronheartVFXController>().UpdateParryVFXRpc();
         }
@@ -194,6 +196,7 @@ public class CharacterAttackBehaviour : CharacterRegistry, IReadInput, IRPCListe
        
         if (_opponent.gameObject.layer == 10 && isOpponentBlocking && CalculateAttackPosition(_opponent.GetComponentInParent<Transform>()) > 0)
         {
+            _characterStamina.DecreaseCharacterAttackStamina(_weaponStats.StaminaWaste);
             _opponent.transform.GetComponentInParent<BloodhandVFXController>().UpdateParryVFXRpc();
             opponentStamina.DecreaseDefenceStaminaRPC(_weaponStats.WeaponStaminaReductionOnParry);
         }
