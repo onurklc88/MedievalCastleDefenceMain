@@ -171,7 +171,7 @@ public class GallowglassAnimation : CharacterAnimationController, IReadInput
         else if (changed.Behaviour.SwingIndex == 2)
         {
             changed.Behaviour._animationController.SetLayerWeight(5, 0f);
-            changed.Behaviour._animationController.CrossFade("Gallowglass-LeftSwing", 0.2f);
+            changed.Behaviour._animationController.CrossFade("Gallowglass-LeftSwing", 0f);
         }
         else
         {
